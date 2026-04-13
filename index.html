@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Pools DeFi - Análise Profissional com Links Diretos</title>
+    <title>Top Pools DeFi - Análise Profissional</title>
     <style>
         * {
             margin: 0;
@@ -143,6 +143,49 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        /* Info dos Modos */
+        .mode-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .mode-info h3 {
+            color: #3b82f6;
+            margin-bottom: 12px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
+        .mode-item {
+            background: rgba(15, 23, 42, 0.4);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid;
+        }
+
+        .mode-item.auto { border-left-color: #fbbf24; }
+        .mode-item.manual { border-left-color: #94a3b8; }
+        .mode-item.highapr { border-left-color: #f97316; }
+
+        .mode-item strong {
+            color: #e2e8f0;
+            display: block;
+            margin-bottom: 4px;
         }
 
         /* Filtros */
@@ -622,6 +665,10 @@
                 overflow-x: auto;
                 flex-wrap: nowrap;
             }
+
+            .mode-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -658,6 +705,28 @@
         <div class="alert-banner">
             <span>⚠️</span>
             <span>Os valores de APR são atualizados dinamicamente. Sempre analise volume e liquidez.</span>
+        </div>
+
+        <!-- Info dos Modos -->
+        <div class="mode-info">
+            <h3>📖 Como funcionam os modos de exibição:</h3>
+            <div class="mode-grid">
+                <div class="mode-item auto">
+                    <strong>🤖 Automático (Score)</strong>
+                    Ordena pelo score geral (30% APR + 40% eficiência + 30% liquidez). 
+                    Ideal para encontrar pools equilibradas e sustentáveis.
+                </div>
+                <div class="mode-item manual">
+                    <strong>👆 Manual</strong>
+                    Exibe todas as pools sem ordenação específica. 
+                    Permite visualização completa dos dados brutos.
+                </div>
+                <div class="mode-item highapr">
+                    <strong>🔥 APR Altos</strong>
+                    Ordena por maior APR primeiro. 
+                    Foco em maximizar retorno (maior risco). Recomendado para traders experientes.
+                </div>
+            </div>
         </div>
 
         <!-- Filtros -->
@@ -1118,7 +1187,7 @@
             return { pools: finais.slice(0, min), level: 3 };
         }
 
-        // Selecionar top 5 por categoria com fallback
+        // Selecionar top 5 por categoria com fallback e distribuição flexível (OPÇÃO B)
         function selectTop5(category) {
             const categoryPools = allPools.filter(p => p.category === category);
             
@@ -1132,21 +1201,39 @@
             const resultado = garantirMinimo(selecionadas, 5);
             selecionadas = resultado.pools;
 
-            // Classificar por risco e selecionar: 1🔴 + 2🟡 + 2🟢
-            const highRisk = selecionadas.filter(p => p.riskLevel === 'high');
-            const mediumRisk = selecionadas.filter(p => p.riskLevel === 'medium');
-            const lowRisk = selecionadas.filter(p => p.riskLevel === 'low');
+            // Classificar por risco
+            const highRisk = selecionadas.filter(p => p.riskLevel === 'high').sort((a, b) => b.score - a.score);
+            const mediumRisk = selecionadas.filter(p => p.riskLevel === 'medium').sort((a, b) => b.score - a.score);
+            const lowRisk = selecionadas.filter(p => p.riskLevel === 'low').sort((a, b) => b.score - a.score);
 
-            const final = [
-                highRisk[0],
-                mediumRisk[0],
-                mediumRisk[1],
-                lowRisk[0],
-                lowRisk[1]
-            ].filter(Boolean);
+            // Distribuição flexível (OPÇÃO B): tenta 1🔴 + 2🟡 + 2🟢, mas completa com o que tiver
+            const final = [];
+            
+            // Tenta pegar 1 alta
+            if (highRisk.length > 0) final.push(highRisk[0]);
+            
+            // Tenta pegar 2 médias
+            mediumRisk.slice(0, 2).forEach(p => final.push(p));
+            
+            // Tenta pegar 2 baixas
+            lowRisk.slice(0, 2).forEach(p => final.push(p));
+            
+            // Se não completou 5, preenche com as próximas disponíveis (por APR mais próximo)
+            if (final.length < 5) {
+                const restantes = selecionadas.filter(p => !final.includes(p))
+                    .sort((a, b) => {
+                        // Ordena por proximidade do APR médio das já selecionadas
+                        const avgAPR = final.reduce((sum, p) => sum + p.apr, 0) / final.length;
+                        return Math.abs(a.apr - avgAPR) - Math.abs(b.apr - avgAPR);
+                    });
+                
+                while (final.length < 5 && restantes.length > 0) {
+                    final.push(restantes.shift());
+                }
+            }
 
             return {
-                pools: final.sort((a, b) => b.apr - a.apr),
+                pools: final.slice(0, 5).sort((a, b) => b.apr - a.apr),
                 fallbackLevel: resultado.level
             };
         }
