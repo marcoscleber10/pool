@@ -75,6 +75,19 @@
             padding: 12px 16px; border-radius: 8px; margin-bottom: 20px;
             font-size: 13px; color: #f87171; display: flex; align-items: center; gap: 8px;
         }
+        .error-banner {
+            background: rgba(239, 68, 68, 0.15); border: 2px solid #ef4444;
+            padding: 20px; border-radius: 12px; margin-bottom: 20px;
+            text-align: center;
+        }
+        .error-banner h3 { color: #ef4444; margin-bottom: 10px; font-size: 18px; }
+        .error-banner p { color: #fca5a5; margin-bottom: 16px; font-size: 14px; }
+        .error-banner button {
+            padding: 10px 24px; background: #ef4444; color: white;
+            border: none; border-radius: 8px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .error-banner button:hover { background: #dc2626; transform: translateY(-2px); }
 
         /* Info dos Modos */
         .mode-info {
@@ -339,6 +352,14 @@
             text-align: center; padding: 40px 20px; color: #94a3b8;
         }
         .cache-indicator { font-size: 11px; color: #64748b; margin-left: 8px; }
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 20px; font-size: 12px;
+            background: rgba(16, 185, 129, 0.15); color: #10b981;
+        }
+        .status-badge.error {
+            background: rgba(239, 68, 68, 0.15); color: #ef4444;
+        }
 
         @media (max-width: 768px) {
             .filters-grid { grid-template-columns: 1fr; }
@@ -379,7 +400,7 @@
                 <span>🕐 Última: <strong id="lastUpdate">--:--:--</strong></span>
                 <span>⏱️ Próxima: <strong id="nextUpdate">15:00</strong></span>
                 <span>📊 Total: <strong id="totalPools">0</strong> pools</span>
-                <span class="cache-indicator" id="cacheIndicator"></span>
+                <span id="statusBadge" class="status-badge">🔄 Conectando...</span>
             </div>
         </div>
 
@@ -611,11 +632,20 @@
 
     <script>
         // Configurações
-        const API_URL = 'https://yields.llama.fi/pools';
-        const CACHE_KEY = 'defi_pools_cache_v2';
-        const CACHE_TIME_KEY = 'defi_pools_time_v2';
+        const API_ENDPOINTS = [
+            'https://yields.llama.fi/pools',
+            'https://yields.llama.fi/pools?limit=1000'
+        ];
+        const CORS_PROXIES = [
+            'https://api.allorigins.win/raw?url=',
+            'https://corsproxy.io/?'
+        ];
+        const CACHE_KEY = 'defi_pools_cache_v3';
+        const CACHE_TIME_KEY = 'defi_pools_time_v3';
         const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
         const UPDATE_INTERVAL = 15 * 60 * 1000; // 15 minutos
+        const MAX_RETRIES = 3;
+        const RETRY_DELAY = 2000; // 2 segundos
 
         // Estado global
         let allPools = [];
@@ -626,6 +656,8 @@
         let debounceTimer = null;
         let countdownInterval = null;
         let updateInterval = null;
+        let retryCount = 0;
+        let isLoading = false;
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
@@ -647,8 +679,40 @@
             });
         }
 
+        // Fetch com retry e fallback para CORS proxy
+        async function fetchWithRetry(url, useProxy = false) {
+            const fullUrl = useProxy ? CORS_PROXIES[0] + encodeURIComponent(url) : url;
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+                
+                const response = await fetch(fullUrl, {
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error(`Fetch failed (proxy=${useProxy}):`, error);
+                throw error;
+            }
+        }
+
         // Carregar dados da API ou cache
         async function loadData(forceRefresh = false) {
+            if (isLoading) return;
+            isLoading = true;
+            updateStatus('🔄 Carregando...', false);
+
             const now = Date.now();
             const cachedData = localStorage.getItem(CACHE_KEY);
             const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
@@ -659,41 +723,84 @@
                 if (age < CACHE_DURATION) {
                     processPools(JSON.parse(cachedData));
                     updateTimestamp(new Date(parseInt(cachedTime)));
-                    updateCacheIndicator(true, age);
+                    updateStatus('✅ Cache', true);
+                    isLoading = false;
                     return;
                 }
             }
 
-            // Buscar da API
+            // Tentar múltiplos endpoints e proxies
             try {
-                showLoading();
-                const response = await fetch(API_URL);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                
-                const data = await response.json();
-                
+                let data = null;
+                let lastError = null;
+
+                // Tentar endpoints diretos primeiro
+                for (const endpoint of API_ENDPOINTS) {
+                    try {
+                        console.log(`Tentando endpoint: ${endpoint}`);
+                        data = await fetchWithRetry(endpoint, false);
+                        break;
+                    } catch (error) {
+                        lastError = error;
+                        console.warn(`Endpoint falhou: ${endpoint}`, error);
+                    }
+                }
+
+                // Se falhar, tentar com proxy
+                if (!data) {
+                    console.log('Tentando com CORS proxy...');
+                    for (const endpoint of API_ENDPOINTS) {
+                        try {
+                            data = await fetchWithRetry(endpoint, true);
+                            break;
+                        } catch (error) {
+                            lastError = error;
+                        }
+                    }
+                }
+
+                if (!data) {
+                    throw lastError || new Error('Todos os endpoints falharam');
+                }
+
                 // Processar e salvar
                 processPools(data);
                 localStorage.setItem(CACHE_KEY, JSON.stringify(data));
                 localStorage.setItem(CACHE_TIME_KEY, now.toString());
                 
                 updateTimestamp(new Date());
-                updateCacheIndicator(false, 0);
+                updateStatus('✅ Dados atualizados', true);
+                retryCount = 0;
                 
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
+                retryCount++;
+                
                 // Fallback para cache expirado
                 if (cachedData) {
                     processPools(JSON.parse(cachedData));
-                    showWarning('Dados do cache (atualização falhou)');
+                    updateStatus('⚠️ Cache expirado', false);
+                    showWarning(`Erro na API: ${error.message}. Usando dados em cache.`);
                 } else {
-                    showError('Erro ao carregar dados. Verifique sua conexão.');
+                    updateStatus('❌ Erro', false);
+                    showError(`Erro ao carregar dados: ${error.message}<br><br>
+                        <strong>Soluções:</strong><br>
+                        1. Verifique sua conexão com a internet<br>
+                        2. A API do DeFiLlama pode estar instável<br>
+                        3. Tente novamente em alguns minutos<br><br>
+                        <button class="btn btn-primary" onclick="loadData(true)">🔄 Tentar Novamente</button>`);
                 }
+            } finally {
+                isLoading = false;
             }
         }
 
         // Processar dados da API para nosso formato
         function processPools(rawPools) {
+            if (!Array.isArray(rawPools) || rawPools.length === 0) {
+                throw new Error('Dados inválidos recebidos da API');
+            }
+
             // Filtrar dados válidos e mapear campos
             allPools = rawPools
                 .filter(pool => 
@@ -838,7 +945,6 @@
             
             tbody.innerHTML = displayPools.map(pool => {
                 const riskLevel = getRiskLevel(pool.apy);
-                const riskClass = `pool-item.${riskLevel}-risk`;
                 const apyClass = pool.apy >= 100 ? 'positive' : '';
                 
                 return `
@@ -953,16 +1059,11 @@
             document.getElementById('lastUpdate').textContent = date.toLocaleTimeString('pt-BR');
         }
 
-        // Atualizar indicador de cache
-        function updateCacheIndicator(isCached, age) {
-            const indicator = document.getElementById('cacheIndicator');
-            if (isCached) {
-                const min = Math.floor(age / 60000);
-                const sec = Math.floor((age % 60000) / 1000);
-                indicator.textContent = `💾 Cache: ${min}min ${sec}s`;
-            } else {
-                indicator.textContent = '✨ Dados atualizados';
-            }
+        // Atualizar status
+        function updateStatus(message, success) {
+            const badge = document.getElementById('statusBadge');
+            badge.textContent = message;
+            badge.className = 'status-badge' + (success ? '' : ' error');
         }
 
         // Contador de atualização automática
@@ -1083,13 +1184,18 @@
         }
         
         function showError(msg) {
-            document.getElementById('poolsTableBody').innerHTML = 
-                `<tr><td colspan="12"><div class="error-msg">⚠️ ${msg}<br><button class="btn btn-primary" onclick="loadData(true)" style="margin-top:12px">Tentar Novamente</button></div></td></tr>`;
+            const container = document.querySelector('.table-container');
+            container.innerHTML = `
+                <div class="error-banner">
+                    <h3>⚠️ Erro ao Carregar Dados</h3>
+                    <p>${msg}</p>
+                </div>
+            `;
         }
         
         function showWarning(msg) {
             const tbody = document.getElementById('poolsTableBody');
-            if (tbody.querySelector('tr')) {
+            if (tbody && tbody.querySelector('tr')) {
                 const row = document.createElement('tr');
                 row.innerHTML = `<td colspan="12" style="background:rgba(251,191,36,0.1);color:#fbbf24;text-align:center;padding:10px">⚠️ ${msg}</td>`;
                 tbody.insertBefore(row, tbody.firstChild);
