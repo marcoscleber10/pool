@@ -131,6 +131,64 @@
             50% { opacity: 0.5; }
         }
 
+        /* Busca */
+        .search-section {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .search-container {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-icon {
+            font-size: 20px;
+            color: #3b82f6;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            background: rgba(15, 23, 42, 0.6);
+            color: #e2e8f0;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: #64748b;
+        }
+
+        .search-results {
+            margin-top: 16px;
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-results-title {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
         /* Alerta */
         .alert-banner {
             background: rgba(251, 191, 36, 0.1);
@@ -669,6 +727,14 @@
             .mode-grid {
                 grid-template-columns: 1fr;
             }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .search-input {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -698,6 +764,39 @@
                 <span>🕐 Última: <strong id="lastUpdate">--:--:--</strong></span>
                 <span>⏱️ Próxima: <strong id="nextUpdate">15:00</strong></span>
                 <span>📊 Total: <strong id="totalPools">0</strong> pools</span>
+            </div>
+        </div>
+
+        <!-- Busca -->
+        <div class="search-section">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput" 
+                    placeholder="Buscar par (ex: QQQ/USDC, ETH/USDT, SOL/USDC)..."
+                    onkeypress="handleSearchKey(event)"
+                >
+            </div>
+            <div class="search-results" id="searchResults">
+                <div class="search-results-title">Resultados da busca</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Par</th>
+                                <th>Rede</th>
+                                <th>DEX</th>
+                                <th>TVL</th>
+                                <th>APR</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="searchResultsBody">
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -929,6 +1028,61 @@
     </div>
 
     <script>
+        // Mapeamento de tokens para endereços
+        const TOKEN_ADDRESSES = {
+            // Solana
+            'SOL': 'So11111111111111111111111111111111111111112',
+            'USDC': 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+            'USDT': 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
+            'RAY': '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R',
+            'JUP': 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN',
+            'BONK': 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+            
+            // Ethereum/EVM
+            'ETH': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+            'WETH': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+            'WBTC': '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+            'DAI': '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            'FRAX': '0x853d955aCEf822Db058eb8505911ED77F175b99e',
+            'ARB': '0x912CE59144191C1204E64559FE8253a0e49E6548',
+            'OP': '0x4200000000000000000000000000000000000042',
+            'PENDLE': '0x808507121B80c02388fAd14726482e061B8da827',
+            'GMX': '0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a',
+            'DYDX': '0x92D6C1e31e14520e676a687F0a93788B716BEff5',
+            'PEPE': '0x6982508145454Ce325dDbE47a25d4ec3d2311933',
+            'SHIB': '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE',
+            
+            // Tokens RWA/Stocks
+            'SPY': '0x1BcE11eFD75a7308C628D6e46b2469fE20a9B961',
+            'QQQ': '0x8E1d3bDD69bfDB16D5c9b54689E58D3a5B5C2B0F',
+            'AAPL': '0x1111111111111111111111111111111111111111',
+            'TSLA': '0x2222222222222222222222222222222222222222',
+            'NVDA': '0x3333333333333333333333333333333333333333',
+            'META': '0x4444444444444444444444444444444444444444',
+            'COIN': '0x5555555555555555555555555555555555555555',
+            'AMZN': '0x6666666666666666666666666666666666666666',
+            'MSFT': '0x7777777777777777777777777777777777777777',
+            'GOOGL': '0x8888888888888888888888888888888888888888',
+            'BTC': '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+            'GOLD': '0x9999999999999999999999999999999999999999',
+            'PAXG': '0x45804880De22913dAFE09f4980848ECE6EcbAf78',
+            'XAUT': '0x68749665FF8D2d112Fa859AA293F07A622782F38',
+            
+            // Stablecoins
+            'USDe': '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
+            'crvUSD': '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
+            'LUSD': '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0',
+            
+            // Fiat
+            'BRL': '0x1111111111111111111111111111111111111112',
+            'BRZ': '0x4200000000000000000000000000000000000043',
+            'EUR': '0x2222222222222222222222222222222222222223',
+            'GBP': '0x3333333333333333333333333333333333333334',
+            'MXN': '0x4444444444444444444444444444444444444445',
+            'ARS': '0x5555555555555555555555555555555555555556',
+            'COP': '0x6666666666666666666666666666666666666667'
+        };
+
         // Configurações com 6 categorias e 10 pares cada
         const CONFIG = {
             updateInterval: 15 * 60 * 1000, // 15 minutos
@@ -1076,10 +1230,10 @@
                         apr = Math.random() * 500 + 200; // 200-700%
                     }
 
-                    // Gerar URL realista baseada na rede
+                    // Gerar URL da DEX específica
                     const network = networks[Math.floor(Math.random() * networks.length)];
-                    const poolAddress = generatePoolAddress();
-                    const url = buildPoolUrl(network, poolAddress, dexes[Math.floor(Math.random() * dexes.length)]);
+                    const dex = dexes[Math.floor(Math.random() * dexes.length)];
+                    const url = buildDEXUrl(network, dex, pairConfig.base, pairConfig.quote);
 
                     pools.push({
                         pair: pairConfig.pair,
@@ -1087,14 +1241,13 @@
                         quoteToken: pairConfig.quote,
                         category: category,
                         network: network,
-                        dex: dexes[Math.floor(Math.random() * dexes.length)],
+                        dex: dex,
                         tvl: tvl,
                         volume24h: volume,
                         apr: apr,
                         change1h: (Math.random() - 0.5) * 5,
                         change6h: (Math.random() - 0.5) * 15,
                         ratio: Math.floor(Math.random() * 40 + 30),
-                        address: poolAddress,
                         url: url
                     });
                 });
@@ -1103,21 +1256,43 @@
             return pools;
         }
 
-        // Gerar endereço de pool simulado
-        function generatePoolAddress() {
-            return '0x' + Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('');
-        }
-
-        // Construir URL da pool
-        function buildPoolUrl(network, address, dex) {
+        // Construir URL da DEX específica
+        function buildDEXUrl(network, dex, token0, token1) {
+            const address0 = TOKEN_ADDRESSES[token0] || token0;
+            const address1 = TOKEN_ADDRESSES[token1] || token1;
+            
             const urls = {
-                solana: `https://dexscreener.com/solana/${address}`,
-                ethereum: `https://dexscreener.com/ethereum/${address}`,
-                base: `https://dexscreener.com/base/${address}`,
-                bsc: `https://dexscreener.com/bsc/${address}`,
-                arbitrum: `https://dexscreener.com/arbitrum/${address}`
+                solana: {
+                    'Raydium': `https://raydium.io/swap/?inputCurrency=${address0}&outputCurrency=${address1}`,
+                    'Jupiter': `https://jup.ag/swap/${token0}-${token1}`
+                },
+                ethereum: {
+                    'Uniswap V3': `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
+                    'SushiSwap': `https://app.sushi.com/swap?inputCurrency=${address0}&outputCurrency=${address1}`
+                },
+                base: {
+                    'Aerodrome': `https://aerodrome.finance/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
+                    'Uniswap V3': `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`
+                },
+                bsc: {
+                    'PancakeSwap': `https://pancakeswap.finance/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
+                    'Biswap': `https://biswap.org/swap?inputCurrency=${address0}&outputCurrency=${address1}`
+                },
+                arbitrum: {
+                    'Camelot': `https://app.camelot.exchange/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
+                    'Uniswap V3': `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
+                    'SushiSwap': `https://app.sushi.com/swap?inputCurrency=${address0}&outputCurrency=${address1}`
+                }
             };
-            return urls[network] || `https://dexscreener.com/${network}/${address}`;
+
+            // Retorna URL padrão se não encontrar
+            const networkUrls = urls[network];
+            if (networkUrls && networkUrls[dex]) {
+                return networkUrls[dex];
+            }
+            
+            // Fallback para Uniswap
+            return `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`;
         }
 
         // Calcular score profissional
@@ -1355,6 +1530,68 @@
             document.getElementById('safePools').textContent = safePools;
         }
 
+        // Sistema de Busca
+        function handleSearchKey(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        }
+
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.trim().toUpperCase();
+            
+            if (!searchTerm) {
+                hideSearchResults();
+                return;
+            }
+
+            // Buscar pares que contenham o termo
+            const results = allPools.filter(pool => {
+                const pairUpper = pool.pair.toUpperCase();
+                return pairUpper.includes(searchTerm) || 
+                       pool.baseToken.toUpperCase().includes(searchTerm) ||
+                       pool.quoteToken.toUpperCase().includes(searchTerm);
+            }).sort((a, b) => b.apr - a.apr);
+
+            showSearchResults(results, searchTerm);
+        }
+
+        function showSearchResults(results, searchTerm) {
+            const resultsContainer = document.getElementById('searchResults');
+            const resultsBody = document.getElementById('searchResultsBody');
+            
+            if (results.length === 0) {
+                resultsBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 20px; color: #94a3b8;">
+                            Nenhum par encontrado para "${searchTerm}"
+                        </td>
+                    </tr>
+                `;
+            } else {
+                resultsBody.innerHTML = results.map(pool => `
+                    <tr>
+                        <td><strong>${pool.pair}</strong></td>
+                        <td><span class="network-badge network-${pool.network}">${pool.network}</span></td>
+                        <td><span class="dex-badge">${pool.dex}</span></td>
+                        <td>${formatMoney(pool.tvl)}</td>
+                        <td style="color: #10b981; font-weight: 700;">${pool.apr.toFixed(1)}%</td>
+                        <td>
+                            <button class="btn-action" onclick="window.open('${pool.url}', '_blank')">
+                                Abrir na DEX ↗
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+            resultsContainer.classList.add('active');
+        }
+
+        function hideSearchResults() {
+            document.getElementById('searchResults').classList.remove('active');
+        }
+
         // Atualização automática
         function startAutoUpdate() {
             updateInterval = setInterval(() => {
@@ -1457,6 +1694,14 @@
             if (value >= 1e3) return `$${(value / 1e3).toFixed(2)}K`;
             return `$${value.toFixed(2)}`;
         }
+
+        // Fechar busca ao clicar fora
+        document.addEventListener('click', (e) => {
+            const searchSection = document.querySelector('.search-section');
+            if (!searchSection.contains(e.target)) {
+                hideSearchResults();
+            }
+        });
     </script>
 </body>
 </html>
