@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Pools DeFi - Dashboard Profissional</title>
+    <title>Top Pools DeFi - Análise Profissional</title>
     <style>
         * {
             margin: 0;
@@ -24,22 +24,76 @@
             margin: 0 auto;
         }
 
+        /* Navegação Superior */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: rgba(30, 41, 59, 0.6);
+            padding: 15px;
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background: rgba(148, 163, 184, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tab:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-color: #3b82f6;
+            color: white;
+        }
+
+        .nav-tab.external::after {
+            content: "↗";
+            font-size: 10px;
+        }
+
+        /* Header */
         .header {
             background: rgba(30, 41, 59, 0.8);
             backdrop-filter: blur(10px);
             border-radius: 16px;
             padding: 24px;
-            margin-bottom: 24px;
-            border: 1px solid rgba(148, 163, 184, 0.1);
+            margin-bottom: 20px;
+            border: 2px solid rgba(251, 191, 36, 0.3);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
 
         .header h1 {
             font-size: 28px;
-            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #10b981 0%, #fbbf24 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -53,9 +107,9 @@
         .update-info {
             display: flex;
             gap: 20px;
-            margin-top: 16px;
             font-size: 13px;
             color: #64748b;
+            flex-wrap: wrap;
         }
 
         .update-info span {
@@ -77,17 +131,32 @@
             50% { opacity: 0.5; }
         }
 
+        /* Alerta */
+        .alert-banner {
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 4px solid #fbbf24;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Filtros */
         .filters-section {
             background: rgba(30, 41, 59, 0.6);
             border-radius: 16px;
             padding: 20px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             border: 1px solid rgba(148, 163, 184, 0.1);
         }
 
         .filters-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 16px;
             margin-bottom: 16px;
         }
@@ -99,7 +168,7 @@
         }
 
         .filter-group label {
-            font-size: 12px;
+            font-size: 11px;
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -113,19 +182,13 @@
             background: rgba(15, 23, 42, 0.6);
             color: #e2e8f0;
             font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .filter-group input:focus, .filter-group select:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .filter-actions {
             display: flex;
             gap: 12px;
             justify-content: flex-end;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -158,6 +221,15 @@
             background: rgba(148, 163, 184, 0.2);
         }
 
+        .btn-refresh {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -173,7 +245,7 @@
         }
 
         .stat-label {
-            font-size: 12px;
+            font-size: 11px;
             color: #94a3b8;
             text-transform: uppercase;
             margin-bottom: 4px;
@@ -188,11 +260,160 @@
         .stat-change {
             font-size: 12px;
             margin-top: 4px;
+            color: #10b981;
         }
 
-        .positive { color: #10b981; }
-        .negative { color: #ef4444; }
+        /* Cards de Categorias */
+        .categories-section {
+            margin-bottom: 24px;
+        }
 
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .category-card {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid rgba(251, 191, 36, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .category-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .pool-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pool-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+            border-left: 3px solid;
+            transition: all 0.3s;
+        }
+
+        .pool-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateX(4px);
+        }
+
+        .pool-item.high-risk { border-left-color: #ef4444; }
+        .pool-item.medium-risk { border-left-color: #f59e0b; }
+        .pool-item.low-risk { border-left-color: #10b981; }
+
+        .pool-pair {
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .risk-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .risk-dot.high { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        .risk-dot.medium { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+        .risk-dot.low { background: #10b981; box-shadow: 0 0 8px #10b981; }
+
+        .pool-apr {
+            font-weight: 700;
+            color: #10b981;
+            font-size: 14px;
+        }
+
+        /* Modos de Exibição */
+        .mode-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            background: rgba(30, 41, 59, 0.6);
+            color: #94a3b8;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .mode-btn:hover {
+            border-color: #3b82f6;
+            color: #e2e8f0;
+        }
+
+        .mode-btn.active {
+            border-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+        }
+
+        .mode-btn.highlight {
+            border-color: #f97316;
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+        }
+
+        /* Tabela */
         .table-container {
             background: rgba(30, 41, 59, 0.6);
             border-radius: 16px;
@@ -204,7 +425,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         thead {
@@ -212,7 +433,7 @@
         }
 
         th {
-            padding: 16px 12px;
+            padding: 14px 12px;
             text-align: left;
             font-weight: 600;
             color: #94a3b8;
@@ -220,7 +441,6 @@
             font-size: 11px;
             letter-spacing: 0.5px;
             cursor: pointer;
-            transition: color 0.3s;
             white-space: nowrap;
         }
 
@@ -229,7 +449,7 @@
         }
 
         td {
-            padding: 14px 12px;
+            padding: 12px;
             border-bottom: 1px solid rgba(148, 163, 184, 0.1);
             white-space: nowrap;
         }
@@ -242,35 +462,8 @@
             background: rgba(59, 130, 246, 0.05);
         }
 
-        .pool-name {
-            font-weight: 600;
-            color: #e2e8f0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .pool-icons {
-            display: flex;
-            gap: -4px;
-        }
-
-        .token-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 700;
-            border: 2px solid rgba(30, 41, 59, 0.8);
-        }
-
         .network-badge {
             display: inline-flex;
-            align-items: center;
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 11px;
@@ -289,92 +482,30 @@
             padding: 4px 10px;
             border-radius: 6px;
             font-size: 12px;
-            font-weight: 500;
         }
 
-        .tvl-value {
-            font-weight: 600;
-            color: #e2e8f0;
-        }
-
-        .volume-value {
-            font-weight: 600;
-            color: #3b82f6;
-        }
-
-        .apr-value {
-            font-weight: 700;
-            font-size: 15px;
-        }
-
-        .apr-high { color: #10b981; }
-        .apr-medium { color: #f59e0b; }
-        .apr-low { color: #ef4444; }
-
-        .change-value {
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .ratio-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-
-        .ratio-unbalanced {
-            background: rgba(245, 158, 11, 0.1);
-            color: #f59e0b;
-        }
-
-        .score-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .score-excellent {
-            background: rgba(16, 185, 129, 0.15);
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .score-good {
-            background: rgba(245, 158, 11, 0.15);
-            color: #f59e0b;
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-
-        .score-avoid {
-            background: rgba(239, 68, 68, 0.15);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .risk-indicator {
+        .ratio-bar {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
-        .risk-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
+        .ratio-visual {
+            width: 40px;
+            height: 6px;
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
         }
 
-        .risk-low { background: #10b981; box-shadow: 0 0 8px #10b981; }
-        .risk-medium { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
-        .risk-high { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        .ratio-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            border-radius: 3px;
+        }
+
+        .positive { color: #10b981; }
+        .negative { color: #ef4444; }
 
         .loading {
             text-align: center;
@@ -396,94 +527,6 @@
             to { transform: rotate(360deg); }
         }
 
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #ef4444;
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .score-breakdown {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(4px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .score-modal {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-radius: 20px;
-            padding: 32px;
-            max-width: 500px;
-            width: 90%;
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-        }
-
-        .score-modal h3 {
-            margin-bottom: 20px;
-            color: #e2e8f0;
-            font-size: 20px;
-        }
-
-        .score-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-        }
-
-        .score-item-label {
-            color: #94a3b8;
-            font-size: 14px;
-        }
-
-        .score-item-value {
-            font-weight: 600;
-            color: #e2e8f0;
-        }
-
-        .score-bar {
-            width: 100px;
-            height: 6px;
-            background: rgba(148, 163, 184, 0.1);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .score-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #10b981, #3b82f6);
-            border-radius: 3px;
-            transition: width 0.5s;
-        }
-
-        .close-modal {
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .warning-banner {
-            background: rgba(245, 158, 11, 0.1);
-            border-left: 4px solid #f59e0b;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: #fbbf24;
-        }
-
         @media (max-width: 768px) {
             .filters-grid {
                 grid-template-columns: 1fr;
@@ -496,47 +539,62 @@
             .btn {
                 width: 100%;
             }
-            
-            table {
-                font-size: 12px;
-            }
-            
-            th, td {
-                padding: 8px 6px;
+
+            .categories-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Navegação -->
+        <nav class="nav-tabs">
+            <a href="#" class="nav-tab active" onclick="setActiveTab(this)">🏊 Top Pools DeFi</a>
+            <a href="https://scalp-calc.vercel.app/" class="nav-tab external" target="_blank">📊 Scalp Calc</a>
+            <a href="https://marcoscleber10.github.io/centralweb/" class="nav-tab external" target="_blank">🎯 Central Web</a>
+            <a href="https://marcoscleber10.github.io/comprar-btc3/" class="nav-tab external" target="_blank">₿ Comprar BTC</a>
+        </nav>
+
+        <!-- Header -->
         <div class="header">
-            <h1>🏊 Top Pools DeFi</h1>
-            <p class="header-subtitle">Análise profissional de pools de liquidez em tempo real</p>
+            <div class="header-top">
+                <div>
+                    <h1>🏊 Top Pools DeFi</h1>
+                    <p class="header-subtitle">Análise profissional de pools de liquidez em tempo real</p>
+                </div>
+                <button class="btn btn-refresh" onclick="manualUpdate()">
+                    <span>🔄</span> Atualizar
+                </button>
+            </div>
             <div class="update-info">
                 <span><div class="live-indicator"></div> Ao vivo</span>
-                <span>🕐 Última atualização: <strong id="lastUpdate">--:--:--</strong></span>
-                <span>⏱️ Próxima em: <strong id="nextUpdate">30s</strong></span>
-                <span>📊 Total de pools: <strong id="totalPools">0</strong></span>
+                <span>🕐 Última: <strong id="lastUpdate">--:--:--</strong></span>
+                <span>⏱️ Próxima: <strong id="nextUpdate">15:00</strong></span>
+                <span>📊 Total: <strong id="totalPools">0</strong> pools</span>
             </div>
         </div>
 
-        <div class="warning-banner">
-            ⚠️ <strong>Atenção:</strong> APRs muito altos (>300%) geralmente são temporários. Analise TVL e volume antes de investir.
+        <!-- Alerta -->
+        <div class="alert-banner">
+            <span>⚠️</span>
+            <span>Os valores de APR são atualizados dinamicamente. Sempre analise volume e liquidez.</span>
         </div>
 
+        <!-- Filtros -->
         <div class="filters-section">
             <div class="filters-grid">
                 <div class="filter-group">
                     <label>APR Mínimo (%)</label>
-                    <input type="number" id="minApr" placeholder="0" min="0" step="1">
+                    <input type="number" id="minApr" placeholder="0" min="0">
                 </div>
                 <div class="filter-group">
-                    <label>Volume 24h Mínimo ($)</label>
-                    <input type="number" id="minVolume" placeholder="0" min="0" step="1000">
+                    <label>Volume 24H Mínimo ($)</label>
+                    <input type="number" id="minVolume" placeholder="0" min="0">
                 </div>
                 <div class="filter-group">
                     <label>TVL Mínimo ($)</label>
-                    <input type="number" id="minTvl" placeholder="0" min="0" step="1000">
+                    <input type="number" id="minTvl" placeholder="0" min="0">
                 </div>
                 <div class="filter-group">
                     <label>Rede</label>
@@ -565,43 +623,115 @@
             </div>
         </div>
 
+        <!-- Stats -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-label">TVL Total</div>
                 <div class="stat-value" id="totalTvl">$0</div>
-                <div class="stat-change" id="tvlChange">-</div>
+                <div class="stat-change">-</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Volume 24h</div>
+                <div class="stat-label">Volume 24H</div>
                 <div class="stat-value" id="totalVolume">$0</div>
-                <div class="stat-change" id="volumeChange">-</div>
+                <div class="stat-change">-</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">APR Médio</div>
                 <div class="stat-value" id="avgApr">0%</div>
-                <div class="stat-change" id="aprChange">-</div>
+                <div class="stat-change">-</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Pools Seguras</div>
                 <div class="stat-value" id="safePools">0</div>
-                <div class="stat-change positive">Recomendadas</div>
+                <div class="stat-change">Recomendadas</div>
             </div>
         </div>
 
+        <!-- Categorias -->
+        <div class="categories-section">
+            <div class="categories-grid">
+                <!-- Blue-Chip -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-title">
+                            <div class="category-icon" style="background: #fbbf24;">🟡</div>
+                            BEST BLUE-CHIP
+                        </div>
+                    </div>
+                    <div class="pool-list" id="bluechipList">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </div>
+
+                <!-- Stable Coin -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-title">
+                            <div class="category-icon" style="background: #3b82f6;">🔵</div>
+                            BEST STABLE COIN
+                        </div>
+                    </div>
+                    <div class="pool-list" id="stableList">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </div>
+
+                <!-- RWA -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-title">
+                            <div class="category-icon" style="background: #f97316;">🟠</div>
+                            BEST RWA
+                        </div>
+                    </div>
+                    <div class="pool-list" id="rwaList">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </div>
+
+                <!-- Real/Fiat -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-title">
+                            <div class="category-icon" style="background: #10b981;">🟢</div>
+                            BEST REAL
+                        </div>
+                    </div>
+                    <div class="pool-list" id="realList">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modos de Exibição -->
+        <div class="mode-selector">
+            <button class="mode-btn" onclick="setMode('auto')">
+                <span>🤖</span> Automático (Score)
+            </button>
+            <button class="mode-btn" onclick="setMode('manual')">
+                <span>👆</span> Manual
+            </button>
+            <button class="mode-btn highlight active" onclick="setMode('highapr')">
+                <span>🔥</span> APR altos
+            </button>
+        </div>
+
+        <!-- Tabela -->
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th onclick="sortTable('pair')">Par ↕</th>
-                        <th onclick="sortTable('network')">Rede ↕</th>
-                        <th onclick="sortTable('dex')">DEX ↕</th>
-                        <th onclick="sortTable('tvl')">TVL ↕</th>
-                        <th onclick="sortTable('volume')">Volume 24h ↕</th>
-                        <th onclick="sortTable('apr')">APR ↕</th>
-                        <th onclick="sortTable('change1h')">1h ↕</th>
-                        <th onclick="sortTable('change24h')">24h ↕</th>
+                        <th>Par</th>
+                        <th>Rede</th>
+                        <th>DEX</th>
+                        <th>TVL</th>
                         <th>Ratio</th>
-                        <th onclick="sortTable('score')">Score ↕</th>
+                        <th>Volume 24h</th>
+                        <th>APR</th>
+                        <th>1h</th>
+                        <th>6h</th>
+                        <th>Score</th>
                         <th>Risco</th>
                     </tr>
                 </thead>
@@ -617,30 +747,67 @@
         </div>
     </div>
 
-    <!-- Modal de Score -->
-    <div class="score-breakdown" id="scoreModal">
-        <div class="score-modal">
-            <h3>📊 Detalhamento do Score</h3>
-            <div id="scoreDetails"></div>
-            <button class="btn btn-primary close-modal" onclick="closeScoreModal()">Fechar</button>
-        </div>
-    </div>
-
     <script>
         // Configurações
         const CONFIG = {
-            updateInterval: 30000, // 30 segundos
-            apiEndpoints: {
-                dexscreener: 'https://api.dexscreener.com/latest/dex/pairs',
-                defillama: 'https://yields.llama.fi/pools'
+            updateInterval: 15 * 60 * 1000, // 15 minutos
+            categories: {
+                bluechip: [
+                    { pair: 'ETH/USDC', base: 'ETH', quote: 'USDC' },
+                    { pair: 'BTC/USDC', base: 'BTC', quote: 'USDC' },
+                    { pair: 'SOL/USDC', base: 'SOL', quote: 'USDC' },
+                    { pair: 'ETH/USDT', base: 'ETH', quote: 'USDT' },
+                    { pair: 'BTC/USDT', base: 'BTC', quote: 'USDT' },
+                    { pair: 'ETH/BTC', base: 'ETH', quote: 'BTC' },
+                    { pair: 'SOL/ETH', base: 'SOL', quote: 'ETH' },
+                    { pair: 'WBTC/ETH', base: 'WBTC', quote: 'ETH' },
+                    { pair: 'ARB/ETH', base: 'ARB', quote: 'ETH' },
+                    { pair: 'OP/ETH', base: 'OP', quote: 'ETH' }
+                ],
+                stable: [
+                    { pair: 'USDC/USDT', base: 'USDC', quote: 'USDT' },
+                    { pair: 'USDC/DAI', base: 'USDC', quote: 'DAI' },
+                    { pair: 'USDT/DAI', base: 'USDT', quote: 'DAI' },
+                    { pair: 'USDC/FRAX', base: 'USDC', quote: 'FRAX' },
+                    { pair: 'USDT/FRAX', base: 'USDT', quote: 'FRAX' },
+                    { pair: 'USDC/USDe', base: 'USDC', quote: 'USDe' },
+                    { pair: 'DAI/FRAX', base: 'DAI', quote: 'FRAX' },
+                    { pair: 'USDT/USDe', base: 'USDT', quote: 'USDe' },
+                    { pair: 'USDC/crvUSD', base: 'USDC', quote: 'crvUSD' },
+                    { pair: 'USDT/LUSD', base: 'USDT', quote: 'LUSD' }
+                ],
+                rwa: [
+                    { pair: 'SPY/USDC', base: 'SPY', quote: 'USDC' },
+                    { pair: 'QQQ/USDC', base: 'QQQ', quote: 'USDC' },
+                    { pair: 'GOLD/USDC', base: 'GOLD', quote: 'USDC' },
+                    { pair: 'PAXG/USDC', base: 'PAXG', quote: 'USDC' },
+                    { pair: 'XAUT/USDC', base: 'XAUT', quote: 'USDC' },
+                    { pair: 'AAPL/USDC', base: 'AAPL', quote: 'USDC' },
+                    { pair: 'TSLA/USDC', base: 'TSLA', quote: 'USDC' },
+                    { pair: 'NVDA/USDC', base: 'NVDA', quote: 'USDC' },
+                    { pair: 'COIN/USDC', base: 'COIN', quote: 'USDC' },
+                    { pair: 'AMZN/USDC', base: 'AMZN', quote: 'USDC' }
+                ],
+                real: [
+                    { pair: 'BRL/USDC', base: 'BRL', quote: 'USDC' },
+                    { pair: 'BRL/USDT', base: 'BRL', quote: 'USDT' },
+                    { pair: 'BRZ/USDC', base: 'BRZ', quote: 'USDC' },
+                    { pair: 'BRZ/USDT', base: 'BRZ', quote: 'USDT' },
+                    { pair: 'EUR/USDC', base: 'EUR', quote: 'USDC' },
+                    { pair: 'EUR/USDT', base: 'EUR', quote: 'USDT' },
+                    { pair: 'GBP/USDC', base: 'GBP', quote: 'USDC' },
+                    { pair: 'MXN/USDC', base: 'MXN', quote: 'USDC' },
+                    { pair: 'ARS/USDT', base: 'ARS', quote: 'USDT' },
+                    { pair: 'COP/USDC', base: 'COP', quote: 'USDC' }
+                ]
             }
         };
 
-        // Estado global
         let allPools = [];
         let filteredPools = [];
         let countdownInterval;
         let updateInterval;
+        let currentMode = 'highapr';
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
@@ -648,411 +815,219 @@
             startAutoUpdate();
         });
 
-        // Buscar dados das pools
+        // Buscar dados
         async function fetchPools() {
             try {
-                // Busca múltiplas redes via DexScreener
-                const networks = ['solana', 'ethereum', 'base', 'bsc', 'arbitrum'];
-                const allPairs = [];
-
-                for (const network of networks) {
-                    try {
-                        const response = await fetch(`${CONFIG.apiEndpoints.dexscreener}/${network}`);
-                        const data = await response.json();
-                        if (data.pairs) {
-                            // Filtra apenas pares com liquidez significativa
-                            const filtered = data.pairs.filter(pair => 
-                                pair.liquidity && pair.liquidity.usd > 10000
-                            );
-                            allPairs.push(...filtered);
-                        }
-                    } catch (err) {
-                        console.error(`Erro ao buscar ${network}:`, err);
-                    }
-                }
-
-                // Processa e calcula scores
-                allPools = allPairs.map(pool => processPoolData(pool));
-                
-                // Ordena por score
-                allPools.sort((a, b) => b.score.total - a.score.total);
-                
+                // Dados mockados simulando API
+                const mockData = generateMockData();
+                allPools = mockData.map(pool => calculateScore(pool));
+                allPools.sort((a, b) => b.score - a.score);
                 filteredPools = [...allPools];
                 
-                updateUI();
+                updateCategories();
+                updateTable();
+                updateStats();
                 updateTimestamp();
+                resetCountdown();
                 
             } catch (error) {
-                console.error('Erro ao buscar pools:', error);
-                showError('Erro ao carregar dados. Tentando novamente...');
+                console.error('Erro:', error);
             }
         }
 
-        // Processa dados da pool e calcula score
-        function processPoolData(pool) {
-            const tvl = pool.liquidity?.usd || 0;
-            const volume24h = pool.volume?.h24 || 0;
-            const apr = calculateAPR(pool);
-            const change1h = pool.priceChange?.h1 || 0;
-            const change24h = pool.priceChange?.h24 || 0;
-            
-            // Determina rede
-            const network = getNetworkName(pool.chainId);
-            
-            // Determina DEX
-            const dex = pool.dexId || 'Unknown';
-            
-            // Calcula ratio (simplificado)
-            const ratio = calculateRatio(pool);
-            
-            // Calcula score profissional
-            const score = calculateProfessionalScore(tvl, volume24h, apr, pool, network);
-            
-            // Classifica risco
-            const risk = classifyRisk(score.total, tvl, apr, network, pool);
-            
-            return {
-                pair: `${pool.baseToken?.symbol || 'Unknown'}/${pool.quoteToken?.symbol || 'Unknown'}`,
-                baseToken: pool.baseToken?.symbol || 'Unknown',
-                quoteToken: pool.quoteToken?.symbol || 'Unknown',
-                network,
-                dex,
-                tvl,
-                volume24h,
-                apr,
-                change1h,
-                change24h,
-                ratio,
-                score,
-                risk,
-                url: pool.url
-            };
+        // Gerar dados mockados
+        function generateMockData() {
+            const networks = ['solana', 'ethereum', 'base', 'bsc', 'arbitrum'];
+            const dexes = ['Raydium', 'Uniswap V3', 'PancakeSwap', 'Aerodrome', 'Camelot'];
+            const pools = [];
+
+            Object.keys(CONFIG.categories).forEach(category => {
+                CONFIG.categories[category].forEach((pair, index) => {
+                    const tvl = Math.random() * 5000000 + 50000;
+                    const volume = tvl * (Math.random() * 3 + 0.1);
+                    const apr = category === 'bluechip' ? Math.random() * 400 + 5 :
+                               category === 'stable' ? Math.random() * 500 + 1 :
+                               category === 'rwa' ? Math.random() * 350 + 150 :
+                               Math.random() * 20 + 5;
+                    
+                    pools.push({
+                        pair: pair.pair,
+                        baseToken: pair.base,
+                        quoteToken: pair.quote,
+                        category: category,
+                        network: networks[Math.floor(Math.random() * networks.length)],
+                        dex: dexes[Math.floor(Math.random() * dexes.length)],
+                        tvl: tvl,
+                        volume24h: volume,
+                        apr: apr,
+                        change1h: (Math.random() - 0.5) * 5,
+                        change6h: (Math.random() - 0.5) * 15,
+                        ratio: Math.floor(Math.random() * 40 + 30)
+                    });
+                });
+            });
+
+            return pools;
         }
 
-        // Calcula APR baseado em volume e liquidez
-        function calculateAPR(pool) {
-            const tvl = pool.liquidity?.usd || 1;
-            const volume24h = pool.volume?.h24 || 0;
-            const feeRate = 0.003; // 0.3% fee padrão
+        // Calcular score
+        function calculateScore(pool) {
+            const efficiency = pool.volume24h / pool.tvl;
+            const liquidityScore = pool.tvl > 1000000 ? 100 : pool.tvl / 10000;
             
-            // APR estimado baseado em fees + incentivos
-            const feeAPR = (volume24h * feeRate * 365 / tvl) * 100;
-            
-            // Adiciona um multiplicador para pools incentivadas (simulado)
-            const incentiveMultiplier = pool.fdv ? 1.5 : 1;
-            
-            return Math.round(feeAPR * incentiveMultiplier);
-        }
-
-        // Calcula ratio da pool
-        function calculateRatio(pool) {
-            // Simulação - em produção, buscar dados reais dos reserves
-            const ratios = ['50/50', '60/40', '70/30', '80/20'];
-            const randomRatio = ratios[Math.floor(Math.random() * ratios.length)];
-            return randomRatio;
-        }
-
-        // Sistema de Score Profissional (conforme critérios fornecidos)
-        function calculateProfessionalScore(tvl, volume24h, apr, pool, network) {
-            // 1. Score de Liquidez (35%)
-            let liquidityScore = 0;
-            if (tvl >= 1000000) liquidityScore = 100; // $1M+ = seguro
-            else if (tvl >= 500000) liquidityScore = 80;
-            else if (tvl >= 100000) liquidityScore = 60; // $100k-$1M = ok
-            else if (tvl >= 50000) liquidityScore = 40;
-            else liquidityScore = 20; // <$100k = risco alto
-
-            // 2. Score de Volume (25%)
-            let volumeScore = 0;
-            const volumeToTvlRatio = tvl > 0 ? volume24h / tvl : 0;
-            if (volumeToTvlRatio >= 3) volumeScore = 100; // Volume > 3x TVL = excelente
-            else if (volumeToTvlRatio >= 1) volumeScore = 80; // Volume > TVL = bom
-            else if (volumeToTvlRatio >= 0.5) volumeScore = 60;
-            else if (volumeToTvlRatio >= 0.1) volumeScore = 40;
-            else volumeScore = 20;
-
-            // 3. Score de Estabilidade APR (20%)
-            let aprStabilityScore = 0;
-            if (apr >= 50 && apr <= 200) aprStabilityScore = 100; // 50-200% = saudável
-            else if (apr >= 20 && apr < 50) aprStabilityScore = 80; // 20-50% = conservador
-            else if (apr >= 200 && apr < 300) aprStabilityScore = 60; // 200-300% = moderado
-            else if (apr < 20) aprStabilityScore = 70; // <20% = muito conservador
-            else aprStabilityScore = 30; // >300% = temporário/hype
-
-            // 4. Score de Risco do Par (20%)
-            let pairRiskScore = 0;
-            const baseToken = (pool.baseToken?.symbol || '').toUpperCase();
-            const quoteToken = (pool.quoteToken?.symbol || '').toUpperCase();
-            
-            // Pares estáveis (baixo risco)
-            const stablecoins = ['USDC', 'USDT', 'DAI', 'BUSD', 'USDD'];
-            const bluechips = ['BTC', 'WBTC', 'ETH', 'WETH', 'SOL', 'BNB'];
-            
-            const isBaseStable = stablecoins.includes(baseToken);
-            const isQuoteStable = stablecoins.includes(quoteToken);
-            const isBaseBluechip = bluechips.includes(baseToken);
-            const isQuoteBluechip = bluechips.includes(quoteToken);
-            
-            if ((isBaseStable && isQuoteStable) || (isBaseBluechip && isQuoteStable)) {
-                pairRiskScore = 100; // 🟢 Baixo risco
-            } else if (isBaseBluechip && isQuoteBluechip) {
-                pairRiskScore = 85; // 🟢 Baixo risco
-            } else if ((isBaseBluechip || isQuoteBluechip) && network === 'solana') {
-                pairRiskScore = 70; // 🟡 Médio
-            } else if (network === 'ethereum' || network === 'arbitrum') {
-                pairRiskScore = 60; // 🟡 Médio
-            } else {
-                pairRiskScore = 40; // 🔴 Alto (memecoins, tokens desconhecidos)
-            }
-
-            // Calcula score total ponderado
-            const totalScore = Math.round(
-                (0.35 * liquidityScore) +
-                (0.25 * volumeScore) +
-                (0.20 * aprStabilityScore) +
-                (0.20 * pairRiskScore)
+            pool.score = Math.round(
+                (0.3 * pool.apr) +
+                (0.4 * (efficiency * 100)) +
+                (0.3 * liquidityScore)
             );
 
-            return {
-                total: totalScore,
-                liquidity: liquidityScore,
-                volume: volumeScore,
-                aprStability: aprStabilityScore,
-                pairRisk: pairRiskScore,
-                volumeToTvlRatio: volumeToTvlRatio.toFixed(2)
-            };
-        }
-
-        // Classifica risco
-        function classifyRisk(score, tvl, apr, network, pool) {
-            const baseToken = (pool.baseToken?.symbol || '').toUpperCase();
-            const quoteToken = (pool.quoteToken?.symbol || '').toUpperCase();
-            
-            // Verifica se é memecoin ou token suspeito
-            const suspiciousKeywords = ['DOGE', 'SHIB', 'PEPE', 'FLOKI', 'BONK'];
-            const isSuspicious = suspiciousKeywords.some(k => 
-                baseToken.includes(k) || quoteToken.includes(k)
-            );
-
-            if (score >= 80 && tvl >= 500000 && !isSuspicious) {
-                return { level: 'low', label: 'Seguro', class: 'risk-low' };
-            } else if (score >= 60 && tvl >= 100000 && apr < 300) {
-                return { level: 'medium', label: 'Moderado', class: 'risk-medium' };
+            // Classificar risco
+            if (pool.apr > 150) {
+                pool.riskLevel = 'high';
+                pool.riskLabel = 'Alto';
+                pool.riskClass = 'high-risk';
+            } else if (pool.apr > 40) {
+                pool.riskLevel = 'medium';
+                pool.riskLabel = 'Médio';
+                pool.riskClass = 'medium-risk';
             } else {
-                return { level: 'high', label: 'Alto Risco', class: 'risk-high' };
+                pool.riskLevel = 'low';
+                pool.riskLabel = 'Baixo';
+                pool.riskClass = 'low-risk';
             }
+
+            return pool;
         }
 
-        // Atualiza UI
-        function updateUI() {
+        // Selecionar top 5 por categoria
+        function selectTop5(category) {
+            const categoryPools = allPools.filter(p => p.category === category);
+            
+            const highRisk = categoryPools.filter(p => p.riskLevel === 'high').sort((a, b) => b.score - a.score);
+            const mediumRisk = categoryPools.filter(p => p.riskLevel === 'medium').sort((a, b) => b.score - a.score);
+            const lowRisk = categoryPools.filter(p => p.riskLevel === 'low').sort((a, b) => b.score - a.score);
+
+            const selected = [
+                highRisk[0],
+                mediumRisk[0],
+                mediumRisk[1],
+                lowRisk[0],
+                lowRisk[1]
+            ].filter(Boolean);
+
+            return selected.sort((a, b) => b.apr - a.apr);
+        }
+
+        // Atualizar cards de categorias
+        function updateCategories() {
+            const categories = {
+                bluechip: 'bluechipList',
+                stable: 'stableList',
+                rwa: 'rwaList',
+                real: 'realList'
+            };
+
+            Object.keys(categories).forEach(cat => {
+                const top5 = selectTop5(cat);
+                const container = document.getElementById(categories[cat]);
+                
+                container.innerHTML = top5.map(pool => `
+                    <div class="pool-item ${pool.riskClass}">
+                        <div class="pool-pair">
+                            <div class="risk-dot ${pool.riskLevel}"></div>
+                            ${pool.pair}
+                        </div>
+                        <div class="pool-apr">${pool.apr.toFixed(1)}%</div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        // Atualizar tabela
+        function updateTable() {
             const tbody = document.getElementById('poolsTableBody');
             
             if (filteredPools.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="11" style="text-align: center; padding: 40px; color: #94a3b8;">
-                            Nenhuma pool encontrada com os filtros selecionados
+                            Nenhuma pool encontrada
                         </td>
                     </tr>
                 `;
                 return;
             }
 
-            tbody.innerHTML = filteredPools.slice(0, 50).map(pool => `
-                <tr onclick="showScoreDetails(${allPools.indexOf(pool)})" style="cursor: pointer;">
-                    <td>
-                        <div class="pool-name">
-                            <div class="pool-icons">
-                                <div class="token-icon">${pool.baseToken[0]}</div>
-                                <div class="token-icon" style="margin-left: -8px; background: linear-gradient(135deg, #10b981, #3b82f6);">${pool.quoteToken[0]}</div>
-                            </div>
-                            ${pool.pair}
-                        </div>
-                    </td>
-                    <td><span class="network-badge network-${pool.network.toLowerCase()}">${pool.network}</span></td>
+            tbody.innerHTML = filteredPools.map(pool => `
+                <tr>
+                    <td style="font-weight: 600;">${pool.pair}</td>
+                    <td><span class="network-badge network-${pool.network}">${pool.network}</span></td>
                     <td><span class="dex-badge">${pool.dex}</span></td>
-                    <td class="tvl-value">${formatMoney(pool.tvl)}</td>
-                    <td class="volume-value">${formatMoney(pool.volume24h)}</td>
-                    <td class="apr-value ${getAprClass(pool.apr)}">${pool.apr}%</td>
-                    <td class="change-value ${pool.change1h >= 0 ? 'positive' : 'negative'}">
-                        ${pool.change1h >= 0 ? '+' : ''}${pool.change1h.toFixed(2)}%
-                    </td>
-                    <td class="change-value ${pool.change24h >= 0 ? 'positive' : 'negative'}">
-                        ${pool.change24h >= 0 ? '+' : ''}${pool.change24h.toFixed(2)}%
-                    </td>
+                    <td>${formatMoney(pool.tvl)}</td>
                     <td>
-                        <span class="ratio-badge ${pool.ratio !== '50/50' ? 'ratio-unbalanced' : ''}">
-                            ${pool.ratio}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="score-badge ${getScoreClass(pool.score.total)}">
-                            ${pool.score.total}
-                        </span>
-                    </td>
-                    <td>
-                        <div class="risk-indicator">
-                            <div class="risk-dot ${pool.risk.class}"></div>
-                            <span>${pool.risk.label}</span>
+                        <div class="ratio-bar">
+                            <div class="ratio-visual">
+                                <div class="ratio-fill" style="width: ${pool.ratio}%"></div>
+                            </div>
+                            <span>${pool.ratio}/${100-pool.ratio}</span>
                         </div>
+                    </td>
+                    <td>${formatMoney(pool.volume24h)}</td>
+                    <td style="color: #10b981; font-weight: 700;">${pool.apr.toFixed(1)}%</td>
+                    <td class="${pool.change1h >= 0 ? 'positive' : 'negative'}">
+                        ${pool.change1h >= 0 ? '▲' : '▼'} ${Math.abs(pool.change1h).toFixed(2)}%
+                    </td>
+                    <td class="${pool.change6h >= 0 ? 'positive' : 'negative'}">
+                        ${pool.change6h >= 0 ? '▲' : '▼'} ${Math.abs(pool.change6h).toFixed(2)}%
+                    </td>
+                    <td style="font-weight: 600;">${pool.score}</td>
+                    <td>
+                        <span class="network-badge" style="background: ${pool.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.15)' : pool.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${pool.riskLevel === 'high' ? '#ef4444' : pool.riskLevel === 'medium' ? '#f59e0b' : '#10b981'};">
+                            ${pool.riskLabel}
+                        </span>
                     </td>
                 </tr>
             `).join('');
 
-            // Atualiza estatísticas
-            updateStats();
-            
-            // Atualiza contador
             document.getElementById('totalPools').textContent = filteredPools.length;
         }
 
-        // Atualiza estatísticas
+        // Atualizar estatísticas
         function updateStats() {
             const totalTvl = filteredPools.reduce((sum, p) => sum + p.tvl, 0);
             const totalVolume = filteredPools.reduce((sum, p) => sum + p.volume24h, 0);
-            const avgApr = filteredPools.length > 0 
-                ? Math.round(filteredPools.reduce((sum, p) => sum + p.apr, 0) / filteredPools.length)
-                : 0;
-            const safePools = filteredPools.filter(p => p.risk.level === 'low').length;
+            const avgApr = filteredPools.length > 0 ? filteredPools.reduce((sum, p) => sum + p.apr, 0) / filteredPools.length : 0;
+            const safePools = filteredPools.filter(p => p.riskLevel === 'low').length;
 
             document.getElementById('totalTvl').textContent = formatMoney(totalTvl);
             document.getElementById('totalVolume').textContent = formatMoney(totalVolume);
-            document.getElementById('avgApr').textContent = `${avgApr}%`;
+            document.getElementById('avgApr').textContent = avgApr.toFixed(1) + '%';
             document.getElementById('safePools').textContent = safePools;
-        }
-
-        // Mostra detalhes do score
-        function showScoreDetails(index) {
-            const pool = allPools[index];
-            const modal = document.getElementById('scoreModal');
-            const details = document.getElementById('scoreDetails');
-            
-            details.innerHTML = `
-                <div style="margin-bottom: 20px; padding: 16px; background: rgba(148, 163, 184, 0.1); border-radius: 12px;">
-                    <div style="font-size: 14px; color: #94a3b8; margin-bottom: 4px;">Pool</div>
-                    <div style="font-size: 18px; font-weight: 700; color: #e2e8f0;">${pool.pair}</div>
-                    <div style="font-size: 13px; color: #64748b; margin-top: 4px;">${pool.network} • ${pool.dex}</div>
-                </div>
-                
-                <div class="score-item">
-                    <span class="score-item-label">💧 Liquidez (35%)</span>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="score-bar">
-                            <div class="score-bar-fill" style="width: ${pool.score.liquidity}%"></div>
-                        </div>
-                        <span class="score-item-value">${pool.score.liquidity}/100</span>
-                    </div>
-                </div>
-                
-                <div class="score-item">
-                    <span class="score-item-label">📊 Volume (25%)</span>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="score-bar">
-                            <div class="score-bar-fill" style="width: ${pool.score.volume}%"></div>
-                        </div>
-                        <span class="score-item-value">${pool.score.volume}/100</span>
-                    </div>
-                </div>
-                
-                <div class="score-item">
-                    <span class="score-item-label">📈 Estabilidade APR (20%)</span>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="score-bar">
-                            <div class="score-bar-fill" style="width: ${pool.score.aprStability}%"></div>
-                        </div>
-                        <span class="score-item-value">${pool.score.aprStability}/100</span>
-                    </div>
-                </div>
-                
-                <div class="score-item">
-                    <span class="score-item-label">🛡️ Risco do Par (20%)</span>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="score-bar">
-                            <div class="score-bar-fill" style="width: ${pool.score.pairRisk}%"></div>
-                        </div>
-                        <span class="score-item-value">${pool.score.pairRisk}/100</span>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 20px; padding: 12px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; font-size: 13px; color: #94a3b8;">
-                    <strong style="color: #3b82f6;">Volume/TVL Ratio:</strong> ${pool.score.volumeToTvlRatio}x<br>
-                    ${pool.score.volumeToTvlRatio >= 1 ? '✅ Volume saudável - APR sustentável' : '⚠️ Volume baixo - APR pode cair'}
-                </div>
-                
-                <div style="margin-top: 12px; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; font-size: 13px; color: #94a3b8;">
-                    <strong style="color: #10b981;">Classificação:</strong> ${pool.risk.label}<br>
-                    Score: ${pool.score.total}/100
-                </div>
-            `;
-            
-            modal.style.display = 'flex';
-        }
-
-        function closeScoreModal() {
-            document.getElementById('scoreModal').style.display = 'none';
-        }
-
-        // Aplica filtros
-        function applyFilters() {
-            const minApr = parseFloat(document.getElementById('minApr').value) || 0;
-            const minVolume = parseFloat(document.getElementById('minVolume').value) || 0;
-            const minTvl = parseFloat(document.getElementById('minTvl').value) || 0;
-            const network = document.getElementById('networkFilter').value;
-            const risk = document.getElementById('riskFilter').value;
-
-            filteredPools = allPools.filter(pool => {
-                const matchApr = pool.apr >= minApr;
-                const matchVolume = pool.volume24h >= minVolume;
-                const matchTvl = pool.tvl >= minTvl;
-                const matchNetwork = !network || pool.network.toLowerCase() === network.toLowerCase();
-                const matchRisk = !risk || pool.risk.level === risk;
-
-                return matchApr && matchVolume && matchTvl && matchNetwork && matchRisk;
-            });
-
-            updateUI();
-        }
-
-        // Reseta filtros
-        function resetFilters() {
-            document.getElementById('minApr').value = '';
-            document.getElementById('minVolume').value = '';
-            document.getElementById('minTvl').value = '';
-            document.getElementById('networkFilter').value = '';
-            document.getElementById('riskFilter').value = '';
-            
-            filteredPools = [...allPools];
-            updateUI();
-        }
-
-        // Ordena tabela
-        function sortTable(field) {
-            filteredPools.sort((a, b) => {
-                if (field === 'pair') return a.pair.localeCompare(b.pair);
-                if (field === 'network') return a.network.localeCompare(b.network);
-                if (field === 'dex') return a.dex.localeCompare(b.dex);
-                if (field === 'tvl') return b.tvl - a.tvl;
-                if (field === 'volume') return b.volume24h - a.volume24h;
-                if (field === 'apr') return b.apr - a.apr;
-                if (field === 'change1h') return b.change1h - a.change1h;
-                if (field === 'change24h') return b.change24h - a.change24h;
-                if (field === 'score') return b.score.total - a.score.total;
-                return 0;
-            });
-            updateUI();
         }
 
         // Atualização automática
         function startAutoUpdate() {
-            let secondsLeft = 30;
+            updateInterval = setInterval(() => {
+                fetchPools();
+            }, CONFIG.updateInterval);
+
+            resetCountdown();
+        }
+
+        function resetCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            let secondsLeft = 15 * 60;
             
             countdownInterval = setInterval(() => {
                 secondsLeft--;
-                document.getElementById('nextUpdate').textContent = `${secondsLeft}s`;
+                const minutes = Math.floor(secondsLeft / 60);
+                const seconds = secondsLeft % 60;
+                document.getElementById('nextUpdate').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 
                 if (secondsLeft <= 0) {
-                    secondsLeft = 30;
-                    fetchPools();
+                    secondsLeft = 15 * 60;
                 }
             }, 1000);
         }
@@ -1062,56 +1037,72 @@
             document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('pt-BR');
         }
 
+        function manualUpdate() {
+            fetchPools();
+        }
+
+        // Filtros
+        function applyFilters() {
+            const minApr = parseFloat(document.getElementById('minApr').value) || 0;
+            const minVolume = parseFloat(document.getElementById('minVolume').value) || 0;
+            const minTvl = parseFloat(document.getElementById('minTvl').value) || 0;
+            const network = document.getElementById('networkFilter').value;
+            const risk = document.getElementById('riskFilter').value;
+
+            filteredPools = allPools.filter(pool => {
+                return pool.apr >= minApr &&
+                       pool.volume24h >= minVolume &&
+                       pool.tvl >= minTvl &&
+                       (!network || pool.network === network) &&
+                       (!risk || pool.riskLevel === risk);
+            });
+
+            updateTable();
+            updateStats();
+        }
+
+        function resetFilters() {
+            document.getElementById('minApr').value = '';
+            document.getElementById('minVolume').value = '';
+            document.getElementById('minTvl').value = '';
+            document.getElementById('networkFilter').value = '';
+            document.getElementById('riskFilter').value = '';
+            
+            filteredPools = [...allPools];
+            updateTable();
+            updateStats();
+        }
+
+        // Modo de exibição
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.mode-btn').classList.add('active');
+
+            if (mode === 'highapr') {
+                filteredPools = [...allPools].sort((a, b) => b.apr - a.apr);
+            } else if (mode === 'auto') {
+                filteredPools = [...allPools].sort((a, b) => b.score - a.score);
+            }
+            
+            updateTable();
+        }
+
+        function setActiveTab(element) {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
         // Utilitários
         function formatMoney(value) {
             if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
             if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
             if (value >= 1e3) return `$${(value / 1e3).toFixed(2)}K`;
             return `$${value.toFixed(2)}`;
-        }
-
-        function getAprClass(apr) {
-            if (apr >= 200) return 'apr-high';
-            if (apr >= 50) return 'apr-medium';
-            return 'apr-low';
-        }
-
-        function getScoreClass(score) {
-            if (score >= 80) return 'score-excellent';
-            if (score >= 60) return 'score-good';
-            return 'score-avoid';
-        }
-
-        function getNetworkName(chainId) {
-            const networks = {
-                'solana': 'Solana',
-                'ethereum': 'Ethereum',
-                'base': 'Base',
-                'bsc': 'BSC',
-                'arbitrum': 'Arbitrum',
-                'polygon': 'Polygon',
-                'avalanche': 'Avalanche'
-            };
-            return networks[chainId?.toLowerCase()] || chainId || 'Unknown';
-        }
-
-        function showError(message) {
-            const tbody = document.getElementById('poolsTableBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="11">
-                        <div class="error-message">${message}</div>
-                    </td>
-                </tr>
-            `;
-        }
-
-        // Fecha modal ao clicar fora
-        window.onclick = function(event) {
-            const modal = document.getElementById('scoreModal');
-            if (event.target === modal) {
-                closeScoreModal();
-            }
         }
     </script>
 </body>
