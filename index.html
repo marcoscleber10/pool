@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Top Pools DeFi - Análise Profissional</title>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -131,13 +132,18 @@
             50% { opacity: 0.5; }
         }
 
-        /* Busca */
+        /* Busca Profissional */
         .search-section {
             background: rgba(30, 41, 59, 0.8);
-            border-radius: 12px;
-            padding: 16px;
+            border-radius: 16px;
+            padding: 20px;
             margin-bottom: 20px;
             border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-wrapper {
+            position: relative;
         }
 
         .search-container {
@@ -146,47 +152,513 @@
             align-items: center;
         }
 
+        .search-icon-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+
         .search-icon {
-            font-size: 20px;
+            font-size: 22px;
             color: #3b82f6;
+            transition: all 0.3s;
+        }
+
+        .search-icon.active {
+            color: #fbbf24;
+            animation: searchPulse 0.5s ease;
+        }
+
+        @keyframes searchPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
         }
 
         .search-input {
-            flex: 1;
-            padding: 12px 16px;
-            border-radius: 8px;
+            width: 100%;
+            padding: 14px 44px 14px 18px;
+            border-radius: 12px;
             border: 2px solid rgba(148, 163, 184, 0.2);
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.8);
             color: #e2e8f0;
-            font-size: 14px;
+            font-size: 15px;
             outline: none;
             transition: all 0.3s;
         }
 
         .search-input:focus {
             border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+            background: rgba(15, 23, 42, 1);
         }
 
         .search-input::placeholder {
-            color: #64748b;
+            color: #475569;
         }
 
+        .search-clear-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(148, 163, 184, 0.2);
+            border: none;
+            color: #94a3b8;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-clear-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .search-clear-btn.visible {
+            display: flex;
+        }
+
+        /* Sugestões Rápidas */
+        .quick-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .quick-tag {
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            user-select: none;
+        }
+
+        .quick-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .quick-tag.high-apr {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        .quick-tag.high-apr:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .quick-tag.low-risk {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        .quick-tag.low-risk:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .quick-tag.solana {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        .quick-tag.solana:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .quick-tag.bluechip {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+        }
+        .quick-tag.bluechip:hover {
+            background: rgba(251, 191, 36, 0.2);
+        }
+
+        .quick-tag.stable {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+            color: #818cf8;
+        }
+        .quick-tag.stable:hover {
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        /* Autocomplete Dropdown */
+        .autocomplete-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+            animation: dropdownFade 0.2s ease;
+        }
+
+        @keyframes dropdownFade {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .autocomplete-dropdown.visible {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+        }
+
+        .autocomplete-item:hover {
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-pair {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .autocomplete-meta {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .autocomplete-apr {
+            color: #10b981;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        /* Resultados da Busca */
         .search-results {
             margin-top: 16px;
             display: none;
+            animation: resultsFade 0.3s ease;
+        }
+
+        @keyframes resultsFade {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .search-results.active {
             display: block;
         }
 
+        .search-results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
         .search-results-title {
             font-size: 14px;
             color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-results-count {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .search-sort-label {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        /* Cards de Resultados */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 14px;
+        }
+
+        .result-card {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .result-card.risk-high::before {
+            background: linear-gradient(90deg, #ef4444, #f97316);
+        }
+
+        .result-card.risk-medium::before {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .result-card.risk-low::before {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .result-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .result-pair {
+            font-size: 18px;
+            font-weight: 700;
+            color: #e2e8f0;
+            line-height: 1.2;
+        }
+
+        .result-pair mark {
+            background: rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+
+        .result-apr-badge {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .result-card-middle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .result-badge {
+            display: inline-flex;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .result-badge.network-solana { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .result-badge.network-ethereum { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+        .result-badge.network-base { background: rgba(0, 120, 255, 0.15); color: #0078ff; }
+        .result-badge.network-bsc { background: rgba(240, 185, 10, 0.15); color: #f0b90b; }
+        .result-badge.network-arbitrum { background: rgba(36, 150, 255, 0.15); color: #2496ff; }
+
+        .result-badge.dex { background: rgba(148, 163, 184, 0.1); color: #94a3b8; }
+
+        .result-badge.risk-high { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .result-badge.risk-medium { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        .result-badge.risk-low { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+
+        .result-card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-tvl {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .result-tvl span {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .result-relevance {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .relevance-bar {
+            width: 40px;
+            height: 4px;
+            background: rgba(148, 163, 184, 0.15);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .relevance-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+
+        .result-action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .result-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Loading Busca */
+        .search-loading {
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+            display: none;
+        }
+
+        .search-loading.visible {
+            display: block;
+        }
+
+        .search-loading .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(59, 130, 246, 0.1);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .no-results-text {
+            font-size: 16px;
+            margin-bottom: 6px;
+            color: #94a3b8;
+        }
+
+        .no-results-sub {
+            font-size: 13px;
+        }
+
+        /* Popular Searches */
+        .popular-section {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .popular-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .popular-list {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .popular-item {
+            padding: 5px 12px;
+            background: rgba(148, 163, 184, 0.08);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            border-radius: 8px;
+            font-size: 12px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .popular-item:hover {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: #e2e8f0;
         }
 
         /* Alerta */
@@ -735,6 +1207,14 @@
             .search-input {
                 width: 100%;
             }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-tags {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -767,36 +1247,67 @@
             </div>
         </div>
 
-        <!-- Busca -->
-        <div class="search-section">
-            <div class="search-container">
-                <span class="search-icon">🔍</span>
-                <input 
-                    type="text" 
-                    class="search-input" 
-                    id="searchInput" 
-                    placeholder="Buscar par (ex: QQQ/USDC, ETH/USDT, SOL/USDC)..."
-                    onkeypress="handleSearchKey(event)"
-                >
-            </div>
-            <div class="search-results" id="searchResults">
-                <div class="search-results-title">Resultados da busca</div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Par</th>
-                                <th>Rede</th>
-                                <th>DEX</th>
-                                <th>TVL</th>
-                                <th>APR</th>
-                                <th>Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="searchResultsBody">
-                        </tbody>
-                    </table>
+        <!-- Busca Profissional -->
+        <div class="search-section" id="searchSection">
+            <div class="search-wrapper">
+                <div class="search-container">
+                    <div class="search-icon-wrapper">
+                        <span class="search-icon" id="searchIcon">🔍</span>
+                    </div>
+                    <div class="search-input-wrapper">
+                        <input 
+                            type="text" 
+                            class="search-input" 
+                            id="searchInput" 
+                            placeholder="Buscar par, token, DEX ou rede..."
+                            autocomplete="off"
+                        >
+                        <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()">✕</button>
+                    </div>
                 </div>
+
+                <!-- Autocomplete Dropdown -->
+                <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
+
+                <!-- Sugestões Rápidas -->
+                <div class="quick-tags" id="quickTags">
+                    <span class="quick-tag high-apr" onclick="quickSearch('high apr')">🔥 Alta APR</span>
+                    <span class="quick-tag low-risk" onclick="quickSearch('baixo risco')">🟢 Baixo Risco</span>
+                    <span class="quick-tag solana" onclick="quickSearch('solana')">⚡ Solana</span>
+                    <span class="quick-tag bluechip" onclick="quickSearch('bluechip')">💎 Blue-Chip</span>
+                    <span class="quick-tag stable" onclick="quickSearch('stable')">💵 Stablecoins</span>
+                </div>
+
+                <!-- Buscas Populares -->
+                <div class="popular-section" id="popularSection">
+                    <div class="popular-label">🔥 Buscas populares</div>
+                    <div class="popular-list" id="popularList">
+                        <span class="popular-item" onclick="quickSearch('ETH')">ETH/USDC</span>
+                        <span class="popular-item" onclick="quickSearch('BTC')">BTC/USDC</span>
+                        <span class="popular-item" onclick="quickSearch('SOL')">SOL/USDC</span>
+                        <span class="popular-item" onclick="quickSearch('QQQ')">QQQ/USDC</span>
+                        <span class="popular-item" onclick="quickSearch('Uniswap')">Uniswap</span>
+                        <span class="popular-item" onclick="quickSearch('Raydium')">Raydium</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div class="search-loading" id="searchLoading">
+                <div class="spinner"></div>
+                <div>Buscando pools...</div>
+            </div>
+
+            <!-- Resultados da Busca -->
+            <div class="search-results" id="searchResults">
+                <div class="search-results-header">
+                    <div class="search-results-title">
+                        🔍 Resultados para "<span id="searchTermDisplay"></span>"
+                        <span class="search-results-count" id="searchResultsCount">0</span>
+                    </div>
+                    <span class="search-sort-label">Ordenado por relevância + APR</span>
+                </div>
+                <div class="results-grid" id="resultsGrid"></div>
             </div>
         </div>
 
@@ -1030,15 +1541,12 @@
     <script>
         // Mapeamento de tokens para endereços
         const TOKEN_ADDRESSES = {
-            // Solana
             'SOL': 'So11111111111111111111111111111111111111112',
             'USDC': 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
             'USDT': 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
             'RAY': '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R',
             'JUP': 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN',
             'BONK': 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
-            
-            // Ethereum/EVM
             'ETH': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
             'WETH': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
             'WBTC': '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -1051,8 +1559,6 @@
             'DYDX': '0x92D6C1e31e14520e676a687F0a93788B716BEff5',
             'PEPE': '0x6982508145454Ce325dDbE47a25d4ec3d2311933',
             'SHIB': '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE',
-            
-            // Tokens RWA/Stocks
             'SPY': '0x1BcE11eFD75a7308C628D6e46b2469fE20a9B961',
             'QQQ': '0x8E1d3bDD69bfDB16D5c9b54689E58D3a5B5C2B0F',
             'AAPL': '0x1111111111111111111111111111111111111111',
@@ -1067,13 +1573,9 @@
             'GOLD': '0x9999999999999999999999999999999999999999',
             'PAXG': '0x45804880De22913dAFE09f4980848ECE6EcbAf78',
             'XAUT': '0x68749665FF8D2d112Fa859AA293F07A622782F38',
-            
-            // Stablecoins
             'USDe': '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
             'crvUSD': '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
             'LUSD': '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0',
-            
-            // Fiat
             'BRL': '0x1111111111111111111111111111111111111112',
             'BRZ': '0x4200000000000000000000000000000000000043',
             'EUR': '0x2222222222222222222222222222222222222223',
@@ -1083,9 +1585,9 @@
             'COP': '0x6666666666666666666666666666666666666667'
         };
 
-        // Configurações com 6 categorias e 10 pares cada
+        // Configurações com 6 categorias
         const CONFIG = {
-            updateInterval: 15 * 60 * 1000, // 15 minutos
+            updateInterval: 15 * 60 * 1000,
             categories: {
                 bluechip: [
                     { pair: 'ETH/USDC', base: 'ETH', quote: 'USDC' },
@@ -1167,20 +1669,91 @@
         let countdownInterval;
         let updateInterval;
         let currentMode = 'highapr';
+        let fuseInstance = null;
+        let searchTimeout = null;
+        let searchHistory = [];
+
+        // Mapeamento para busca fuzzy
+        const SEARCH_TAGS = {
+            'high apr': { label: 'APR Alto', filter: 'apr_high' },
+            'baixo risco': { label: 'Baixo Risco', filter: 'low_risk' },
+            'solana': { label: 'Solana', filter: 'solana' },
+            'bluechip': { label: 'Blue-Chip', filter: 'bluechip' },
+            'stable': { label: 'Stablecoin', filter: 'stable' },
+            'rwa': { label: 'RWA', filter: 'rwa' },
+            'trending': { label: 'Trending', filter: 'trending' },
+            'eth': { label: 'Ethereum', filter: 'eth' },
+            'btc': { label: 'Bitcoin', filter: 'btc' },
+        };
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
             fetchPools();
             startAutoUpdate();
+            setupSearchListeners();
+            loadSearchHistory();
         });
 
-        // Buscar dados - simula API com dados realistas
+        // Configurar listeners de busca
+        function setupSearchListeners() {
+            const searchInput = document.getElementById('searchInput');
+            
+            searchInput.addEventListener('input', (e) => {
+                const value = e.target.value.trim();
+                
+                // Toggle clear button
+                const clearBtn = document.getElementById('searchClearBtn');
+                clearBtn.classList.toggle('visible', value.length > 0);
+
+                // Debounce
+                clearTimeout(searchTimeout);
+                if (value.length === 0) {
+                    hideSearchResults();
+                    hideAutocomplete();
+                    return;
+                }
+
+                // Show autocomplete immediately
+                showAutocomplete(value);
+
+                searchTimeout = setTimeout(() => {
+                    performSearch(value);
+                }, 300);
+            });
+
+            searchInput.addEventListener('focus', () => {
+                if (searchInput.value.trim().length > 0) {
+                    showAutocomplete(searchInput.value.trim());
+                }
+            });
+
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    clearTimeout(searchTimeout);
+                    performSearch(searchInput.value.trim());
+                    hideAutocomplete();
+                }
+            });
+
+            // Close autocomplete on outside click
+            document.addEventListener('click', (e) => {
+                const searchSection = document.getElementById('searchSection');
+                if (!searchSection.contains(e.target)) {
+                    hideAutocomplete();
+                }
+            });
+        }
+
+        // Buscar dados
         async function fetchPools() {
             try {
                 const mockData = generateMockData();
                 allPools = mockData.map(pool => calculateScore(pool));
                 allPools.sort((a, b) => b.score - a.score);
                 filteredPools = [...allPools];
+                
+                // Initialize Fuse.js
+                initFuseSearch();
                 
                 updateCategories();
                 updateTable();
@@ -1193,7 +1766,44 @@
             }
         }
 
-        // Gerar dados mockados realistas
+        // Inicializar Fuse.js
+        function initFuseSearch() {
+            const fuseData = allPools.map(pool => ({
+                pair: pool.pair,
+                baseToken: pool.baseToken,
+                quoteToken: pool.quoteToken,
+                category: pool.category,
+                network: pool.network,
+                dex: pool.dex,
+                riskLevel: pool.riskLevel,
+                riskLabel: pool.riskLabel,
+                apr: pool.apr,
+                tvl: pool.tvl,
+                url: pool.url,
+                _original: pool
+            }));
+
+            fuseInstance = new Fuse(fuseData, {
+                keys: [
+                    { name: 'pair', weight: 0.4 },
+                    { name: 'baseToken', weight: 0.3 },
+                    { name: 'quoteToken', weight: 0.3 },
+                    { name: 'dex', weight: 0.2 },
+                    { name: 'network', weight: 0.2 },
+                    { name: 'category', weight: 0.15 },
+                    { name: 'riskLabel', weight: 0.1 }
+                ],
+                threshold: 0.4,
+                distance: 100,
+                minMatchCharLength: 1,
+                includeScore: true,
+                includeMatches: true,
+                ignoreLocation: true,
+                findAllMatches: false
+            });
+        }
+
+        // Gerar dados mockados
         function generateMockData() {
             const networks = ['solana', 'ethereum', 'base', 'bsc', 'arbitrum'];
             const dexes = ['Raydium', 'Uniswap V3', 'PancakeSwap', 'Aerodrome', 'Camelot'];
@@ -1201,36 +1811,34 @@
 
             Object.keys(CONFIG.categories).forEach(category => {
                 CONFIG.categories[category].forEach((pairConfig, index) => {
-                    // Gerar dados realistas baseados na categoria
                     let tvl, volume, apr;
                     
                     if (category === 'bluechip') {
-                        tvl = Math.random() * 10000000 + 500000; // $500k - $10M
+                        tvl = Math.random() * 10000000 + 500000;
                         volume = tvl * (Math.random() * 2 + 0.5);
-                        apr = Math.random() * 400 + 5; // 5-405%
+                        apr = Math.random() * 400 + 5;
                     } else if (category === 'stable') {
-                        tvl = Math.random() * 5000000 + 200000; // $200k - $5M
+                        tvl = Math.random() * 5000000 + 200000;
                         volume = tvl * (Math.random() * 3 + 1);
-                        apr = Math.random() * 500 + 1; // 1-501%
+                        apr = Math.random() * 500 + 1;
                     } else if (category === 'rwa') {
-                        tvl = Math.random() * 2000000 + 100000; // $100k - $2M
+                        tvl = Math.random() * 2000000 + 100000;
                         volume = tvl * (Math.random() * 1.5 + 0.3);
-                        apr = Math.random() * 350 + 150; // 150-500%
+                        apr = Math.random() * 350 + 150;
                     } else if (category === 'real') {
-                        tvl = Math.random() * 500000 + 50000; // $50k - $500k
+                        tvl = Math.random() * 500000 + 50000;
                         volume = tvl * (Math.random() * 1 + 0.2);
-                        apr = Math.random() * 20 + 5; // 5-25%
+                        apr = Math.random() * 20 + 5;
                     } else if (category === 'stocks') {
-                        tvl = Math.random() * 1500000 + 100000; // $100k - $1.5M
+                        tvl = Math.random() * 1500000 + 100000;
                         volume = tvl * (Math.random() * 2 + 0.5);
-                        apr = Math.random() * 300 + 100; // 100-400%
-                    } else { // trending
-                        tvl = Math.random() * 800000 + 50000; // $50k - $800k
+                        apr = Math.random() * 300 + 100;
+                    } else {
+                        tvl = Math.random() * 800000 + 50000;
                         volume = tvl * (Math.random() * 4 + 1);
-                        apr = Math.random() * 500 + 200; // 200-700%
+                        apr = Math.random() * 500 + 200;
                     }
 
-                    // Gerar URL da DEX específica
                     const network = networks[Math.floor(Math.random() * networks.length)];
                     const dex = dexes[Math.floor(Math.random() * dexes.length)];
                     const url = buildDEXUrl(network, dex, pairConfig.base, pairConfig.quote);
@@ -1256,7 +1864,7 @@
             return pools;
         }
 
-        // Construir URL da DEX específica
+        // Construir URL da DEX
         function buildDEXUrl(network, dex, token0, token1) {
             const address0 = TOKEN_ADDRESSES[token0] || token0;
             const address1 = TOKEN_ADDRESSES[token1] || token1;
@@ -1280,22 +1888,19 @@
                 },
                 arbitrum: {
                     'Camelot': `https://app.camelot.exchange/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
-                    'Uniswap V3': `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
-                    'SushiSwap': `https://app.sushi.com/swap?inputCurrency=${address0}&outputCurrency=${address1}`
+                    'Uniswap V3': `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`
                 }
             };
 
-            // Retorna URL padrão se não encontrar
             const networkUrls = urls[network];
             if (networkUrls && networkUrls[dex]) {
                 return networkUrls[dex];
             }
             
-            // Fallback para Uniswap
             return `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`;
         }
 
-        // Calcular score profissional
+        // Calcular score
         function calculateScore(pool) {
             const efficiency = pool.volume24h / pool.tvl;
             const liquidityScore = pool.tvl > 1000000 ? 100 : pool.tvl / 10000;
@@ -1306,7 +1911,6 @@
                 (0.3 * liquidityScore)
             );
 
-            // Classificar risco
             if (pool.apr > 150) {
                 pool.riskLevel = 'high';
                 pool.riskLabel = 'Alto';
@@ -1324,7 +1928,320 @@
             return pool;
         }
 
-        // Sistema de fallback de 3 níveis
+        // ==================== SISTEMA DE BUSCA PROFISSIONAL ====================
+
+        // Autocomplete
+        function showAutocomplete(query) {
+            const dropdown = document.getElementById('autocompleteDropdown');
+            
+            if (!fuseInstance || query.length < 1) {
+                hideAutocomplete();
+                return;
+            }
+
+            // Check if it matches a tag
+            const tagMatch = Object.entries(SEARCH_TAGS).find(([key, val]) => 
+                key.includes(query.toLowerCase())
+            );
+
+            // Fuse search
+            const fuseResults = fuseInstance.search(query).slice(0, 6);
+
+            let html = '';
+
+            // Show tag suggestion
+            if (tagMatch) {
+                html += `
+                    <div class="autocomplete-item" onclick="quickSearch('${tagMatch[0]}')">
+                        <div>
+                            <span class="autocomplete-pair">🏷️ ${tagMatch[1].label}</span>
+                        </div>
+                        <span class="autocomplete-meta">Filtro rápido</span>
+                    </div>
+                `;
+            }
+
+            // Show pool suggestions
+            fuseResults.forEach(result => {
+                const pool = result.item._original;
+                const highlightedPair = highlightText(pool.pair, query);
+                
+                html += `
+                    <div class="autocomplete-item" onclick="selectAutocomplete('${pool.pair}', '${pool.url}')">
+                        <div>
+                            <span class="autocomplete-pair">${highlightedPair}</span>
+                            <div class="autocomplete-meta">
+                                <span class="network-badge network-${pool.network}" style="font-size:9px; padding:2px 6px;">${pool.network}</span>
+                                <span>${pool.dex}</span>
+                            </div>
+                        </div>
+                        <span class="autocomplete-apr">${pool.apr.toFixed(1)}%</span>
+                    </div>
+                `;
+            });
+
+            if (html === '') {
+                hideAutocomplete();
+                return;
+            }
+
+            dropdown.innerHTML = html;
+            dropdown.classList.add('visible');
+        }
+
+        function hideAutocomplete() {
+            document.getElementById('autocompleteDropdown').classList.remove('visible');
+        }
+
+        function selectAutocomplete(pair, url) {
+            document.getElementById('searchInput').value = pair;
+            hideAutocomplete();
+            performSearch(pair);
+            addToHistory(pair);
+        }
+
+        // Highlight texto
+        function highlightText(text, query) {
+            if (!query || query.length < 1) return text;
+            
+            const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+            return text.replace(regex, '<mark>$1</mark>');
+        }
+
+        function escapeRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // Busca Principal com Fuse.js
+        function performSearch(query) {
+            if (!query || query.length < 1) {
+                hideSearchResults();
+                return;
+            }
+
+            // Update UI
+            document.getElementById('searchIcon').classList.add('active');
+            document.getElementById('searchLoading').classList.add('visible');
+            document.getElementById('searchResults').classList.remove('active');
+            document.getElementById('popularSection').style.display = 'none';
+            document.getElementById('quickTags').style.display = 'none';
+
+            setTimeout(() => {
+                let results = [];
+
+                // Check for tag filters
+                const tagMatch = Object.entries(SEARCH_TAGS).find(([key, val]) => 
+                    key.includes(query.toLowerCase())
+                );
+
+                if (tagMatch) {
+                    results = applyTagFilter(query.toLowerCase());
+                } else {
+                    // Fuse search
+                    const fuseResults = fuseInstance.search(query);
+                    
+                    // Extract and sort by relevance + APR
+                    results = fuseResults.map(result => ({
+                        ...result.item._original,
+                        fuseScore: result.score,
+                        relevance: 1 - result.score
+                    }));
+
+                    // Sort: exact match first, then by relevance, then by APR
+                    results.sort((a, b) => {
+                        // Exact match in pair gets priority
+                        const aExact = a.pair.toUpperCase().includes(query.toUpperCase());
+                        const bExact = b.pair.toUpperCase().includes(query.toUpperCase());
+                        if (aExact && !bExact) return -1;
+                        if (!aExact && bExact) return 1;
+                        
+                        // Then by relevance
+                        const relDiff = b.relevance - a.relevance;
+                        if (Math.abs(relDiff) > 0.05) return relDiff;
+                        
+                        // Then by APR
+                        return b.apr - a.apr;
+                    });
+                }
+
+                // Save to history
+                addToHistory(query);
+                updatePopularSearches(query);
+
+                // Render results
+                document.getElementById('searchLoading').classList.remove('visible');
+                document.getElementById('searchIcon').classList.remove('active');
+                renderSearchResults(results, query);
+            }, 200);
+        }
+
+        // Filtro por tag
+        function applyTagFilter(tag) {
+            let pools = [...allPools];
+            
+            switch(tag) {
+                case 'high apr':
+                    pools = pools.filter(p => p.apr > 200).sort((a, b) => b.apr - a.apr);
+                    break;
+                case 'baixo risco':
+                case 'low risk':
+                    pools = pools.filter(p => p.riskLevel === 'low').sort((a, b) => b.apr - a.apr);
+                    break;
+                case 'solana':
+                    pools = pools.filter(p => p.network === 'solana').sort((a, b) => b.apr - a.apr);
+                    break;
+                case 'bluechip':
+                    pools = pools.filter(p => p.category === 'bluechip').sort((a, b) => b.apr - a.apr);
+                    break;
+                case 'stable':
+                    pools = pools.filter(p => p.category === 'stable').sort((a, b) => b.apr - a.apr);
+                    break;
+                case 'rwa':
+                    pools = pools.filter(p => p.category === 'rwa').sort((a, b) => b.apr - a.apr);
+                    break;
+                case 'trending':
+                    pools = pools.filter(p => p.category === 'trending').sort((a, b) => b.apr - a.apr);
+                    break;
+                case 'eth':
+                    pools = pools.filter(p => 
+                        p.network === 'ethereum' || p.baseToken === 'ETH' || p.quoteToken === 'ETH'
+                    ).sort((a, b) => b.apr - a.apr);
+                    break;
+                case 'btc':
+                    pools = pools.filter(p => 
+                        p.baseToken === 'BTC' || p.quoteToken === 'BTC'
+                    ).sort((a, b) => b.apr - a.apr);
+                    break;
+                default:
+                    pools = pools.filter(p => p.apr > 200).sort((a, b) => b.apr - a.apr);
+            }
+
+            return pools.map(p => ({ ...p, fuseScore: 0, relevance: 1 }));
+        }
+
+        // Renderizar resultados
+        function renderSearchResults(results, query) {
+            const resultsContainer = document.getElementById('searchResults');
+            const resultsGrid = document.getElementById('resultsGrid');
+            const searchTermDisplay = document.getElementById('searchTermDisplay');
+            const resultsCount = document.getElementById('searchResultsCount');
+
+            searchTermDisplay.textContent = query;
+            resultsCount.textContent = `${results.length} encontrado${results.length !== 1 ? 's' : ''}`;
+
+            if (results.length === 0) {
+                resultsGrid.innerHTML = `
+                    <div class="no-results" style="grid-column: 1 / -1;">
+                        <div class="no-results-icon">🔍</div>
+                        <div class="no-results-text">Nenhum par encontrado para "${query}"</div>
+                        <div class="no-results-sub">Tente buscar por: nome do par, token, DEX ou rede</div>
+                    </div>
+                `;
+            } else {
+                resultsGrid.innerHTML = results.map(pool => {
+                    const highlightedPair = highlightText(pool.pair, query);
+                    const highlightedDex = highlightText(pool.dex, query);
+                    const highlightedNetwork = highlightText(pool.network, query);
+                    
+                    const relevancePercent = Math.max(10, Math.round((pool.relevance || 0.5) * 100));
+                    
+                    return `
+                        <div class="result-card risk-${pool.riskLevel}" onclick="window.open('${pool.url}', '_blank')">
+                            <div class="result-card-top">
+                                <div class="result-pair">${highlightedPair}</div>
+                                <div class="result-apr-badge">${pool.apr.toFixed(1)}%</div>
+                            </div>
+                            <div class="result-card-middle">
+                                <span class="result-badge network-${pool.network}">${highlightedNetwork}</span>
+                                <span class="result-badge dex">${highlightedDex}</span>
+                                <span class="result-badge risk-${pool.riskLevel}">${pool.riskLabel}</span>
+                            </div>
+                            <div class="result-card-bottom">
+                                <div class="result-tvl">TVL: <span>${formatMoney(pool.tvl)}</span></div>
+                                <div class="result-relevance">
+                                    <div class="relevance-bar">
+                                        <div class="relevance-fill" style="width: ${relevancePercent}%"></div>
+                                    </div>
+                                    ${relevancePercent}% match
+                                </div>
+                                <button class="result-action-btn" onclick="event.stopPropagation(); window.open('${pool.url}', '_blank')">
+                                    Abrir na DEX ↗
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            resultsContainer.classList.add('active');
+        }
+
+        // Busca rápida (tags)
+        function quickSearch(query) {
+            document.getElementById('searchInput').value = query;
+            document.getElementById('searchClearBtn').classList.add('visible');
+            hideAutocomplete();
+            performSearch(query);
+        }
+
+        // Limpar busca
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchClearBtn').classList.remove('visible');
+            hideSearchResults();
+            hideAutocomplete();
+            document.getElementById('popularSection').style.display = '';
+            document.getElementById('quickTags').style.display = '';
+        }
+
+        function hideSearchResults() {
+            document.getElementById('searchResults').classList.remove('active');
+            document.getElementById('searchLoading').classList.remove('visible');
+            document.getElementById('popularSection').style.display = '';
+            document.getElementById('quickTags').style.display = '';
+        }
+
+        // Histórico de Buscas
+        function addToHistory(query) {
+            searchHistory = searchHistory.filter(h => h !== query);
+            searchHistory.unshift(query);
+            if (searchHistory.length > 10) searchHistory.pop();
+            
+            try {
+                localStorage.setItem('defiSearchHistory', JSON.stringify(searchHistory));
+            } catch(e) {}
+        }
+
+        function loadSearchHistory() {
+            try {
+                const saved = localStorage.getItem('defiSearchHistory');
+                if (saved) searchHistory = JSON.parse(saved);
+            } catch(e) {}
+        }
+
+        function updatePopularSearches(query) {
+            // Update popular searches based on usage
+            const popularList = document.getElementById('popularList');
+            const currentItems = Array.from(popularList.querySelectorAll('.popular-item'))
+                .map(el => el.textContent.trim());
+            
+            if (!currentItems.includes(query) && query.length > 1) {
+                // Add new popular search
+                const newItem = document.createElement('span');
+                newItem.className = 'popular-item';
+                newItem.textContent = query;
+                newItem.onclick = () => quickSearch(query);
+                popularList.insertBefore(newItem, popularList.firstChild);
+                
+                // Keep max 6
+                while (popularList.children.length > 6) {
+                    popularList.removeChild(popularList.lastChild);
+                }
+            }
+        }
+
+        // ==================== SISTEMA DE CATEGORIAS (mantido) ====================
+
         function filtrarEPriorizar(pools, filters) {
             return pools.filter(p => {
                 const matchTvl = p.tvl >= filters.minTvl;
@@ -1344,7 +2261,6 @@
         function garantirMinimo(pools, min = 5) {
             if (pools.length >= min) return { pools, level: 1 };
             
-            // Nível 2: Filtros relaxados
             const relaxadas = allPools.filter(p => 
                 p.category === pools[0]?.category &&
                 p.tvl >= 10000 &&
@@ -1354,7 +2270,6 @@
             const completadas = completarPools(pools, relaxadas, min);
             if (completadas.length >= min) return { pools: completadas, level: 2 };
             
-            // Nível 3: Sem filtros, apenas por score
             const semFiltro = allPools.filter(p => p.category === pools[0]?.category)
                 .sort((a, b) => b.score - a.score);
             const finais = completarPools(completadas, semFiltro, min);
@@ -1362,42 +2277,30 @@
             return { pools: finais.slice(0, min), level: 3 };
         }
 
-        // Selecionar top 5 por categoria com fallback e distribuição flexível (OPÇÃO B)
         function selectTop5(category) {
             const categoryPools = allPools.filter(p => p.category === category);
             
-            // Nível 1: Filtros normais
             let selecionadas = filtrarEPriorizar(categoryPools, {
                 minTvl: 50000,
                 minVolume: 10000
             });
 
-            // Aplicar fallback se necessário
             const resultado = garantirMinimo(selecionadas, 5);
             selecionadas = resultado.pools;
 
-            // Classificar por risco
             const highRisk = selecionadas.filter(p => p.riskLevel === 'high').sort((a, b) => b.score - a.score);
             const mediumRisk = selecionadas.filter(p => p.riskLevel === 'medium').sort((a, b) => b.score - a.score);
             const lowRisk = selecionadas.filter(p => p.riskLevel === 'low').sort((a, b) => b.score - a.score);
 
-            // Distribuição flexível (OPÇÃO B): tenta 1🔴 + 2🟡 + 2🟢, mas completa com o que tiver
             const final = [];
             
-            // Tenta pegar 1 alta
             if (highRisk.length > 0) final.push(highRisk[0]);
-            
-            // Tenta pegar 2 médias
             mediumRisk.slice(0, 2).forEach(p => final.push(p));
-            
-            // Tenta pegar 2 baixas
             lowRisk.slice(0, 2).forEach(p => final.push(p));
             
-            // Se não completou 5, preenche com as próximas disponíveis (por APR mais próximo)
             if (final.length < 5) {
                 const restantes = selecionadas.filter(p => !final.includes(p))
                     .sort((a, b) => {
-                        // Ordena por proximidade do APR médio das já selecionadas
                         const avgAPR = final.reduce((sum, p) => sum + p.apr, 0) / final.length;
                         return Math.abs(a.apr - avgAPR) - Math.abs(b.apr - avgAPR);
                     });
@@ -1413,7 +2316,6 @@
             };
         }
 
-        // Atualizar cards de categorias
         function updateCategories() {
             const categories = {
                 bluechip: { id: 'bluechipList', badge: 'badge-bluechip', name: 'Blue-Chip' },
@@ -1429,7 +2331,6 @@
                 const container = document.getElementById(categories[cat].id);
                 const badge = document.getElementById(categories[cat].badge);
                 
-                // Atualizar badge de fallback
                 if (result.fallbackLevel === 2) {
                     badge.textContent = '⚠️ Filtros Relaxados';
                     badge.style.display = 'inline';
@@ -1528,68 +2429,6 @@
             document.getElementById('totalVolume').textContent = formatMoney(totalVolume);
             document.getElementById('avgApr').textContent = avgApr.toFixed(1) + '%';
             document.getElementById('safePools').textContent = safePools;
-        }
-
-        // Sistema de Busca
-        function handleSearchKey(event) {
-            if (event.key === 'Enter') {
-                performSearch();
-            }
-        }
-
-        function performSearch() {
-            const searchTerm = document.getElementById('searchInput').value.trim().toUpperCase();
-            
-            if (!searchTerm) {
-                hideSearchResults();
-                return;
-            }
-
-            // Buscar pares que contenham o termo
-            const results = allPools.filter(pool => {
-                const pairUpper = pool.pair.toUpperCase();
-                return pairUpper.includes(searchTerm) || 
-                       pool.baseToken.toUpperCase().includes(searchTerm) ||
-                       pool.quoteToken.toUpperCase().includes(searchTerm);
-            }).sort((a, b) => b.apr - a.apr);
-
-            showSearchResults(results, searchTerm);
-        }
-
-        function showSearchResults(results, searchTerm) {
-            const resultsContainer = document.getElementById('searchResults');
-            const resultsBody = document.getElementById('searchResultsBody');
-            
-            if (results.length === 0) {
-                resultsBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 20px; color: #94a3b8;">
-                            Nenhum par encontrado para "${searchTerm}"
-                        </td>
-                    </tr>
-                `;
-            } else {
-                resultsBody.innerHTML = results.map(pool => `
-                    <tr>
-                        <td><strong>${pool.pair}</strong></td>
-                        <td><span class="network-badge network-${pool.network}">${pool.network}</span></td>
-                        <td><span class="dex-badge">${pool.dex}</span></td>
-                        <td>${formatMoney(pool.tvl)}</td>
-                        <td style="color: #10b981; font-weight: 700;">${pool.apr.toFixed(1)}%</td>
-                        <td>
-                            <button class="btn-action" onclick="window.open('${pool.url}', '_blank')">
-                                Abrir na DEX ↗
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-            
-            resultsContainer.classList.add('active');
-        }
-
-        function hideSearchResults() {
-            document.getElementById('searchResults').classList.remove('active');
         }
 
         // Atualização automática
@@ -1694,14 +2533,6 @@
             if (value >= 1e3) return `$${(value / 1e3).toFixed(2)}K`;
             return `$${value.toFixed(2)}`;
         }
-
-        // Fechar busca ao clicar fora
-        document.addEventListener('click', (e) => {
-            const searchSection = document.querySelector('.search-section');
-            if (!searchSection.contains(e.target)) {
-                hideSearchResults();
-            }
-        });
     </script>
 </body>
 </html>
