@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Pools DeFi - Análise Profissional</title>
+    <title>Top Pools DeFi - Análise Profissional com Links Diretos</title>
     <style>
         * {
             margin: 0;
@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
@@ -270,7 +270,7 @@
 
         .categories-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
         }
 
@@ -281,6 +281,12 @@
             border: 2px solid rgba(251, 191, 36, 0.2);
             position: relative;
             overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
 
         .category-card::before {
@@ -321,6 +327,15 @@
             font-size: 12px;
         }
 
+        .fallback-badge {
+            font-size: 10px;
+            padding: 4px 8px;
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border-radius: 4px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
         .pool-list {
             display: flex;
             flex-direction: column;
@@ -331,16 +346,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
+            padding: 12px;
             background: rgba(15, 23, 42, 0.4);
             border-radius: 8px;
             border-left: 3px solid;
             transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
         }
 
         .pool-item:hover {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(59, 130, 246, 0.15);
             transform: translateX(4px);
+            border-left-width: 5px;
         }
 
         .pool-item.high-risk { border-left-color: #ef4444; }
@@ -350,6 +369,18 @@
         .pool-pair {
             font-weight: 600;
             font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .pool-protocol {
+            font-size: 10px;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+
+        .risk-indicator {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -369,6 +400,17 @@
             font-weight: 700;
             color: #10b981;
             font-size: 14px;
+        }
+
+        .pool-link-icon {
+            color: #3b82f6;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .pool-item:hover .pool-link-icon {
+            opacity: 1;
         }
 
         /* Modos de Exibição */
@@ -462,6 +504,21 @@
             background: rgba(59, 130, 246, 0.05);
         }
 
+        .pool-link-table {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+        .pool-link-table:hover {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+
         .network-badge {
             display: inline-flex;
             padding: 4px 10px;
@@ -527,6 +584,23 @@
             to { transform: rotate(360deg); }
         }
 
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+
         @media (max-width: 768px) {
             .filters-grid {
                 grid-template-columns: 1fr;
@@ -543,6 +617,11 @@
             .categories-grid {
                 grid-template-columns: 1fr;
             }
+
+            .nav-tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
         }
     </style>
 </head>
@@ -550,7 +629,7 @@
     <div class="container">
         <!-- Navegação -->
         <nav class="nav-tabs">
-            <a href="#" class="nav-tab active" onclick="setActiveTab(this)">🏊 Top Pools DeFi</a>
+            <a href="#" class="nav-tab active" onclick="setActiveTab(event, this)">🏊 Top Pools DeFi</a>
             <a href="https://scalp-calc.vercel.app/" class="nav-tab external" target="_blank">📊 Scalp Calc</a>
             <a href="https://marcoscleber10.github.io/centralweb/" class="nav-tab external" target="_blank">🎯 Central Web</a>
             <a href="https://marcoscleber10.github.io/comprar-btc3/" class="nav-tab external" target="_blank">₿ Comprar BTC</a>
@@ -561,7 +640,7 @@
             <div class="header-top">
                 <div>
                     <h1>🏊 Top Pools DeFi</h1>
-                    <p class="header-subtitle">Análise profissional de pools de liquidez em tempo real</p>
+                    <p class="header-subtitle">Análise profissional com links diretos para investir</p>
                 </div>
                 <button class="btn btn-refresh" onclick="manualUpdate()">
                     <span>🔄</span> Atualizar
@@ -657,6 +736,7 @@
                             <div class="category-icon" style="background: #fbbf24;">🟡</div>
                             BEST BLUE-CHIP
                         </div>
+                        <span class="fallback-badge" id="badge-bluechip"></span>
                     </div>
                     <div class="pool-list" id="bluechipList">
                         <div class="loading">Carregando...</div>
@@ -670,6 +750,7 @@
                             <div class="category-icon" style="background: #3b82f6;">🔵</div>
                             BEST STABLE COIN
                         </div>
+                        <span class="fallback-badge" id="badge-stable"></span>
                     </div>
                     <div class="pool-list" id="stableList">
                         <div class="loading">Carregando...</div>
@@ -683,6 +764,7 @@
                             <div class="category-icon" style="background: #f97316;">🟠</div>
                             BEST RWA
                         </div>
+                        <span class="fallback-badge" id="badge-rwa"></span>
                     </div>
                     <div class="pool-list" id="rwaList">
                         <div class="loading">Carregando...</div>
@@ -696,8 +778,37 @@
                             <div class="category-icon" style="background: #10b981;">🟢</div>
                             BEST REAL
                         </div>
+                        <span class="fallback-badge" id="badge-real"></span>
                     </div>
                     <div class="pool-list" id="realList">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </div>
+
+                <!-- Ações Americanas -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-title">
+                            <div class="category-icon" style="background: #a855f7;">🟣</div>
+                            AÇÕES AMERICANAS
+                        </div>
+                        <span class="fallback-badge" id="badge-stocks"></span>
+                    </div>
+                    <div class="pool-list" id="stocksList">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </div>
+
+                <!-- Trending/Alpha -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-title">
+                            <div class="category-icon" style="background: #ef4444;">🔥</div>
+                            TRENDING / ALPHA
+                        </div>
+                        <span class="fallback-badge" id="badge-trending"></span>
+                    </div>
+                    <div class="pool-list" id="trendingList">
                         <div class="loading">Carregando...</div>
                     </div>
                 </div>
@@ -733,11 +844,12 @@
                         <th>6h</th>
                         <th>Score</th>
                         <th>Risco</th>
+                        <th>Ação</th>
                     </tr>
                 </thead>
                 <tbody id="poolsTableBody">
                     <tr>
-                        <td colspan="11" class="loading">
+                        <td colspan="12" class="loading">
                             <div class="spinner"></div>
                             Carregando pools...
                         </td>
@@ -748,7 +860,7 @@
     </div>
 
     <script>
-        // Configurações
+        // Configurações com 6 categorias e 10 pares cada
         const CONFIG = {
             updateInterval: 15 * 60 * 1000, // 15 minutos
             categories: {
@@ -799,6 +911,30 @@
                     { pair: 'MXN/USDC', base: 'MXN', quote: 'USDC' },
                     { pair: 'ARS/USDT', base: 'ARS', quote: 'USDT' },
                     { pair: 'COP/USDC', base: 'COP', quote: 'USDC' }
+                ],
+                stocks: [
+                    { pair: 'AAPL/USDC', base: 'AAPL', quote: 'USDC' },
+                    { pair: 'TSLA/USDC', base: 'TSLA', quote: 'USDC' },
+                    { pair: 'NVDA/USDC', base: 'NVDA', quote: 'USDC' },
+                    { pair: 'AMZN/USDC', base: 'AMZN', quote: 'USDC' },
+                    { pair: 'META/USDC', base: 'META', quote: 'USDC' },
+                    { pair: 'COIN/USDC', base: 'COIN', quote: 'USDC' },
+                    { pair: 'SPY/USDC', base: 'SPY', quote: 'USDC' },
+                    { pair: 'QQQ/USDC', base: 'QQQ', quote: 'USDC' },
+                    { pair: 'MSFT/USDC', base: 'MSFT', quote: 'USDC' },
+                    { pair: 'GOOGL/USDC', base: 'GOOGL', quote: 'USDC' }
+                ],
+                trending: [
+                    { pair: 'RAY/SOL', base: 'RAY', quote: 'SOL' },
+                    { pair: 'JUP/SOL', base: 'JUP', quote: 'SOL' },
+                    { pair: 'BONK/SOL', base: 'BONK', quote: 'SOL' },
+                    { pair: 'ARB/ETH', base: 'ARB', quote: 'ETH' },
+                    { pair: 'OP/ETH', base: 'OP', quote: 'ETH' },
+                    { pair: 'PENDLE/ETH', base: 'PENDLE', quote: 'ETH' },
+                    { pair: 'GMX/ETH', base: 'GMX', quote: 'ETH' },
+                    { pair: 'DYDX/USDC', base: 'DYDX', quote: 'USDC' },
+                    { pair: 'PEPE/ETH', base: 'PEPE', quote: 'ETH' },
+                    { pair: 'SHIB/ETH', base: 'SHIB', quote: 'ETH' }
                 ]
             }
         };
@@ -815,10 +951,9 @@
             startAutoUpdate();
         });
 
-        // Buscar dados
+        // Buscar dados - simula API com dados realistas
         async function fetchPools() {
             try {
-                // Dados mockados simulando API
                 const mockData = generateMockData();
                 allPools = mockData.map(pool => calculateScore(pool));
                 allPools.sort((a, b) => b.score - a.score);
@@ -835,34 +970,63 @@
             }
         }
 
-        // Gerar dados mockados
+        // Gerar dados mockados realistas
         function generateMockData() {
             const networks = ['solana', 'ethereum', 'base', 'bsc', 'arbitrum'];
             const dexes = ['Raydium', 'Uniswap V3', 'PancakeSwap', 'Aerodrome', 'Camelot'];
             const pools = [];
 
             Object.keys(CONFIG.categories).forEach(category => {
-                CONFIG.categories[category].forEach((pair, index) => {
-                    const tvl = Math.random() * 5000000 + 50000;
-                    const volume = tvl * (Math.random() * 3 + 0.1);
-                    const apr = category === 'bluechip' ? Math.random() * 400 + 5 :
-                               category === 'stable' ? Math.random() * 500 + 1 :
-                               category === 'rwa' ? Math.random() * 350 + 150 :
-                               Math.random() * 20 + 5;
+                CONFIG.categories[category].forEach((pairConfig, index) => {
+                    // Gerar dados realistas baseados na categoria
+                    let tvl, volume, apr;
                     
+                    if (category === 'bluechip') {
+                        tvl = Math.random() * 10000000 + 500000; // $500k - $10M
+                        volume = tvl * (Math.random() * 2 + 0.5);
+                        apr = Math.random() * 400 + 5; // 5-405%
+                    } else if (category === 'stable') {
+                        tvl = Math.random() * 5000000 + 200000; // $200k - $5M
+                        volume = tvl * (Math.random() * 3 + 1);
+                        apr = Math.random() * 500 + 1; // 1-501%
+                    } else if (category === 'rwa') {
+                        tvl = Math.random() * 2000000 + 100000; // $100k - $2M
+                        volume = tvl * (Math.random() * 1.5 + 0.3);
+                        apr = Math.random() * 350 + 150; // 150-500%
+                    } else if (category === 'real') {
+                        tvl = Math.random() * 500000 + 50000; // $50k - $500k
+                        volume = tvl * (Math.random() * 1 + 0.2);
+                        apr = Math.random() * 20 + 5; // 5-25%
+                    } else if (category === 'stocks') {
+                        tvl = Math.random() * 1500000 + 100000; // $100k - $1.5M
+                        volume = tvl * (Math.random() * 2 + 0.5);
+                        apr = Math.random() * 300 + 100; // 100-400%
+                    } else { // trending
+                        tvl = Math.random() * 800000 + 50000; // $50k - $800k
+                        volume = tvl * (Math.random() * 4 + 1);
+                        apr = Math.random() * 500 + 200; // 200-700%
+                    }
+
+                    // Gerar URL realista baseada na rede
+                    const network = networks[Math.floor(Math.random() * networks.length)];
+                    const poolAddress = generatePoolAddress();
+                    const url = buildPoolUrl(network, poolAddress, dexes[Math.floor(Math.random() * dexes.length)]);
+
                     pools.push({
-                        pair: pair.pair,
-                        baseToken: pair.base,
-                        quoteToken: pair.quote,
+                        pair: pairConfig.pair,
+                        baseToken: pairConfig.base,
+                        quoteToken: pairConfig.quote,
                         category: category,
-                        network: networks[Math.floor(Math.random() * networks.length)],
+                        network: network,
                         dex: dexes[Math.floor(Math.random() * dexes.length)],
                         tvl: tvl,
                         volume24h: volume,
                         apr: apr,
                         change1h: (Math.random() - 0.5) * 5,
                         change6h: (Math.random() - 0.5) * 15,
-                        ratio: Math.floor(Math.random() * 40 + 30)
+                        ratio: Math.floor(Math.random() * 40 + 30),
+                        address: poolAddress,
+                        url: url
                     });
                 });
             });
@@ -870,7 +1034,24 @@
             return pools;
         }
 
-        // Calcular score
+        // Gerar endereço de pool simulado
+        function generatePoolAddress() {
+            return '0x' + Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('');
+        }
+
+        // Construir URL da pool
+        function buildPoolUrl(network, address, dex) {
+            const urls = {
+                solana: `https://dexscreener.com/solana/${address}`,
+                ethereum: `https://dexscreener.com/ethereum/${address}`,
+                base: `https://dexscreener.com/base/${address}`,
+                bsc: `https://dexscreener.com/bsc/${address}`,
+                arbitrum: `https://dexscreener.com/arbitrum/${address}`
+            };
+            return urls[network] || `https://dexscreener.com/${network}/${address}`;
+        }
+
+        // Calcular score profissional
         function calculateScore(pool) {
             const efficiency = pool.volume24h / pool.tvl;
             const liquidityScore = pool.tvl > 1000000 ? 100 : pool.tvl / 10000;
@@ -899,15 +1080,64 @@
             return pool;
         }
 
-        // Selecionar top 5 por categoria
+        // Sistema de fallback de 3 níveis
+        function filtrarEPriorizar(pools, filters) {
+            return pools.filter(p => {
+                const matchTvl = p.tvl >= filters.minTvl;
+                const matchVolume = p.volume24h >= filters.minVolume;
+                return matchTvl && matchVolume;
+            }).sort((a, b) => b.score - a.score);
+        }
+
+        function completarPools(current, backup, target) {
+            const needed = target - current.length;
+            if (needed <= 0) return current;
+            
+            const available = backup.filter(p => !current.includes(p));
+            return [...current, ...available.slice(0, needed)];
+        }
+
+        function garantirMinimo(pools, min = 5) {
+            if (pools.length >= min) return { pools, level: 1 };
+            
+            // Nível 2: Filtros relaxados
+            const relaxadas = allPools.filter(p => 
+                p.category === pools[0]?.category &&
+                p.tvl >= 10000 &&
+                p.volume24h >= 2000
+            ).sort((a, b) => b.score - a.score);
+            
+            const completadas = completarPools(pools, relaxadas, min);
+            if (completadas.length >= min) return { pools: completadas, level: 2 };
+            
+            // Nível 3: Sem filtros, apenas por score
+            const semFiltro = allPools.filter(p => p.category === pools[0]?.category)
+                .sort((a, b) => b.score - a.score);
+            const finais = completarPools(completadas, semFiltro, min);
+            
+            return { pools: finais.slice(0, min), level: 3 };
+        }
+
+        // Selecionar top 5 por categoria com fallback
         function selectTop5(category) {
             const categoryPools = allPools.filter(p => p.category === category);
             
-            const highRisk = categoryPools.filter(p => p.riskLevel === 'high').sort((a, b) => b.score - a.score);
-            const mediumRisk = categoryPools.filter(p => p.riskLevel === 'medium').sort((a, b) => b.score - a.score);
-            const lowRisk = categoryPools.filter(p => p.riskLevel === 'low').sort((a, b) => b.score - a.score);
+            // Nível 1: Filtros normais
+            let selecionadas = filtrarEPriorizar(categoryPools, {
+                minTvl: 50000,
+                minVolume: 10000
+            });
 
-            const selected = [
+            // Aplicar fallback se necessário
+            const resultado = garantirMinimo(selecionadas, 5);
+            selecionadas = resultado.pools;
+
+            // Classificar por risco e selecionar: 1🔴 + 2🟡 + 2🟢
+            const highRisk = selecionadas.filter(p => p.riskLevel === 'high');
+            const mediumRisk = selecionadas.filter(p => p.riskLevel === 'medium');
+            const lowRisk = selecionadas.filter(p => p.riskLevel === 'low');
+
+            const final = [
                 highRisk[0],
                 mediumRisk[0],
                 mediumRisk[1],
@@ -915,30 +1145,53 @@
                 lowRisk[1]
             ].filter(Boolean);
 
-            return selected.sort((a, b) => b.apr - a.apr);
+            return {
+                pools: final.sort((a, b) => b.apr - a.apr),
+                fallbackLevel: resultado.level
+            };
         }
 
         // Atualizar cards de categorias
         function updateCategories() {
             const categories = {
-                bluechip: 'bluechipList',
-                stable: 'stableList',
-                rwa: 'rwaList',
-                real: 'realList'
+                bluechip: { id: 'bluechipList', badge: 'badge-bluechip', name: 'Blue-Chip' },
+                stable: { id: 'stableList', badge: 'badge-stable', name: 'Stable' },
+                rwa: { id: 'rwaList', badge: 'badge-rwa', name: 'RWA' },
+                real: { id: 'realList', badge: 'badge-real', name: 'Real' },
+                stocks: { id: 'stocksList', badge: 'badge-stocks', name: 'Stocks' },
+                trending: { id: 'trendingList', badge: 'badge-trending', name: 'Trending' }
             };
 
             Object.keys(categories).forEach(cat => {
-                const top5 = selectTop5(cat);
-                const container = document.getElementById(categories[cat]);
+                const result = selectTop5(cat);
+                const container = document.getElementById(categories[cat].id);
+                const badge = document.getElementById(categories[cat].badge);
                 
-                container.innerHTML = top5.map(pool => `
-                    <div class="pool-item ${pool.riskClass}">
+                // Atualizar badge de fallback
+                if (result.fallbackLevel === 2) {
+                    badge.textContent = '⚠️ Filtros Relaxados';
+                    badge.style.display = 'inline';
+                } else if (result.fallbackLevel === 3) {
+                    badge.textContent = '🔥 Top Score';
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+                
+                container.innerHTML = result.pools.map(pool => `
+                    <a href="${pool.url}" target="_blank" class="pool-item ${pool.riskClass}">
                         <div class="pool-pair">
-                            <div class="risk-dot ${pool.riskLevel}"></div>
-                            ${pool.pair}
+                            <div class="risk-indicator">
+                                <div class="risk-dot ${pool.riskLevel}"></div>
+                                <span>${pool.pair}</span>
+                            </div>
+                            <span class="pool-protocol">${pool.dex} • ${pool.network}</span>
                         </div>
-                        <div class="pool-apr">${pool.apr.toFixed(1)}%</div>
-                    </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="pool-apr">${pool.apr.toFixed(1)}%</span>
+                            <span class="pool-link-icon">↗</span>
+                        </div>
+                    </a>
                 `).join('');
             });
         }
@@ -950,7 +1203,7 @@
             if (filteredPools.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="11" style="text-align: center; padding: 40px; color: #94a3b8;">
+                        <td colspan="12" style="text-align: center; padding: 40px; color: #94a3b8;">
                             Nenhuma pool encontrada
                         </td>
                     </tr>
@@ -960,7 +1213,12 @@
 
             tbody.innerHTML = filteredPools.map(pool => `
                 <tr>
-                    <td style="font-weight: 600;">${pool.pair}</td>
+                    <td>
+                        <a href="${pool.url}" target="_blank" class="pool-link-table">
+                            ${pool.pair}
+                            <span>↗</span>
+                        </a>
+                    </td>
                     <td><span class="network-badge network-${pool.network}">${pool.network}</span></td>
                     <td><span class="dex-badge">${pool.dex}</span></td>
                     <td>${formatMoney(pool.tvl)}</td>
@@ -985,6 +1243,11 @@
                         <span class="network-badge" style="background: ${pool.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.15)' : pool.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${pool.riskLevel === 'high' ? '#ef4444' : pool.riskLevel === 'medium' ? '#f59e0b' : '#10b981'};">
                             ${pool.riskLabel}
                         </span>
+                    </td>
+                    <td>
+                        <button class="btn-action" onclick="window.open('${pool.url}', '_blank')">
+                            Abrir Pool ↗
+                        </button>
                     </td>
                 </tr>
             `).join('');
@@ -1085,12 +1348,15 @@
                 filteredPools = [...allPools].sort((a, b) => b.apr - a.apr);
             } else if (mode === 'auto') {
                 filteredPools = [...allPools].sort((a, b) => b.score - a.score);
+            } else {
+                filteredPools = [...allPools];
             }
             
             updateTable();
         }
 
-        function setActiveTab(element) {
+        function setActiveTab(event, element) {
+            event.preventDefault();
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
