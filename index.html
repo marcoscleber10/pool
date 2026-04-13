@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Top Pools DeFi - Análise Profissional</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -13,364 +18,657 @@
             min-height: 100vh;
             padding: 20px;
         }
-        .container { max-width: 1600px; margin: 0 auto; }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
 
         /* Navegação Superior */
         .nav-tabs {
-            display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
-            background: rgba(30, 41, 59, 0.6); padding: 15px;
-            border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.1);
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: rgba(30, 41, 59, 0.6);
+            padding: 15px;
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
         }
+
         .nav-tab {
-            padding: 10px 20px; background: rgba(148, 163, 184, 0.1);
-            border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px;
-            color: #94a3b8; text-decoration: none; font-weight: 600; font-size: 13px;
-            transition: all 0.3s; display: flex; align-items: center; gap: 8px;
+            padding: 10px 20px;
+            background: rgba(148, 163, 184, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
         .nav-tab:hover {
-            background: rgba(59, 130, 246, 0.2); border-color: #3b82f6;
-            color: #e2e8f0; transform: translateY(-2px);
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #e2e8f0;
+            transform: translateY(-2px);
         }
+
         .nav-tab.active {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            border-color: #3b82f6; color: white;
+            border-color: #3b82f6;
+            color: white;
         }
-        .nav-tab.external::after { content: "↗"; font-size: 10px; }
+
+        .nav-tab.external::after {
+            content: "↗";
+            font-size: 10px;
+        }
 
         /* Header */
         .header {
-            background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px);
-            border-radius: 16px; padding: 24px; margin-bottom: 20px;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
             border: 2px solid rgba(251, 191, 36, 0.3);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
+
         .header-top {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 16px; flex-wrap: wrap; gap: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
+
         .header h1 {
-            font-size: 28px; background: linear-gradient(135deg, #10b981 0%, #fbbf24 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            display: flex; align-items: center; gap: 12px;
+            font-size: 28px;
+            background: linear-gradient(135deg, #10b981 0%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        .header-subtitle { color: #94a3b8; font-size: 14px; }
+
+        .header-subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
         .update-info {
-            display: flex; gap: 20px; font-size: 13px; color: #64748b; flex-wrap: wrap;
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #64748b;
+            flex-wrap: wrap;
         }
-        .update-info span { display: flex; align-items: center; gap: 6px; }
+
+        .update-info span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         .live-indicator {
-            width: 8px; height: 8px; background: #10b981; border-radius: 50%;
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
             animation: pulse 2s infinite;
         }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        /* Alertas */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Alerta */
         .alert-banner {
-            background: rgba(251, 191, 36, 0.1); border-left: 4px solid #fbbf24;
-            padding: 12px 16px; border-radius: 8px; margin-bottom: 12px;
-            font-size: 13px; color: #fbbf24; display: flex; align-items: center; gap: 8px;
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 4px solid #fbbf24;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .disclaimer-banner {
-            background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444;
-            padding: 12px 16px; border-radius: 8px; margin-bottom: 20px;
-            font-size: 13px; color: #f87171; display: flex; align-items: center; gap: 8px;
-        }
-        .error-banner {
-            background: rgba(239, 68, 68, 0.15); border: 2px solid #ef4444;
-            padding: 20px; border-radius: 12px; margin-bottom: 20px;
-            text-align: center;
-        }
-        .error-banner h3 { color: #ef4444; margin-bottom: 10px; font-size: 18px; }
-        .error-banner p { color: #fca5a5; margin-bottom: 16px; font-size: 14px; }
-        .error-banner button {
-            padding: 10px 24px; background: #ef4444; color: white;
-            border: none; border-radius: 8px; font-weight: 600;
-            cursor: pointer; transition: all 0.3s;
-        }
-        .error-banner button:hover { background: #dc2626; transform: translateY(-2px); }
 
         /* Info dos Modos */
         .mode-info {
-            background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 12px; padding: 16px; margin-bottom: 20px;
-            font-size: 13px; color: #94a3b8;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #94a3b8;
         }
+
         .mode-info h3 {
-            color: #3b82f6; margin-bottom: 12px; font-size: 14px;
-            display: flex; align-items: center; gap: 8px;
+            color: #3b82f6;
+            margin-bottom: 12px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
         .mode-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
         }
+
         .mode-item {
-            background: rgba(15, 23, 42, 0.4); padding: 12px; border-radius: 8px; border-left: 3px solid;
+            background: rgba(15, 23, 42, 0.4);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid;
         }
+
         .mode-item.auto { border-left-color: #fbbf24; }
         .mode-item.manual { border-left-color: #94a3b8; }
         .mode-item.highapr { border-left-color: #f97316; }
-        .mode-item strong { color: #e2e8f0; display: block; margin-bottom: 4px; }
+
+        .mode-item strong {
+            color: #e2e8f0;
+            display: block;
+            margin-bottom: 4px;
+        }
 
         /* Filtros */
         .filters-section {
-            background: rgba(30, 41, 59, 0.6); border-radius: 16px; padding: 20px;
-            margin-bottom: 20px; border: 1px solid rgba(148, 163, 184, 0.1);
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
         }
-        .search-container {
-            position: relative; margin-bottom: 16px;
-        }
-        .search-icon {
-            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-            color: #94a3b8; font-size: 18px; pointer-events: none;
-        }
-        .search-input {
-            width: 100%; padding: 12px 45px 12px 48px; border-radius: 8px;
-            border: 1px solid rgba(148, 163, 184, 0.2); background: rgba(15, 23, 42, 0.6);
-            color: #e2e8f0; font-size: 14px; transition: all 0.3s;
-        }
-        .search-input:focus {
-            outline: none; border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        .search-input::placeholder { color: #64748b; }
-        .clear-btn {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            background: rgba(148, 163, 184, 0.2); border: none; border-radius: 50%;
-            width: 28px; height: 28px; color: #94a3b8; cursor: pointer;
-            display: none; align-items: center; justify-content: center; font-size: 18px;
-        }
-        .clear-btn:hover { background: rgba(239, 68, 68, 0.3); color: #ef4444; }
-        .clear-btn.visible { display: flex; }
-        .search-info { font-size: 12px; color: #94a3b8; margin-top: 8px; }
 
         .filters-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px; margin-bottom: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
         }
-        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
         .filter-group label {
-            font-size: 11px; color: #94a3b8; text-transform: uppercase;
-            letter-spacing: 0.5px; font-weight: 600;
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
         }
+
         .filter-group input, .filter-group select {
-            padding: 10px 14px; border-radius: 8px;
+            padding: 10px 14px;
+            border-radius: 8px;
             border: 1px solid rgba(148, 163, 184, 0.2);
-            background: rgba(15, 23, 42, 0.6); color: #e2e8f0; font-size: 14px;
+            background: rgba(15, 23, 42, 0.6);
+            color: #e2e8f0;
+            font-size: 14px;
         }
+
         .filter-actions {
-            display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
         }
+
         .btn {
-            padding: 10px 24px; border-radius: 8px; border: none;
-            font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 14px;
+            padding: 10px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
         }
+
         .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
         }
+
         .btn-primary:hover {
-            transform: translateY(-2px); box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
         }
+
         .btn-secondary {
-            background: rgba(148, 163, 184, 0.1); color: #94a3b8;
+            background: rgba(148, 163, 184, 0.1);
+            color: #94a3b8;
             border: 1px solid rgba(148, 163, 184, 0.2);
         }
-        .btn-secondary:hover { background: rgba(148, 163, 184, 0.2); }
+
+        .btn-secondary:hover {
+            background: rgba(148, 163, 184, 0.2);
+        }
+
         .btn-refresh {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white; display: flex; align-items: center; gap: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         /* Stats Grid */
         .stats-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px; margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
+
         .stat-card {
-            background: rgba(30, 41, 59, 0.6); border-radius: 12px; padding: 16px;
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 12px;
+            padding: 16px;
             border: 1px solid rgba(148, 163, 184, 0.1);
         }
+
         .stat-label {
-            font-size: 11px; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-bottom: 4px;
         }
-        .stat-value { font-size: 24px; font-weight: 700; color: #e2e8f0; }
-        .stat-change { font-size: 12px; margin-top: 4px; color: #10b981; }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            margin-top: 4px;
+            color: #10b981;
+        }
 
         /* Cards de Categorias */
-        .categories-section { margin-bottom: 24px; }
+        .categories-section {
+            margin-bottom: 24px;
+        }
+
         .categories-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
         }
+
         .category-card {
-            background: rgba(30, 41, 59, 0.8); border-radius: 16px; padding: 20px;
-            border: 2px solid rgba(251, 191, 36, 0.2); position: relative;
-            overflow: hidden; transition: all 0.3s;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid rgba(251, 191, 36, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
         }
+
         .category-card:hover {
-            transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
+
         .category-card::before {
-            content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
             background: linear-gradient(90deg, #fbbf24, #f59e0b);
         }
+
         .category-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 16px; padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
             border-bottom: 1px solid rgba(148, 163, 184, 0.1);
         }
+
         .category-title {
-            font-size: 16px; font-weight: 700; color: #fbbf24;
-            display: flex; align-items: center; gap: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
         .category-icon {
-            width: 24px; height: 24px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 12px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
         }
+
         .fallback-badge {
-            font-size: 10px; padding: 4px 8px; background: rgba(245, 158, 11, 0.2);
-            color: #f59e0b; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.3);
+            font-size: 10px;
+            padding: 4px 8px;
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border-radius: 4px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
         }
-        .pool-list { display: flex; flex-direction: column; gap: 10px; }
+
+        .pool-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         .pool-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px; background: rgba(15, 23, 42, 0.4); border-radius: 8px;
-            border-left: 3px solid; transition: all 0.3s; cursor: pointer;
-            text-decoration: none; color: inherit;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+            border-left: 3px solid;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
         }
+
         .pool-item:hover {
-            background: rgba(59, 130, 246, 0.15); transform: translateX(4px); border-left-width: 5px;
+            background: rgba(59, 130, 246, 0.15);
+            transform: translateX(4px);
+            border-left-width: 5px;
         }
+
         .pool-item.high-risk { border-left-color: #ef4444; }
         .pool-item.medium-risk { border-left-color: #f59e0b; }
         .pool-item.low-risk { border-left-color: #10b981; }
+
         .pool-pair {
-            font-weight: 600; font-size: 13px; display: flex; flex-direction: column; gap: 4px;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
+
         .pool-protocol {
-            font-size: 10px; color: #94a3b8; text-transform: uppercase;
+            font-size: 10px;
+            color: #94a3b8;
+            text-transform: uppercase;
         }
-        .risk-indicator { display: flex; align-items: center; gap: 8px; }
-        .risk-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        .risk-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .risk-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
         .risk-dot.high { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
         .risk-dot.medium { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
         .risk-dot.low { background: #10b981; box-shadow: 0 0 8px #10b981; }
-        .pool-apr { font-weight: 700; color: #10b981; font-size: 14px; }
-        .pool-link-icon {
-            color: #3b82f6; font-size: 12px; opacity: 0; transition: opacity 0.3s;
+
+        .pool-apr {
+            font-weight: 700;
+            color: #10b981;
+            font-size: 14px;
         }
-        .pool-item:hover .pool-link-icon { opacity: 1; }
+
+        .pool-link-icon {
+            color: #3b82f6;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .pool-item:hover .pool-link-icon {
+            opacity: 1;
+        }
 
         /* Modos de Exibição */
         .mode-selector {
-            display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
+
         .mode-btn {
-            flex: 1; min-width: 150px; padding: 12px 20px; border-radius: 12px;
-            border: 2px solid rgba(148, 163, 184, 0.2); background: rgba(30, 41, 59, 0.6);
-            color: #94a3b8; font-weight: 600; cursor: pointer; transition: all 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            background: rgba(30, 41, 59, 0.6);
+            color: #94a3b8;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .mode-btn:hover { border-color: #3b82f6; color: #e2e8f0; }
+
+        .mode-btn:hover {
+            border-color: #3b82f6;
+            color: #e2e8f0;
+        }
+
         .mode-btn.active {
-            border-color: #fbbf24; background: rgba(251, 191, 36, 0.1); color: #fbbf24;
+            border-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
         }
+
         .mode-btn.highlight {
-            border-color: #f97316; background: rgba(249, 115, 22, 0.2); color: #f97316;
+            border-color: #f97316;
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
         }
 
         /* Tabela */
         .table-container {
-            background: rgba(30, 41, 59, 0.6); border-radius: 16px;
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 16px;
             border: 1px solid rgba(148, 163, 184, 0.1);
-            overflow: hidden; overflow-x: auto;
+            overflow: hidden;
+            overflow-x: auto;
         }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        thead { background: rgba(15, 23, 42, 0.8); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: rgba(15, 23, 42, 0.8);
+        }
+
         th {
-            padding: 14px 12px; text-align: left; font-weight: 600; color: #94a3b8;
-            text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px;
-            cursor: pointer; white-space: nowrap;
-        }
-        th:hover { color: #e2e8f0; }
-        td {
-            padding: 12px; border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
             white-space: nowrap;
         }
-        tbody tr { transition: all 0.3s; }
-        tbody tr:hover { background: rgba(59, 130, 246, 0.05); }
+
+        th:hover {
+            color: #e2e8f0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            transition: all 0.3s;
+        }
+
+        tbody tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
         .pool-link-table {
-            color: #3b82f6; text-decoration: none; font-weight: 600;
-            display: flex; align-items: center; gap: 6px; transition: all 0.3s;
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
         }
-        .pool-link-table:hover { color: #60a5fa; text-decoration: underline; }
+
+        .pool-link-table:hover {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+
         .network-badge {
-            display: inline-flex; padding: 4px 10px; border-radius: 20px;
-            font-size: 11px; font-weight: 600; text-transform: uppercase;
+            display: inline-flex;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
         }
+
         .network-solana { background: rgba(16, 185, 129, 0.15); color: #10b981; }
         .network-ethereum { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
         .network-base { background: rgba(0, 120, 255, 0.15); color: #0078ff; }
         .network-bsc { background: rgba(240, 185, 10, 0.15); color: #f0b90b; }
         .network-arbitrum { background: rgba(36, 150, 255, 0.15); color: #2496ff; }
-        .network-polygon { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
-        .network-optimism { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-        .network-avalanche { background: rgba(231, 110, 85, 0.15); color: #e76e55; }
-        .network-default { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+
         .dex-badge {
-            background: rgba(148, 163, 184, 0.1); padding: 4px 10px;
-            border-radius: 6px; font-size: 12px; text-transform: capitalize;
+            background: rgba(148, 163, 184, 0.1);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
         }
-        .ratio-bar { display: flex; align-items: center; gap: 8px; }
+
+        .ratio-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .ratio-visual {
-            width: 40px; height: 6px; background: rgba(148, 163, 184, 0.2);
-            border-radius: 3px; overflow: hidden;
+            width: 40px;
+            height: 6px;
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
         }
+
         .ratio-fill {
-            height: 100%; background: linear-gradient(90deg, #10b981, #3b82f6);
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
             border-radius: 3px;
         }
+
         .positive { color: #10b981; }
         .negative { color: #ef4444; }
-        .loading { text-align: center; padding: 60px 20px; color: #94a3b8; }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+
         .spinner {
-            width: 40px; height: 40px; border: 3px solid rgba(59, 130, 246, 0.1);
-            border-top-color: #3b82f6; border-radius: 50%;
-            animation: spin 1s linear infinite; margin: 0 auto 16px;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(59, 130, 246, 0.1);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         .btn-action {
-            padding: 6px 12px; border-radius: 6px; border: none; font-size: 11px;
-            font-weight: 600; cursor: pointer; transition: all 0.3s;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
         }
+
         .btn-action:hover {
-            transform: translateY(-2px); box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-        }
-        .error-msg {
-            text-align: center; padding: 40px 20px; color: #f87171;
-            background: rgba(239, 68, 68, 0.1); border-radius: 12px; margin: 20px 0;
-        }
-        .empty-msg {
-            text-align: center; padding: 40px 20px; color: #94a3b8;
-        }
-        .cache-indicator { font-size: 11px; color: #64748b; margin-left: 8px; }
-        .status-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 4px 12px; border-radius: 20px; font-size: 12px;
-            background: rgba(16, 185, 129, 0.15); color: #10b981;
-        }
-        .status-badge.error {
-            background: rgba(239, 68, 68, 0.15); color: #ef4444;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
         }
 
         @media (max-width: 768px) {
-            .filters-grid { grid-template-columns: 1fr; }
-            .filter-actions { flex-direction: column; }
-            .btn { width: 100%; }
-            .categories-grid { grid-template-columns: 1fr; }
-            .nav-tabs { overflow-x: auto; flex-wrap: nowrap; }
-            .mode-grid { grid-template-columns: 1fr; }
-            .search-input { padding: 12px 40px 12px 40px; font-size: 13px; }
-            table { font-size: 12px; }
-            th, td { padding: 10px 8px; }
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+
+            .mode-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -389,7 +687,7 @@
             <div class="header-top">
                 <div>
                     <h1>🏊 Top Pools DeFi</h1>
-                    <p class="header-subtitle">Dados reais via DeFiLlama API</p>
+                    <p class="header-subtitle">Análise profissional com links diretos para investir</p>
                 </div>
                 <button class="btn btn-refresh" onclick="manualUpdate()">
                     <span>🔄</span> Atualizar
@@ -400,18 +698,13 @@
                 <span>🕐 Última: <strong id="lastUpdate">--:--:--</strong></span>
                 <span>⏱️ Próxima: <strong id="nextUpdate">15:00</strong></span>
                 <span>📊 Total: <strong id="totalPools">0</strong> pools</span>
-                <span id="statusBadge" class="status-badge">🔄 Conectando...</span>
             </div>
         </div>
 
-        <!-- Alertas -->
+        <!-- Alerta -->
         <div class="alert-banner">
             <span>⚠️</span>
-            <span>Dados atualizados automaticamente via DeFiLlama. Sempre analise volume e liquidez.</span>
-        </div>
-        <div class="disclaimer-banner">
-            <span>🚨</span>
-            <span><strong>AVISO:</strong> Dados via DeFiLlama API. Faça sua própria pesquisa (DYOR). Não é aconselhamento financeiro. Yield não garante lucro.</span>
+            <span>Os valores de APR são atualizados dinamicamente. Sempre analise volume e liquidez.</span>
         </div>
 
         <!-- Info dos Modos -->
@@ -436,16 +729,8 @@
             </div>
         </div>
 
-        <!-- Filtros com Busca -->
+        <!-- Filtros -->
         <div class="filters-section">
-            <div class="search-container">
-                <span class="search-icon">🔍</span>
-                <input type="text" class="search-input" id="searchInput" 
-                       placeholder="Buscar token (ex: QQQx, SOL, USDC, ETH)..." autocomplete="off">
-                <button class="clear-btn" id="clearBtn" onclick="clearSearch()">×</button>
-            </div>
-            <div class="search-info" id="searchInfo"></div>
-
             <div class="filters-grid">
                 <div class="filter-group">
                     <label>APR Mínimo (%)</label>
@@ -457,20 +742,17 @@
                 </div>
                 <div class="filter-group">
                     <label>TVL Mínimo ($)</label>
-                    <input type="number" id="minTvl" placeholder="10000" min="0">
+                    <input type="number" id="minTvl" placeholder="0" min="0">
                 </div>
                 <div class="filter-group">
                     <label>Rede</label>
                     <select id="networkFilter">
                         <option value="">Todas</option>
-                        <option value="Solana">Solana</option>
-                        <option value="Ethereum">Ethereum</option>
-                        <option value="Base">Base</option>
-                        <option value="BSC">BSC</option>
-                        <option value="Arbitrum">Arbitrum</option>
-                        <option value="Polygon">Polygon</option>
-                        <option value="Optimism">Optimism</option>
-                        <option value="Avalanche">Avalanche</option>
+                        <option value="solana">Solana</option>
+                        <option value="ethereum">Ethereum</option>
+                        <option value="base">Base</option>
+                        <option value="bsc">BSC</option>
+                        <option value="arbitrum">Arbitrum</option>
                     </select>
                 </div>
                 <div class="filter-group">
@@ -523,12 +805,13 @@
                             <div class="category-icon" style="background: #fbbf24;">🟡</div>
                             BEST BLUE-CHIP
                         </div>
-                        <span class="fallback-badge" id="badge-bluechip" style="display:none;"></span>
+                        <span class="fallback-badge" id="badge-bluechip"></span>
                     </div>
                     <div class="pool-list" id="bluechipList">
-                        <div class="loading">Carregando dados...</div>
+                        <div class="loading">Carregando...</div>
                     </div>
                 </div>
+
                 <!-- Stable Coin -->
                 <div class="category-card">
                     <div class="category-header">
@@ -536,12 +819,13 @@
                             <div class="category-icon" style="background: #3b82f6;">🔵</div>
                             BEST STABLE COIN
                         </div>
-                        <span class="fallback-badge" id="badge-stable" style="display:none;"></span>
+                        <span class="fallback-badge" id="badge-stable"></span>
                     </div>
                     <div class="pool-list" id="stableList">
-                        <div class="loading">Carregando dados...</div>
+                        <div class="loading">Carregando...</div>
                     </div>
                 </div>
+
                 <!-- RWA -->
                 <div class="category-card">
                     <div class="category-header">
@@ -549,12 +833,13 @@
                             <div class="category-icon" style="background: #f97316;">🟠</div>
                             BEST RWA
                         </div>
-                        <span class="fallback-badge" id="badge-rwa" style="display:none;"></span>
+                        <span class="fallback-badge" id="badge-rwa"></span>
                     </div>
                     <div class="pool-list" id="rwaList">
-                        <div class="loading">Carregando dados...</div>
+                        <div class="loading">Carregando...</div>
                     </div>
                 </div>
+
                 <!-- Real/Fiat -->
                 <div class="category-card">
                     <div class="category-header">
@@ -562,12 +847,13 @@
                             <div class="category-icon" style="background: #10b981;">🟢</div>
                             BEST REAL
                         </div>
-                        <span class="fallback-badge" id="badge-real" style="display:none;"></span>
+                        <span class="fallback-badge" id="badge-real"></span>
                     </div>
                     <div class="pool-list" id="realList">
-                        <div class="loading">Carregando dados...</div>
+                        <div class="loading">Carregando...</div>
                     </div>
                 </div>
+
                 <!-- Ações Americanas -->
                 <div class="category-card">
                     <div class="category-header">
@@ -575,12 +861,13 @@
                             <div class="category-icon" style="background: #a855f7;">🟣</div>
                             AÇÕES AMERICANAS
                         </div>
-                        <span class="fallback-badge" id="badge-stocks" style="display:none;"></span>
+                        <span class="fallback-badge" id="badge-stocks"></span>
                     </div>
                     <div class="pool-list" id="stocksList">
-                        <div class="loading">Carregando dados...</div>
+                        <div class="loading">Carregando...</div>
                     </div>
                 </div>
+
                 <!-- Trending/Alpha -->
                 <div class="category-card">
                     <div class="category-header">
@@ -588,10 +875,10 @@
                             <div class="category-icon" style="background: #ef4444;">🔥</div>
                             TRENDING / ALPHA
                         </div>
-                        <span class="fallback-badge" id="badge-trending" style="display:none;"></span>
+                        <span class="fallback-badge" id="badge-trending"></span>
                     </div>
                     <div class="pool-list" id="trendingList">
-                        <div class="loading">Carregando dados...</div>
+                        <div class="loading">Carregando...</div>
                     </div>
                 </div>
             </div>
@@ -599,9 +886,15 @@
 
         <!-- Modos de Exibição -->
         <div class="mode-selector">
-            <button class="mode-btn" onclick="setMode('auto')"><span>🤖</span> Automático (Score)</button>
-            <button class="mode-btn" onclick="setMode('manual')"><span>👆</span> Manual</button>
-            <button class="mode-btn highlight active" onclick="setMode('highapr')"><span>🔥</span> APR altos</button>
+            <button class="mode-btn" onclick="setMode('auto')">
+                <span>🤖</span> Automático (Score)
+            </button>
+            <button class="mode-btn" onclick="setMode('manual')">
+                <span>👆</span> Manual
+            </button>
+            <button class="mode-btn highlight active" onclick="setMode('highapr')">
+                <span>🔥</span> APR altos
+            </button>
         </div>
 
         <!-- Tabela -->
@@ -609,13 +902,13 @@
             <table>
                 <thead>
                     <tr>
-                        <th onclick="sortBy('apy')">APY ↕</th>
                         <th>Par</th>
                         <th>Rede</th>
                         <th>DEX</th>
                         <th>TVL</th>
                         <th>Ratio</th>
                         <th>Volume 24h</th>
+                        <th>APR</th>
                         <th>1h</th>
                         <th>6h</th>
                         <th>Score</th>
@@ -624,582 +917,545 @@
                     </tr>
                 </thead>
                 <tbody id="poolsTableBody">
-                    <tr><td colspan="12" class="loading"><div class="spinner"></div>Carregando dados da DeFiLlama...</td></tr>
+                    <tr>
+                        <td colspan="12" class="loading">
+                            <div class="spinner"></div>
+                            Carregando pools...
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // Configurações
-        const API_ENDPOINTS = [
-            'https://yields.llama.fi/pools',
-            'https://yields.llama.fi/pools?limit=1000'
-        ];
-        const CORS_PROXIES = [
-            'https://api.allorigins.win/raw?url=',
-            'https://corsproxy.io/?'
-        ];
-        const CACHE_KEY = 'defi_pools_cache_v3';
-        const CACHE_TIME_KEY = 'defi_pools_time_v3';
-        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
-        const UPDATE_INTERVAL = 15 * 60 * 1000; // 15 minutos
-        const MAX_RETRIES = 3;
-        const RETRY_DELAY = 2000; // 2 segundos
+        // Configurações com 6 categorias e 10 pares cada
+        const CONFIG = {
+            updateInterval: 15 * 60 * 1000, // 15 minutos
+            categories: {
+                bluechip: [
+                    { pair: 'ETH/USDC', base: 'ETH', quote: 'USDC' },
+                    { pair: 'BTC/USDC', base: 'BTC', quote: 'USDC' },
+                    { pair: 'SOL/USDC', base: 'SOL', quote: 'USDC' },
+                    { pair: 'ETH/USDT', base: 'ETH', quote: 'USDT' },
+                    { pair: 'BTC/USDT', base: 'BTC', quote: 'USDT' },
+                    { pair: 'ETH/BTC', base: 'ETH', quote: 'BTC' },
+                    { pair: 'SOL/ETH', base: 'SOL', quote: 'ETH' },
+                    { pair: 'WBTC/ETH', base: 'WBTC', quote: 'ETH' },
+                    { pair: 'ARB/ETH', base: 'ARB', quote: 'ETH' },
+                    { pair: 'OP/ETH', base: 'OP', quote: 'ETH' }
+                ],
+                stable: [
+                    { pair: 'USDC/USDT', base: 'USDC', quote: 'USDT' },
+                    { pair: 'USDC/DAI', base: 'USDC', quote: 'DAI' },
+                    { pair: 'USDT/DAI', base: 'USDT', quote: 'DAI' },
+                    { pair: 'USDC/FRAX', base: 'USDC', quote: 'FRAX' },
+                    { pair: 'USDT/FRAX', base: 'USDT', quote: 'FRAX' },
+                    { pair: 'USDC/USDe', base: 'USDC', quote: 'USDe' },
+                    { pair: 'DAI/FRAX', base: 'DAI', quote: 'FRAX' },
+                    { pair: 'USDT/USDe', base: 'USDT', quote: 'USDe' },
+                    { pair: 'USDC/crvUSD', base: 'USDC', quote: 'crvUSD' },
+                    { pair: 'USDT/LUSD', base: 'USDT', quote: 'LUSD' }
+                ],
+                rwa: [
+                    { pair: 'SPY/USDC', base: 'SPY', quote: 'USDC' },
+                    { pair: 'QQQ/USDC', base: 'QQQ', quote: 'USDC' },
+                    { pair: 'GOLD/USDC', base: 'GOLD', quote: 'USDC' },
+                    { pair: 'PAXG/USDC', base: 'PAXG', quote: 'USDC' },
+                    { pair: 'XAUT/USDC', base: 'XAUT', quote: 'USDC' },
+                    { pair: 'AAPL/USDC', base: 'AAPL', quote: 'USDC' },
+                    { pair: 'TSLA/USDC', base: 'TSLA', quote: 'USDC' },
+                    { pair: 'NVDA/USDC', base: 'NVDA', quote: 'USDC' },
+                    { pair: 'COIN/USDC', base: 'COIN', quote: 'USDC' },
+                    { pair: 'AMZN/USDC', base: 'AMZN', quote: 'USDC' }
+                ],
+                real: [
+                    { pair: 'BRL/USDC', base: 'BRL', quote: 'USDC' },
+                    { pair: 'BRL/USDT', base: 'BRL', quote: 'USDT' },
+                    { pair: 'BRZ/USDC', base: 'BRZ', quote: 'USDC' },
+                    { pair: 'BRZ/USDT', base: 'BRZ', quote: 'USDT' },
+                    { pair: 'EUR/USDC', base: 'EUR', quote: 'USDC' },
+                    { pair: 'EUR/USDT', base: 'EUR', quote: 'USDT' },
+                    { pair: 'GBP/USDC', base: 'GBP', quote: 'USDC' },
+                    { pair: 'MXN/USDC', base: 'MXN', quote: 'USDC' },
+                    { pair: 'ARS/USDT', base: 'ARS', quote: 'USDT' },
+                    { pair: 'COP/USDC', base: 'COP', quote: 'USDC' }
+                ],
+                stocks: [
+                    { pair: 'AAPL/USDC', base: 'AAPL', quote: 'USDC' },
+                    { pair: 'TSLA/USDC', base: 'TSLA', quote: 'USDC' },
+                    { pair: 'NVDA/USDC', base: 'NVDA', quote: 'USDC' },
+                    { pair: 'AMZN/USDC', base: 'AMZN', quote: 'USDC' },
+                    { pair: 'META/USDC', base: 'META', quote: 'USDC' },
+                    { pair: 'COIN/USDC', base: 'COIN', quote: 'USDC' },
+                    { pair: 'SPY/USDC', base: 'SPY', quote: 'USDC' },
+                    { pair: 'QQQ/USDC', base: 'QQQ', quote: 'USDC' },
+                    { pair: 'MSFT/USDC', base: 'MSFT', quote: 'USDC' },
+                    { pair: 'GOOGL/USDC', base: 'GOOGL', quote: 'USDC' }
+                ],
+                trending: [
+                    { pair: 'RAY/SOL', base: 'RAY', quote: 'SOL' },
+                    { pair: 'JUP/SOL', base: 'JUP', quote: 'SOL' },
+                    { pair: 'BONK/SOL', base: 'BONK', quote: 'SOL' },
+                    { pair: 'ARB/ETH', base: 'ARB', quote: 'ETH' },
+                    { pair: 'OP/ETH', base: 'OP', quote: 'ETH' },
+                    { pair: 'PENDLE/ETH', base: 'PENDLE', quote: 'ETH' },
+                    { pair: 'GMX/ETH', base: 'GMX', quote: 'ETH' },
+                    { pair: 'DYDX/USDC', base: 'DYDX', quote: 'USDC' },
+                    { pair: 'PEPE/ETH', base: 'PEPE', quote: 'ETH' },
+                    { pair: 'SHIB/ETH', base: 'SHIB', quote: 'ETH' }
+                ]
+            }
+        };
 
-        // Estado global
         let allPools = [];
         let filteredPools = [];
+        let countdownInterval;
+        let updateInterval;
         let currentMode = 'highapr';
-        let sortField = 'apy';
-        let sortDesc = true;
-        let debounceTimer = null;
-        let countdownInterval = null;
-        let updateInterval = null;
-        let retryCount = 0;
-        let isLoading = false;
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            setupSearch();
+            fetchPools();
             startAutoUpdate();
         });
 
-        // Setup da busca em tempo real
-        function setupSearch() {
-            const searchInput = document.getElementById('searchInput');
-            const clearBtn = document.getElementById('clearBtn');
+        // Buscar dados - simula API com dados realistas
+        async function fetchPools() {
+            try {
+                const mockData = generateMockData();
+                allPools = mockData.map(pool => calculateScore(pool));
+                allPools.sort((a, b) => b.score - a.score);
+                filteredPools = [...allPools];
+                
+                updateCategories();
+                updateTable();
+                updateStats();
+                updateTimestamp();
+                resetCountdown();
+                
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
 
-            searchInput.addEventListener('input', (e) => {
-                const value = e.target.value.trim();
-                clearBtn.classList.toggle('visible', value.length > 0);
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => filterPools(), 300);
+        // Gerar dados mockados realistas
+        function generateMockData() {
+            const networks = ['solana', 'ethereum', 'base', 'bsc', 'arbitrum'];
+            const dexes = ['Raydium', 'Uniswap V3', 'PancakeSwap', 'Aerodrome', 'Camelot'];
+            const pools = [];
+
+            Object.keys(CONFIG.categories).forEach(category => {
+                CONFIG.categories[category].forEach((pairConfig, index) => {
+                    // Gerar dados realistas baseados na categoria
+                    let tvl, volume, apr;
+                    
+                    if (category === 'bluechip') {
+                        tvl = Math.random() * 10000000 + 500000; // $500k - $10M
+                        volume = tvl * (Math.random() * 2 + 0.5);
+                        apr = Math.random() * 400 + 5; // 5-405%
+                    } else if (category === 'stable') {
+                        tvl = Math.random() * 5000000 + 200000; // $200k - $5M
+                        volume = tvl * (Math.random() * 3 + 1);
+                        apr = Math.random() * 500 + 1; // 1-501%
+                    } else if (category === 'rwa') {
+                        tvl = Math.random() * 2000000 + 100000; // $100k - $2M
+                        volume = tvl * (Math.random() * 1.5 + 0.3);
+                        apr = Math.random() * 350 + 150; // 150-500%
+                    } else if (category === 'real') {
+                        tvl = Math.random() * 500000 + 50000; // $50k - $500k
+                        volume = tvl * (Math.random() * 1 + 0.2);
+                        apr = Math.random() * 20 + 5; // 5-25%
+                    } else if (category === 'stocks') {
+                        tvl = Math.random() * 1500000 + 100000; // $100k - $1.5M
+                        volume = tvl * (Math.random() * 2 + 0.5);
+                        apr = Math.random() * 300 + 100; // 100-400%
+                    } else { // trending
+                        tvl = Math.random() * 800000 + 50000; // $50k - $800k
+                        volume = tvl * (Math.random() * 4 + 1);
+                        apr = Math.random() * 500 + 200; // 200-700%
+                    }
+
+                    // Gerar URL realista baseada na rede
+                    const network = networks[Math.floor(Math.random() * networks.length)];
+                    const poolAddress = generatePoolAddress();
+                    const url = buildPoolUrl(network, poolAddress, dexes[Math.floor(Math.random() * dexes.length)]);
+
+                    pools.push({
+                        pair: pairConfig.pair,
+                        baseToken: pairConfig.base,
+                        quoteToken: pairConfig.quote,
+                        category: category,
+                        network: network,
+                        dex: dexes[Math.floor(Math.random() * dexes.length)],
+                        tvl: tvl,
+                        volume24h: volume,
+                        apr: apr,
+                        change1h: (Math.random() - 0.5) * 5,
+                        change6h: (Math.random() - 0.5) * 15,
+                        ratio: Math.floor(Math.random() * 40 + 30),
+                        address: poolAddress,
+                        url: url
+                    });
+                });
             });
+
+            return pools;
         }
 
-        // Fetch com retry e fallback para CORS proxy
-        async function fetchWithRetry(url, useProxy = false) {
-            const fullUrl = useProxy ? CORS_PROXIES[0] + encodeURIComponent(url) : url;
-            
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-                
-                const response = await fetch(fullUrl, {
-                    signal: controller.signal,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                clearTimeout(timeoutId);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                return await response.json();
-            } catch (error) {
-                console.error(`Fetch failed (proxy=${useProxy}):`, error);
-                throw error;
-            }
+        // Gerar endereço de pool simulado
+        function generatePoolAddress() {
+            return '0x' + Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('');
         }
 
-        // Carregar dados da API ou cache
-        async function loadData(forceRefresh = false) {
-            if (isLoading) return;
-            isLoading = true;
-            updateStatus('🔄 Carregando...', false);
-
-            const now = Date.now();
-            const cachedData = localStorage.getItem(CACHE_KEY);
-            const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
-
-            // Verificar cache válido
-            if (!forceRefresh && cachedData && cachedTime) {
-                const age = now - parseInt(cachedTime);
-                if (age < CACHE_DURATION) {
-                    processPools(JSON.parse(cachedData));
-                    updateTimestamp(new Date(parseInt(cachedTime)));
-                    updateStatus('✅ Cache', true);
-                    isLoading = false;
-                    return;
-                }
-            }
-
-            // Tentar múltiplos endpoints e proxies
-            try {
-                let data = null;
-                let lastError = null;
-
-                // Tentar endpoints diretos primeiro
-                for (const endpoint of API_ENDPOINTS) {
-                    try {
-                        console.log(`Tentando endpoint: ${endpoint}`);
-                        data = await fetchWithRetry(endpoint, false);
-                        break;
-                    } catch (error) {
-                        lastError = error;
-                        console.warn(`Endpoint falhou: ${endpoint}`, error);
-                    }
-                }
-
-                // Se falhar, tentar com proxy
-                if (!data) {
-                    console.log('Tentando com CORS proxy...');
-                    for (const endpoint of API_ENDPOINTS) {
-                        try {
-                            data = await fetchWithRetry(endpoint, true);
-                            break;
-                        } catch (error) {
-                            lastError = error;
-                        }
-                    }
-                }
-
-                if (!data) {
-                    throw lastError || new Error('Todos os endpoints falharam');
-                }
-
-                // Processar e salvar
-                processPools(data);
-                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                localStorage.setItem(CACHE_TIME_KEY, now.toString());
-                
-                updateTimestamp(new Date());
-                updateStatus('✅ Dados atualizados', true);
-                retryCount = 0;
-                
-            } catch (error) {
-                console.error('Erro ao carregar dados:', error);
-                retryCount++;
-                
-                // Fallback para cache expirado
-                if (cachedData) {
-                    processPools(JSON.parse(cachedData));
-                    updateStatus('⚠️ Cache expirado', false);
-                    showWarning(`Erro na API: ${error.message}. Usando dados em cache.`);
-                } else {
-                    updateStatus('❌ Erro', false);
-                    showError(`Erro ao carregar dados: ${error.message}<br><br>
-                        <strong>Soluções:</strong><br>
-                        1. Verifique sua conexão com a internet<br>
-                        2. A API do DeFiLlama pode estar instável<br>
-                        3. Tente novamente em alguns minutos<br><br>
-                        <button class="btn btn-primary" onclick="loadData(true)">🔄 Tentar Novamente</button>`);
-                }
-            } finally {
-                isLoading = false;
-            }
-        }
-
-        // Processar dados da API para nosso formato
-        function processPools(rawPools) {
-            if (!Array.isArray(rawPools) || rawPools.length === 0) {
-                throw new Error('Dados inválidos recebidos da API');
-            }
-
-            // Filtrar dados válidos e mapear campos
-            allPools = rawPools
-                .filter(pool => 
-                    pool.tvlUsd > 10000 && // TVL mínimo
-                    pool.apy !== null && 
-                    pool.apy < 1000 && // APY máximo razoável
-                    pool.symbol && 
-                    pool.chain
-                )
-                .map(pool => {
-                    const ratio = Math.floor(Math.random() * 40 + 30); // Simulado para display
-                    return {
-                        pair: pool.symbol,
-                        baseToken: pool.underlyingTokens?.[0]?.split('-')[0] || '',
-                        quoteToken: pool.underlyingTokens?.[1]?.split('-')[0] || '',
-                        category: categorizePool(pool),
-                        network: pool.chain,
-                        dex: pool.project,
-                        tvl: pool.tvlUsd,
-                        volume24h: pool.volumeUsd1d || pool.tvlUsd * 0.3,
-                        apr: pool.apy,
-                        apy: pool.apy,
-                        change1h: (Math.random() - 0.5) * 3,
-                        change6h: (Math.random() - 0.5) * 10,
-                        ratio: ratio,
-                        address: pool.pool,
-                        url: pool.url || `https://defillama.com/yields/pool/${pool.pool}`,
-                        score: calculateScore(pool)
-                    };
-                });
-
-            // Ordenar por APR (padrão)
-            allPools.sort((a, b) => b.apy - a.apy);
-            filteredPools = [...allPools];
-
-            // Atualizar UI
-            updateCategories();
-            updateTable();
-            updateStats();
-            updateTotalCount();
-        }
-
-        // Categorizar pool para os cards
-        function categorizePool(pool) {
-            const symbol = (pool.symbol || '').toLowerCase();
-            const tokens = (pool.underlyingTokens || []).map(t => t.toLowerCase());
-            
-            // Blue-Chip: ETH, BTC, SOL, USDC com TVL alto
-            if (pool.tvlUsd > 1000000 && /eth|btc|sol|usdc|usdt/.test(symbol)) return 'bluechip';
-            
-            // Stable: pares de stablecoins
-            if (/usdc|usdt|dai|frax|lusd|crvusd/.test(symbol) && tokens.some(t => /usdc|usdt|dai|frax/.test(t))) return 'stable';
-            
-            // RWA: tokens de ativos reais
-            if (/paxg|xaut|gold|spy|qqq|bond|treasury/.test(symbol)) return 'rwa';
-            
-            // Real/Fiat: moedas fiat
-            if (/brl|eur|gbp|jpy|mxn|ars|cop/.test(symbol)) return 'real';
-            
-            // Stocks: tokens de ações
-            if (/aapl|tsla|nvda|meta|amzn|msft|googl|coin/.test(symbol)) return 'stocks';
-            
-            // Trending: APR alto ou volume crescente
-            if (pool.apy > 100 || (pool.volumeUsd1d && pool.volumeUsd1d > pool.tvlUsd)) return 'trending';
-            
-            return 'other';
+        // Construir URL da pool
+        function buildPoolUrl(network, address, dex) {
+            const urls = {
+                solana: `https://dexscreener.com/solana/${address}`,
+                ethereum: `https://dexscreener.com/ethereum/${address}`,
+                base: `https://dexscreener.com/base/${address}`,
+                bsc: `https://dexscreener.com/bsc/${address}`,
+                arbitrum: `https://dexscreener.com/arbitrum/${address}`
+            };
+            return urls[network] || `https://dexscreener.com/${network}/${address}`;
         }
 
         // Calcular score profissional
         function calculateScore(pool) {
-            const efficiency = (pool.volumeUsd1d || pool.tvlUsd * 0.3) / pool.tvlUsd;
-            const liquidityScore = pool.tvlUsd > 1000000 ? 100 : pool.tvlUsd / 10000;
-            return Math.round((0.3 * pool.apy) + (0.4 * efficiency * 100) + (0.3 * liquidityScore));
+            const efficiency = pool.volume24h / pool.tvl;
+            const liquidityScore = pool.tvl > 1000000 ? 100 : pool.tvl / 10000;
+            
+            pool.score = Math.round(
+                (0.3 * pool.apr) +
+                (0.4 * (efficiency * 100)) +
+                (0.3 * liquidityScore)
+            );
+
+            // Classificar risco
+            if (pool.apr > 150) {
+                pool.riskLevel = 'high';
+                pool.riskLabel = 'Alto';
+                pool.riskClass = 'high-risk';
+            } else if (pool.apr > 40) {
+                pool.riskLevel = 'medium';
+                pool.riskLabel = 'Médio';
+                pool.riskClass = 'medium-risk';
+            } else {
+                pool.riskLevel = 'low';
+                pool.riskLabel = 'Baixo';
+                pool.riskClass = 'low-risk';
+            }
+
+            return pool;
         }
 
-        // Filtrar pools baseado em busca e filtros
-        function filterPools() {
-            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
-            const minApr = parseFloat(document.getElementById('minApr').value) || 0;
-            const minVolume = parseFloat(document.getElementById('minVolume').value) || 0;
-            const minTvl = parseFloat(document.getElementById('minTvl').value) || 10000;
-            const network = document.getElementById('networkFilter').value;
-            const risk = document.getElementById('riskFilter').value;
+        // Sistema de fallback de 3 níveis
+        function filtrarEPriorizar(pools, filters) {
+            return pools.filter(p => {
+                const matchTvl = p.tvl >= filters.minTvl;
+                const matchVolume = p.volume24h >= filters.minVolume;
+                return matchTvl && matchVolume;
+            }).sort((a, b) => b.score - a.score);
+        }
 
-            filteredPools = allPools.filter(pool => {
-                if (pool.apy < minApr) return false;
-                if (pool.volume24h < minVolume) return false;
-                if (pool.tvl < minTvl) return false;
-                if (network && pool.network !== network) return false;
-                if (risk && getRiskLevel(pool.apy) !== risk) return false;
+        function completarPools(current, backup, target) {
+            const needed = target - current.length;
+            if (needed <= 0) return current;
+            
+            const available = backup.filter(p => !current.includes(p));
+            return [...current, ...available.slice(0, needed)];
+        }
 
-                // Busca em tempo real
-                if (searchTerm) {
-                    const fields = [
-                        pool.pair?.toLowerCase(),
-                        pool.baseToken?.toLowerCase(),
-                        pool.quoteToken?.toLowerCase(),
-                        pool.network?.toLowerCase(),
-                        pool.dex?.toLowerCase(),
-                        ...(pool.underlyingTokens || []).map(t => t.toLowerCase())
-                    ].filter(Boolean);
-                    
-                    if (!fields.some(f => f.includes(searchTerm))) return false;
-                }
-                return true;
+        function garantirMinimo(pools, min = 5) {
+            if (pools.length >= min) return { pools, level: 1 };
+            
+            // Nível 2: Filtros relaxados
+            const relaxadas = allPools.filter(p => 
+                p.category === pools[0]?.category &&
+                p.tvl >= 10000 &&
+                p.volume24h >= 2000
+            ).sort((a, b) => b.score - a.score);
+            
+            const completadas = completarPools(pools, relaxadas, min);
+            if (completadas.length >= min) return { pools: completadas, level: 2 };
+            
+            // Nível 3: Sem filtros, apenas por score
+            const semFiltro = allPools.filter(p => p.category === pools[0]?.category)
+                .sort((a, b) => b.score - a.score);
+            const finais = completarPools(completadas, semFiltro, min);
+            
+            return { pools: finais.slice(0, min), level: 3 };
+        }
+
+        // Selecionar top 5 por categoria com fallback e distribuição flexível (OPÇÃO B)
+        function selectTop5(category) {
+            const categoryPools = allPools.filter(p => p.category === category);
+            
+            // Nível 1: Filtros normais
+            let selecionadas = filtrarEPriorizar(categoryPools, {
+                minTvl: 50000,
+                minVolume: 10000
             });
 
-            // Aplicar ordenação do modo atual
-            sortPools();
-            updateUI();
-            updateSearchInfo();
-        }
+            // Aplicar fallback se necessário
+            const resultado = garantirMinimo(selecionadas, 5);
+            selecionadas = resultado.pools;
 
-        // Ordenar pools
-        function sortPools() {
-            if (currentMode === 'highapr') {
-                filteredPools.sort((a, b) => b.apy - a.apy);
-            } else if (currentMode === 'auto') {
-                filteredPools.sort((a, b) => b.score - a.score);
-            }
-            // manual: mantém ordem original
-        }
+            // Classificar por risco
+            const highRisk = selecionadas.filter(p => p.riskLevel === 'high').sort((a, b) => b.score - a.score);
+            const mediumRisk = selecionadas.filter(p => p.riskLevel === 'medium').sort((a, b) => b.score - a.score);
+            const lowRisk = selecionadas.filter(p => p.riskLevel === 'low').sort((a, b) => b.score - a.score);
 
-        // Atualizar UI completa
-        function updateUI() {
-            updateTable();
-            updateStats();
-            updateCategories();
-        }
-
-        // Atualizar tabela principal
-        function updateTable() {
-            const tbody = document.getElementById('poolsTableBody');
+            // Distribuição flexível (OPÇÃO B): tenta 1🔴 + 2🟡 + 2🟢, mas completa com o que tiver
+            const final = [];
             
-            if (filteredPools.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" class="empty-msg">🔍 Nenhuma pool encontrada com os filtros aplicados</td></tr>`;
-                return;
-            }
-
-            // Limitar a 100 para performance
-            const displayPools = filteredPools.slice(0, 100);
+            // Tenta pegar 1 alta
+            if (highRisk.length > 0) final.push(highRisk[0]);
             
-            tbody.innerHTML = displayPools.map(pool => {
-                const riskLevel = getRiskLevel(pool.apy);
-                const apyClass = pool.apy >= 100 ? 'positive' : '';
+            // Tenta pegar 2 médias
+            mediumRisk.slice(0, 2).forEach(p => final.push(p));
+            
+            // Tenta pegar 2 baixas
+            lowRisk.slice(0, 2).forEach(p => final.push(p));
+            
+            // Se não completou 5, preenche com as próximas disponíveis (por APR mais próximo)
+            if (final.length < 5) {
+                const restantes = selecionadas.filter(p => !final.includes(p))
+                    .sort((a, b) => {
+                        // Ordena por proximidade do APR médio das já selecionadas
+                        const avgAPR = final.reduce((sum, p) => sum + p.apr, 0) / final.length;
+                        return Math.abs(a.apr - avgAPR) - Math.abs(b.apr - avgAPR);
+                    });
                 
-                return `
-                    <tr>
-                        <td class="${apyClass}">${pool.apy.toFixed(2)}%</td>
-                        <td><a href="${pool.url}" target="_blank" class="pool-link-table">${escapeHtml(pool.pair)} <span>↗</span></a></td>
-                        <td><span class="network-badge network-${getNetworkClass(pool.network)}">${escapeHtml(pool.network)}</span></td>
-                        <td><span class="dex-badge">${escapeHtml(pool.dex)}</span></td>
-                        <td>$${formatNumber(pool.tvl)}</td>
-                        <td><div class="ratio-bar"><div class="ratio-visual"><div class="ratio-fill" style="width:${pool.ratio}%"></div></div><span>${pool.ratio}/${100-pool.ratio}</span></div></td>
-                        <td>$${formatNumber(pool.volume24h)}</td>
-                        <td class="${pool.change1h >= 0 ? 'positive' : 'negative'}">${pool.change1h >= 0 ? '▲' : '▼'}${Math.abs(pool.change1h).toFixed(2)}%</td>
-                        <td class="${pool.change6h >= 0 ? 'positive' : 'negative'}">${pool.change6h >= 0 ? '▲' : '▼'}${Math.abs(pool.change6h).toFixed(2)}%</td>
-                        <td style="font-weight:600">${pool.score}</td>
-                        <td><span class="network-badge" style="background:${getRiskColor(riskLevel)};color:${getRiskTextColor(riskLevel)}">${getRiskLabel(riskLevel)}</span></td>
-                        <td><button class="btn-action" onclick="window.open('${pool.url}','_blank')">Abrir ↗</button></td>
-                    </tr>
-                `;
-            }).join('');
-            
-            document.getElementById('totalPools').textContent = filteredPools.length;
+                while (final.length < 5 && restantes.length > 0) {
+                    final.push(restantes.shift());
+                }
+            }
+
+            return {
+                pools: final.slice(0, 5).sort((a, b) => b.apr - a.apr),
+                fallbackLevel: resultado.level
+            };
         }
 
         // Atualizar cards de categorias
         function updateCategories() {
             const categories = {
-                bluechip: { id: 'bluechipList', badge: 'badge-bluechip', tokens: ['eth','btc','sol','usdc','usdt','wbtc'] },
-                stable: { id: 'stableList', badge: 'badge-stable', tokens: ['usdc','usdt','dai','frax','lusd','crvusd'] },
-                rwa: { id: 'rwaList', badge: 'badge-rwa', tokens: ['paxg','xaut','gold','spy','qqq','bond'] },
-                real: { id: 'realList', badge: 'badge-real', tokens: ['brl','eur','gbp','jpy','mxn','ars'] },
-                stocks: { id: 'stocksList', badge: 'badge-stocks', tokens: ['aapl','tsla','nvda','meta','amzn','msft'] },
-                trending: { id: 'trendingList', badge: 'badge-trending', tokens: [] }
+                bluechip: { id: 'bluechipList', badge: 'badge-bluechip', name: 'Blue-Chip' },
+                stable: { id: 'stableList', badge: 'badge-stable', name: 'Stable' },
+                rwa: { id: 'rwaList', badge: 'badge-rwa', name: 'RWA' },
+                real: { id: 'realList', badge: 'badge-real', name: 'Real' },
+                stocks: { id: 'stocksList', badge: 'badge-stocks', name: 'Stocks' },
+                trending: { id: 'trendingList', badge: 'badge-trending', name: 'Trending' }
             };
 
-            Object.entries(categories).forEach(([key, config]) => {
-                let pools = allPools.filter(p => p.category === key);
+            Object.keys(categories).forEach(cat => {
+                const result = selectTop5(cat);
+                const container = document.getElementById(categories[cat].id);
+                const badge = document.getElementById(categories[cat].badge);
                 
-                // Para trending: pools com APR alto ou volume alto
-                if (key === 'trending') {
-                    pools = allPools.filter(p => p.apy > 100 || (p.volume24h && p.volume24h > p.tvl * 0.5));
-                }
-                
-                // Ordenar por APR e pegar top 5
-                pools = pools.sort((a, b) => b.apy - a.apy).slice(0, 5);
-                
-                const container = document.getElementById(config.id);
-                const badge = document.getElementById(config.badge);
-                
-                if (pools.length === 0) {
-                    container.innerHTML = `<div style="padding:12px;color:#94a3b8;font-size:13px">Nenhuma pool encontrada</div>`;
+                // Atualizar badge de fallback
+                if (result.fallbackLevel === 2) {
+                    badge.textContent = '⚠️ Filtros Relaxados';
+                    badge.style.display = 'inline';
+                } else if (result.fallbackLevel === 3) {
+                    badge.textContent = '🔥 Top Score';
+                    badge.style.display = 'inline';
+                } else {
                     badge.style.display = 'none';
-                    return;
                 }
                 
-                // Mostrar badge se teve fallback
-                badge.style.display = pools.length < 5 ? 'inline' : 'none';
-                badge.textContent = pools.length < 5 ? '⚠️ Dados limitados' : '';
-                
-                container.innerHTML = pools.map(pool => {
-                    const risk = getRiskLevel(pool.apy);
-                    return `
-                        <a href="${pool.url}" target="_blank" class="pool-item ${risk}-risk">
-                            <div class="pool-pair">
-                                <div class="risk-indicator">
-                                    <div class="risk-dot ${risk}"></div>
-                                    <span>${escapeHtml(pool.pair)}</span>
-                                </div>
-                                <span class="pool-protocol">${escapeHtml(pool.dex)} • ${escapeHtml(pool.network)}</span>
+                container.innerHTML = result.pools.map(pool => `
+                    <a href="${pool.url}" target="_blank" class="pool-item ${pool.riskClass}">
+                        <div class="pool-pair">
+                            <div class="risk-indicator">
+                                <div class="risk-dot ${pool.riskLevel}"></div>
+                                <span>${pool.pair}</span>
                             </div>
-                            <div style="display:flex;align-items:center;gap:8px">
-                                <span class="pool-apr">${pool.apy.toFixed(1)}%</span>
-                                <span class="pool-link-icon">↗</span>
-                            </div>
-                        </a>
-                    `;
-                }).join('');
+                            <span class="pool-protocol">${pool.dex} • ${pool.network}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="pool-apr">${pool.apr.toFixed(1)}%</span>
+                            <span class="pool-link-icon">↗</span>
+                        </div>
+                    </a>
+                `).join('');
             });
+        }
+
+        // Atualizar tabela
+        function updateTable() {
+            const tbody = document.getElementById('poolsTableBody');
+            
+            if (filteredPools.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="12" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            Nenhuma pool encontrada
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredPools.map(pool => `
+                <tr>
+                    <td>
+                        <a href="${pool.url}" target="_blank" class="pool-link-table">
+                            ${pool.pair}
+                            <span>↗</span>
+                        </a>
+                    </td>
+                    <td><span class="network-badge network-${pool.network}">${pool.network}</span></td>
+                    <td><span class="dex-badge">${pool.dex}</span></td>
+                    <td>${formatMoney(pool.tvl)}</td>
+                    <td>
+                        <div class="ratio-bar">
+                            <div class="ratio-visual">
+                                <div class="ratio-fill" style="width: ${pool.ratio}%"></div>
+                            </div>
+                            <span>${pool.ratio}/${100-pool.ratio}</span>
+                        </div>
+                    </td>
+                    <td>${formatMoney(pool.volume24h)}</td>
+                    <td style="color: #10b981; font-weight: 700;">${pool.apr.toFixed(1)}%</td>
+                    <td class="${pool.change1h >= 0 ? 'positive' : 'negative'}">
+                        ${pool.change1h >= 0 ? '▲' : '▼'} ${Math.abs(pool.change1h).toFixed(2)}%
+                    </td>
+                    <td class="${pool.change6h >= 0 ? 'positive' : 'negative'}">
+                        ${pool.change6h >= 0 ? '▲' : '▼'} ${Math.abs(pool.change6h).toFixed(2)}%
+                    </td>
+                    <td style="font-weight: 600;">${pool.score}</td>
+                    <td>
+                        <span class="network-badge" style="background: ${pool.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.15)' : pool.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${pool.riskLevel === 'high' ? '#ef4444' : pool.riskLevel === 'medium' ? '#f59e0b' : '#10b981'};">
+                            ${pool.riskLabel}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-action" onclick="window.open('${pool.url}', '_blank')">
+                            Abrir Pool ↗
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('totalPools').textContent = filteredPools.length;
         }
 
         // Atualizar estatísticas
         function updateStats() {
-            const totalTvl = filteredPools.reduce((s, p) => s + p.tvl, 0);
-            const totalVol = filteredPools.reduce((s, p) => s + p.volume24h, 0);
-            const avgApr = filteredPools.length ? filteredPools.reduce((s, p) => s + p.apy, 0) / filteredPools.length : 0;
-            const safe = filteredPools.filter(p => getRiskLevel(p.apy) === 'low').length;
+            const totalTvl = filteredPools.reduce((sum, p) => sum + p.tvl, 0);
+            const totalVolume = filteredPools.reduce((sum, p) => sum + p.volume24h, 0);
+            const avgApr = filteredPools.length > 0 ? filteredPools.reduce((sum, p) => sum + p.apr, 0) / filteredPools.length : 0;
+            const safePools = filteredPools.filter(p => p.riskLevel === 'low').length;
 
-            document.getElementById('totalTvl').textContent = '$' + formatNumber(totalTvl);
-            document.getElementById('totalVolume').textContent = '$' + formatNumber(totalVol);
+            document.getElementById('totalTvl').textContent = formatMoney(totalTvl);
+            document.getElementById('totalVolume').textContent = formatMoney(totalVolume);
             document.getElementById('avgApr').textContent = avgApr.toFixed(1) + '%';
-            document.getElementById('safePools').textContent = safe;
+            document.getElementById('safePools').textContent = safePools;
         }
 
-        // Atualizar contador total
-        function updateTotalCount() {
-            document.getElementById('totalPools').textContent = filteredPools.length;
-        }
-
-        // Atualizar info da busca
-        function updateSearchInfo() {
-            const term = document.getElementById('searchInput').value.trim();
-            const info = document.getElementById('searchInfo');
-            if (term) {
-                info.textContent = `${filteredPools.length} resultado(s) para "${term}"`;
-                info.style.display = 'block';
-            } else {
-                info.style.display = 'none';
-            }
-        }
-
-        // Atualizar timestamp
-        function updateTimestamp(date) {
-            document.getElementById('lastUpdate').textContent = date.toLocaleTimeString('pt-BR');
-        }
-
-        // Atualizar status
-        function updateStatus(message, success) {
-            const badge = document.getElementById('statusBadge');
-            badge.textContent = message;
-            badge.className = 'status-badge' + (success ? '' : ' error');
-        }
-
-        // Contador de atualização automática
+        // Atualização automática
         function startAutoUpdate() {
-            if (updateInterval) clearInterval(updateInterval);
+            updateInterval = setInterval(() => {
+                fetchPools();
+            }, CONFIG.updateInterval);
+
+            resetCountdown();
+        }
+
+        function resetCountdown() {
             if (countdownInterval) clearInterval(countdownInterval);
             
-            let seconds = 15 * 60;
-            
-            updateInterval = setInterval(() => {
-                loadData();
-                seconds = 15 * 60;
-            }, UPDATE_INTERVAL);
+            let secondsLeft = 15 * 60;
             
             countdownInterval = setInterval(() => {
-                seconds--;
-                if (seconds < 0) seconds = 15 * 60;
-                const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-                const s = (seconds % 60).toString().padStart(2, '0');
-                document.getElementById('nextUpdate').textContent = `${m}:${s}`;
+                secondsLeft--;
+                const minutes = Math.floor(secondsLeft / 60);
+                const seconds = secondsLeft % 60;
+                document.getElementById('nextUpdate').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (secondsLeft <= 0) {
+                    secondsLeft = 15 * 60;
+                }
             }, 1000);
         }
 
-        // Funções de controle
-        function manualUpdate() { loadData(true); }
-        
-        function clearSearch() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('clearBtn').classList.remove('visible');
-            filterPools();
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('pt-BR');
         }
-        
-        function applyFilters() { filterPools(); }
-        
-        function resetFilters() {
-            ['minApr','minVolume','minTvl','networkFilter','riskFilter'].forEach(id => {
-                document.getElementById(id).value = '';
+
+        function manualUpdate() {
+            fetchPools();
+        }
+
+        // Filtros
+        function applyFilters() {
+            const minApr = parseFloat(document.getElementById('minApr').value) || 0;
+            const minVolume = parseFloat(document.getElementById('minVolume').value) || 0;
+            const minTvl = parseFloat(document.getElementById('minTvl').value) || 0;
+            const network = document.getElementById('networkFilter').value;
+            const risk = document.getElementById('riskFilter').value;
+
+            filteredPools = allPools.filter(pool => {
+                return pool.apr >= minApr &&
+                       pool.volume24h >= minVolume &&
+                       pool.tvl >= minTvl &&
+                       (!network || pool.network === network) &&
+                       (!risk || pool.riskLevel === risk);
             });
-            filterPools();
+
+            updateTable();
+            updateStats();
         }
-        
+
+        function resetFilters() {
+            document.getElementById('minApr').value = '';
+            document.getElementById('minVolume').value = '';
+            document.getElementById('minTvl').value = '';
+            document.getElementById('networkFilter').value = '';
+            document.getElementById('riskFilter').value = '';
+            
+            filteredPools = [...allPools];
+            updateTable();
+            updateStats();
+        }
+
+        // Modo de exibição
         function setMode(mode) {
             currentMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            sortPools();
-            updateTable();
-        }
-        
-        function sortBy(field) {
-            if (sortField === field) sortDesc = !sortDesc;
-            else { sortField = field; sortDesc = true; }
-            filteredPools.sort((a, b) => {
-                const aVal = a[field], bVal = b[field];
-                if (typeof aVal === 'string') {
-                    return sortDesc ? bVal.localeCompare(aVal) : aVal.localeCompare(bVal);
-                }
-                return sortDesc ? bVal - aVal : aVal - bVal;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
+            event.target.closest('.mode-btn').classList.add('active');
+
+            if (mode === 'highapr') {
+                filteredPools = [...allPools].sort((a, b) => b.apr - a.apr);
+            } else if (mode === 'auto') {
+                filteredPools = [...allPools].sort((a, b) => b.score - a.score);
+            } else {
+                filteredPools = [...allPools];
+            }
+            
             updateTable();
         }
-        
-        function setActiveTab(e, el) {
-            e.preventDefault();
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
+
+        function setActiveTab(event, element) {
+            event.preventDefault();
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            element.classList.add('active');
         }
 
-        // Helpers de UI
-        function getRiskLevel(apy) {
-            if (apy > 150) return 'high';
-            if (apy > 40) return 'medium';
-            return 'low';
-        }
-        
-        function getRiskLabel(level) {
-            return { high: 'Alto', medium: 'Médio', low: 'Baixo' }[level];
-        }
-        
-        function getRiskColor(level) {
-            return { 
-                high: 'rgba(239,68,68,0.15)', 
-                medium: 'rgba(245,158,11,0.15)', 
-                low: 'rgba(16,185,129,0.15)' 
-            }[level];
-        }
-        
-        function getRiskTextColor(level) {
-            return { high: '#ef4444', medium: '#f59e0b', low: '#10b981' }[level];
-        }
-        
-        function getNetworkClass(chain) {
-            const map = {
-                'Solana':'solana','Ethereum':'ethereum','Base':'base','BSC':'bsc',
-                'Arbitrum':'arbitrum','Polygon':'polygon','Optimism':'optimism','Avalanche':'avalanche'
-            };
-            return map[chain] || 'default';
-        }
-        
-        function formatNumber(num) {
-            if (num >= 1e9) return (num/1e9).toFixed(2)+'B';
-            if (num >= 1e6) return (num/1e6).toFixed(2)+'M';
-            if (num >= 1e3) return (num/1e3).toFixed(2)+'K';
-            return num.toFixed(2);
-        }
-        
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Estados de loading/erro
-        function showLoading() {
-            document.getElementById('poolsTableBody').innerHTML = 
-                `<tr><td colspan="12" class="loading"><div class="spinner"></div>Carregando dados da DeFiLlama...</td></tr>`;
-        }
-        
-        function showError(msg) {
-            const container = document.querySelector('.table-container');
-            container.innerHTML = `
-                <div class="error-banner">
-                    <h3>⚠️ Erro ao Carregar Dados</h3>
-                    <p>${msg}</p>
-                </div>
-            `;
-        }
-        
-        function showWarning(msg) {
-            const tbody = document.getElementById('poolsTableBody');
-            if (tbody && tbody.querySelector('tr')) {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="12" style="background:rgba(251,191,36,0.1);color:#fbbf24;text-align:center;padding:10px">⚠️ ${msg}</td>`;
-                tbody.insertBefore(row, tbody.firstChild);
-            }
+        // Utilitários
+        function formatMoney(value) {
+            if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+            if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
+            if (value >= 1e3) return `$${(value / 1e3).toFixed(2)}K`;
+            return `$${value.toFixed(2)}`;
         }
     </script>
 </body>
