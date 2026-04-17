@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -50,6 +51,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            cursor: pointer;
         }
 
         .nav-tab:hover {
@@ -68,6 +70,21 @@
         .nav-tab.external::after {
             content: "↗";
             font-size: 10px;
+        }
+
+        /* Controle de Abas */
+        .tab-section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Header */
@@ -1106,6 +1123,8 @@
         .network-base { background: rgba(0, 120, 255, 0.15); color: #0078ff; }
         .network-bsc { background: rgba(240, 185, 10, 0.15); color: #f0b90b; }
         .network-arbitrum { background: rgba(36, 150, 255, 0.15); color: #2496ff; }
+        .network-sui { background: rgba(100, 217, 127, 0.15); color: #64d97f; }
+        .network-sonic { background: rgba(255, 100, 100, 0.15); color: #ff6464; }
 
         .dex-badge {
             background: rgba(148, 163, 184, 0.1);
@@ -1222,319 +1241,401 @@
     <div class="container">
         <!-- Navegação -->
         <nav class="nav-tabs">
-            <a href="#" class="nav-tab active" onclick="setActiveTab(event, this)">🏊 Top Pools DeFi</a>
+            <a href="#" class="nav-tab active" onclick="setActiveTab(event, this, 'tab-principal')">🏊 Top Pools DeFi</a>
+            <a href="#" class="nav-tab" onclick="setActiveTab(event, this, 'tab-oportunidades')">🚀 Oportunidades</a>
             <a href="https://scalp-calc.vercel.app/" class="nav-tab external" target="_blank">📊 Scalp Calc</a>
             <a href="https://marcoscleber10.github.io/centralweb/" class="nav-tab external" target="_blank">🎯 Central Web</a>
             <a href="https://marcoscleber10.github.io/comprar-btc3/" class="nav-tab external" target="_blank">₿ Comprar BTC</a>
         </nav>
 
-        <!-- Header -->
-        <div class="header">
-            <div class="header-top">
-                <div>
-                    <h1>🏊 Top Pools DeFi</h1>
-                    <p class="header-subtitle">Análise profissional com links diretos para investir</p>
+        <!-- AB A PRINCIPAL (Existente) -->
+        <div id="tab-principal" class="tab-section active">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-top">
+                    <div>
+                        <h1>🏊 Top Pools DeFi</h1>
+                        <p class="header-subtitle">Análise profissional com links diretos para investir</p>
+                    </div>
+                    <button class="btn btn-refresh" onclick="manualUpdate()">
+                        <span>🔄</span> Atualizar
+                    </button>
                 </div>
-                <button class="btn btn-refresh" onclick="manualUpdate()">
-                    <span>🔄</span> Atualizar
+                <div class="update-info">
+                    <span><div class="live-indicator"></div> Ao vivo</span>
+                    <span>🕐 Última: <strong id="lastUpdate">--:--:--</strong></span>
+                    <span>⏱️ Próxima: <strong id="nextUpdate">15:00</strong></span>
+                    <span>📊 Total: <strong id="totalPools">0</strong> pools</span>
+                </div>
+            </div>
+
+            <!-- Busca Profissional -->
+            <div class="search-section" id="searchSection">
+                <div class="search-wrapper">
+                    <div class="search-container">
+                        <div class="search-icon-wrapper">
+                            <span class="search-icon" id="searchIcon">🔍</span>
+                        </div>
+                        <div class="search-input-wrapper">
+                            <input 
+                                type="text" 
+                                class="search-input" 
+                                id="searchInput" 
+                                placeholder="Buscar par, token, DEX ou rede..."
+                                autocomplete="off"
+                            >
+                            <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()">✕</button>
+                        </div>
+                    </div>
+
+                    <!-- Autocomplete Dropdown -->
+                    <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
+
+                    <!-- Sugestões Rápidas -->
+                    <div class="quick-tags" id="quickTags">
+                        <span class="quick-tag high-apr" onclick="quickSearch('high apr')">🔥 Alta APR</span>
+                        <span class="quick-tag low-risk" onclick="quickSearch('baixo risco')">🟢 Baixo Risco</span>
+                        <span class="quick-tag solana" onclick="quickSearch('solana')">⚡ Solana</span>
+                        <span class="quick-tag bluechip" onclick="quickSearch('bluechip')">💎 Blue-Chip</span>
+                        <span class="quick-tag stable" onclick="quickSearch('stable')">💵 Stablecoins</span>
+                    </div>
+
+                    <!-- Buscas Populares -->
+                    <div class="popular-section" id="popularSection">
+                        <div class="popular-label">🔥 Buscas populares</div>
+                        <div class="popular-list" id="popularList">
+                            <span class="popular-item" onclick="quickSearch('ETH')">ETH/USDC</span>
+                            <span class="popular-item" onclick="quickSearch('BTC')">BTC/USDC</span>
+                            <span class="popular-item" onclick="quickSearch('SOL')">SOL/USDC</span>
+                            <span class="popular-item" onclick="quickSearch('QQQ')">QQQ/USDC</span>
+                            <span class="popular-item" onclick="quickSearch('Uniswap')">Uniswap</span>
+                            <span class="popular-item" onclick="quickSearch('Raydium')">Raydium</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div class="search-loading" id="searchLoading">
+                    <div class="spinner"></div>
+                    <div>Buscando pools...</div>
+                </div>
+
+                <!-- Resultados da Busca -->
+                <div class="search-results" id="searchResults">
+                    <div class="search-results-header">
+                        <div class="search-results-title">
+                            🔍 Resultados para "<span id="searchTermDisplay"></span>"
+                            <span class="search-results-count" id="searchResultsCount">0</span>
+                        </div>
+                        <span class="search-sort-label">Ordenado por relevância + APR</span>
+                    </div>
+                    <div class="results-grid" id="resultsGrid"></div>
+                </div>
+            </div>
+
+            <!-- Alerta -->
+            <div class="alert-banner">
+                <span>⚠️</span>
+                <span>Os valores de APR são atualizados dinamicamente. Sempre analise volume e liquidez.</span>
+            </div>
+
+            <!-- Info dos Modos -->
+            <div class="mode-info">
+                <h3>📖 Como funcionam os modos de exibição:</h3>
+                <div class="mode-grid">
+                    <div class="mode-item auto">
+                        <strong>🤖 Automático (Score)</strong>
+                        Ordena pelo score geral (30% APR + 40% eficiência + 30% liquidez). 
+                        Ideal para encontrar pools equilibradas e sustentáveis.
+                    </div>
+                    <div class="mode-item manual">
+                        <strong>👆 Manual</strong>
+                        Exibe todas as pools sem ordenação específica. 
+                        Permite visualização completa dos dados brutos.
+                    </div>
+                    <div class="mode-item highapr">
+                        <strong>🔥 APR Altos</strong>
+                        Ordena por maior APR primeiro. 
+                        Foco em maximizar retorno (maior risco). Recomendado para traders experientes.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filters-section">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>APR Mínimo (%)</label>
+                        <input type="number" id="minApr" placeholder="0" min="0">
+                    </div>
+                    <div class="filter-group">
+                        <label>Volume 24H Mínimo ($)</label>
+                        <input type="number" id="minVolume" placeholder="0" min="0">
+                    </div>
+                    <div class="filter-group">
+                        <label>TVL Mínimo ($)</label>
+                        <input type="number" id="minTvl" placeholder="0" min="0">
+                    </div>
+                    <div class="filter-group">
+                        <label>Rede</label>
+                        <select id="networkFilter">
+                            <option value="">Todas</option>
+                            <option value="solana">Solana</option>
+                            <option value="ethereum">Ethereum</option>
+                            <option value="base">Base</option>
+                            <option value="bsc">BSC</option>
+                            <option value="arbitrum">Arbitrum</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Risco</label>
+                        <select id="riskFilter">
+                            <option value="">Todos</option>
+                            <option value="low">🟢 Seguro</option>
+                            <option value="medium">🟡 Moderado</option>
+                            <option value="high">🔴 Alto</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-secondary" onclick="resetFilters()">Limpar Filtros</button>
+                    <button class="btn btn-primary" onclick="applyFilters()">Aplicar Filtros</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">TVL Total</div>
+                    <div class="stat-value" id="totalTvl">$0</div>
+                    <div class="stat-change">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Volume 24H</div>
+                    <div class="stat-value" id="totalVolume">$0</div>
+                    <div class="stat-change">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">APR Médio</div>
+                    <div class="stat-value" id="avgApr">0%</div>
+                    <div class="stat-change">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pools Seguras</div>
+                    <div class="stat-value" id="safePools">0</div>
+                    <div class="stat-change">Recomendadas</div>
+                </div>
+            </div>
+
+            <!-- Categorias -->
+            <div class="categories-section">
+                <div class="categories-grid">
+                    <!-- Blue-Chip -->
+                    <div class="category-card">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <div class="category-icon" style="background: #fbbf24;">🟡</div>
+                                BEST BLUE-CHIP
+                            </div>
+                            <span class="fallback-badge" id="badge-bluechip"></span>
+                        </div>
+                        <div class="pool-list" id="bluechipList">
+                            <div class="loading">Carregando...</div>
+                        </div>
+                    </div>
+
+                    <!-- Stable Coin -->
+                    <div class="category-card">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <div class="category-icon" style="background: #3b82f6;">🔵</div>
+                                BEST STABLE COIN
+                            </div>
+                            <span class="fallback-badge" id="badge-stable"></span>
+                        </div>
+                        <div class="pool-list" id="stableList">
+                            <div class="loading">Carregando...</div>
+                        </div>
+                    </div>
+
+                    <!-- RWA -->
+                    <div class="category-card">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <div class="category-icon" style="background: #f97316;">🟠</div>
+                                BEST RWA
+                            </div>
+                            <span class="fallback-badge" id="badge-rwa"></span>
+                        </div>
+                        <div class="pool-list" id="rwaList">
+                            <div class="loading">Carregando...</div>
+                        </div>
+                    </div>
+
+                    <!-- Real/Fiat -->
+                    <div class="category-card">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <div class="category-icon" style="background: #10b981;">🟢</div>
+                                BEST REAL
+                            </div>
+                            <span class="fallback-badge" id="badge-real"></span>
+                        </div>
+                        <div class="pool-list" id="realList">
+                            <div class="loading">Carregando...</div>
+                        </div>
+                    </div>
+
+                    <!-- Ações Americanas -->
+                    <div class="category-card">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <div class="category-icon" style="background: #a855f7;">🟣</div>
+                                AÇÕES AMERICANAS
+                            </div>
+                            <span class="fallback-badge" id="badge-stocks"></span>
+                        </div>
+                        <div class="pool-list" id="stocksList">
+                            <div class="loading">Carregando...</div>
+                        </div>
+                    </div>
+
+                    <!-- Trending/Alpha -->
+                    <div class="category-card">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <div class="category-icon" style="background: #ef4444;">🔥</div>
+                                TRENDING / ALPHA
+                            </div>
+                            <span class="fallback-badge" id="badge-trending"></span>
+                        </div>
+                        <div class="pool-list" id="trendingList">
+                            <div class="loading">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modos de Exibição -->
+            <div class="mode-selector">
+                <button class="mode-btn" onclick="setMode('auto')">
+                    <span>🤖</span> Automático (Score)
+                </button>
+                <button class="mode-btn" onclick="setMode('manual')">
+                    <span>👆</span> Manual
+                </button>
+                <button class="mode-btn highlight active" onclick="setMode('highapr')">
+                    <span>🔥</span> APR altos
                 </button>
             </div>
-            <div class="update-info">
-                <span><div class="live-indicator"></div> Ao vivo</span>
-                <span>🕐 Última: <strong id="lastUpdate">--:--:--</strong></span>
-                <span>⏱️ Próxima: <strong id="nextUpdate">15:00</strong></span>
-                <span>📊 Total: <strong id="totalPools">0</strong> pools</span>
+
+            <!-- Tabela -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Par</th>
+                            <th>Rede</th>
+                            <th>DEX</th>
+                            <th>TVL</th>
+                            <th>Ratio</th>
+                            <th>Volume 24h</th>
+                            <th>APR</th>
+                            <th>1h</th>
+                            <th>6h</th>
+                            <th>Score</th>
+                            <th>Risco</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="poolsTableBody">
+                        <tr>
+                            <td colspan="12" class="loading">
+                                <div class="spinner"></div>
+                                Carregando pools...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Busca Profissional -->
-        <div class="search-section" id="searchSection">
-            <div class="search-wrapper">
-                <div class="search-container">
-                    <div class="search-icon-wrapper">
-                        <span class="search-icon" id="searchIcon">🔍</span>
+        <!-- NOVA ABA: OPORTUNIDADES -->
+        <div id="tab-oportunidades" class="tab-section">
+            <div class="header" style="border-color: rgba(16, 185, 129, 0.3);">
+                <div class="header-top">
+                    <div>
+                        <h1 style="background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%); -webkit-background-clip: text;">🚀 Oportunidades de Liquidez</h1>
+                        <p class="header-subtitle">20 Pares Premium: 10 Stablecoins 2026 + 10 Ações Americanas | Foco em TVL & APR</p>
                     </div>
-                    <div class="search-input-wrapper">
-                        <input 
-                            type="text" 
-                            class="search-input" 
-                            id="searchInput" 
-                            placeholder="Buscar par, token, DEX ou rede..."
-                            autocomplete="off"
-                        >
-                        <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()">✕</button>
-                    </div>
+                    <button class="btn btn-refresh" onclick="manualUpdateOportunidades()">
+                        <span>🔄</span> Atualizar Oportunidades
+                    </button>
                 </div>
-
-                <!-- Autocomplete Dropdown -->
-                <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
-
-                <!-- Sugestões Rápidas -->
-                <div class="quick-tags" id="quickTags">
-                    <span class="quick-tag high-apr" onclick="quickSearch('high apr')">🔥 Alta APR</span>
-                    <span class="quick-tag low-risk" onclick="quickSearch('baixo risco')">🟢 Baixo Risco</span>
-                    <span class="quick-tag solana" onclick="quickSearch('solana')">⚡ Solana</span>
-                    <span class="quick-tag bluechip" onclick="quickSearch('bluechip')">💎 Blue-Chip</span>
-                    <span class="quick-tag stable" onclick="quickSearch('stable')">💵 Stablecoins</span>
-                </div>
-
-                <!-- Buscas Populares -->
-                <div class="popular-section" id="popularSection">
-                    <div class="popular-label">🔥 Buscas populares</div>
-                    <div class="popular-list" id="popularList">
-                        <span class="popular-item" onclick="quickSearch('ETH')">ETH/USDC</span>
-                        <span class="popular-item" onclick="quickSearch('BTC')">BTC/USDC</span>
-                        <span class="popular-item" onclick="quickSearch('SOL')">SOL/USDC</span>
-                        <span class="popular-item" onclick="quickSearch('QQQ')">QQQ/USDC</span>
-                        <span class="popular-item" onclick="quickSearch('Uniswap')">Uniswap</span>
-                        <span class="popular-item" onclick="quickSearch('Raydium')">Raydium</span>
-                    </div>
+                <div class="update-info">
+                    <span><div class="live-indicator" style="background: #3b82f6;"></div> Monitorando</span>
+                    <span>🕐 Última: <strong id="lastUpdateOp">--:--:--</strong></span>
+                    <span>⏱️ Próxima: <strong id="nextUpdateOp">15:00</strong></span>
+                    <span>📊 Total: <strong id="totalPoolsOp">20</strong> pares</span>
                 </div>
             </div>
 
-            <!-- Loading -->
-            <div class="search-loading" id="searchLoading">
-                <div class="spinner"></div>
-                <div>Buscando pools...</div>
+            <div class="alert-banner" style="background: rgba(16, 185, 129, 0.1); border-left-color: #10b981; color: #10b981;">
+                <span>💡</span>
+                <span>Atualização automática a cada 15 minutos. Clique em "Atualizar" para escanear novas oportunidades em tempo real.</span>
             </div>
 
-            <!-- Resultados da Busca -->
-            <div class="search-results" id="searchResults">
-                <div class="search-results-header">
-                    <div class="search-results-title">
-                        🔍 Resultados para "<span id="searchTermDisplay"></span>"
-                        <span class="search-results-count" id="searchResultsCount">0</span>
-                    </div>
-                    <span class="search-sort-label">Ordenado por relevância + APR</span>
+            <!-- Stats Oportunidades -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">TVL Combinado</div>
+                    <div class="stat-value" id="opTotalTvl">$0</div>
+                    <div class="stat-change">10 pares Stable + 10 Ações</div>
                 </div>
-                <div class="results-grid" id="resultsGrid"></div>
-            </div>
-        </div>
-
-        <!-- Alerta -->
-        <div class="alert-banner">
-            <span>⚠️</span>
-            <span>Os valores de APR são atualizados dinamicamente. Sempre analise volume e liquidez.</span>
-        </div>
-
-        <!-- Info dos Modos -->
-        <div class="mode-info">
-            <h3>📖 Como funcionam os modos de exibição:</h3>
-            <div class="mode-grid">
-                <div class="mode-item auto">
-                    <strong>🤖 Automático (Score)</strong>
-                    Ordena pelo score geral (30% APR + 40% eficiência + 30% liquidez). 
-                    Ideal para encontrar pools equilibradas e sustentáveis.
+                <div class="stat-card">
+                    <div class="stat-label">Volume 24H Médio</div>
+                    <div class="stat-value" id="opAvgVolume">$0</div>
+                    <div class="stat-change">Liquidez ativa</div>
                 </div>
-                <div class="mode-item manual">
-                    <strong>👆 Manual</strong>
-                    Exibe todas as pools sem ordenação específica. 
-                    Permite visualização completa dos dados brutos.
+                <div class="stat-card">
+                    <div class="stat-label">APR Médio Ponderado</div>
+                    <div class="stat-value" id="opAvgApr">0%</div>
+                    <div class="stat-change">Alta performance</div>
                 </div>
-                <div class="mode-item highapr">
-                    <strong>🔥 APR Altos</strong>
-                    Ordena por maior APR primeiro. 
-                    Foco em maximizar retorno (maior risco). Recomendado para traders experientes.
+                <div class="stat-card">
+                    <div class="stat-label">Melhor Momentum</div>
+                    <div class="stat-value" id="opBestMomentum">--</div>
+                    <div class="stat-change">Últimos 7 dias</div>
                 </div>
             </div>
-        </div>
 
-        <!-- Filtros -->
-        <div class="filters-section">
-            <div class="filters-grid">
-                <div class="filter-group">
-                    <label>APR Mínimo (%)</label>
-                    <input type="number" id="minApr" placeholder="0" min="0">
-                </div>
-                <div class="filter-group">
-                    <label>Volume 24H Mínimo ($)</label>
-                    <input type="number" id="minVolume" placeholder="0" min="0">
-                </div>
-                <div class="filter-group">
-                    <label>TVL Mínimo ($)</label>
-                    <input type="number" id="minTvl" placeholder="0" min="0">
-                </div>
-                <div class="filter-group">
-                    <label>Rede</label>
-                    <select id="networkFilter">
-                        <option value="">Todas</option>
-                        <option value="solana">Solana</option>
-                        <option value="ethereum">Ethereum</option>
-                        <option value="base">Base</option>
-                        <option value="bsc">BSC</option>
-                        <option value="arbitrum">Arbitrum</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Risco</label>
-                    <select id="riskFilter">
-                        <option value="">Todos</option>
-                        <option value="low">🟢 Seguro</option>
-                        <option value="medium">🟡 Moderado</option>
-                        <option value="high">🔴 Alto</option>
-                    </select>
-                </div>
+            <!-- Tabela Oportunidades -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ativo</th>
+                            <th>Tipo</th>
+                            <th>Pool / DEX</th>
+                            <th>Rede</th>
+                            <th>TVL</th>
+                            <th>APR</th>
+                            <th>Crescimento 7d</th>
+                            <th>Fonte de Yield</th>
+                            <th>Risco</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="oportunidadesTableBody">
+                        <tr>
+                            <td colspan="10" class="loading">
+                                <div class="spinner"></div>
+                                Carregando oportunidades...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="filter-actions">
-                <button class="btn btn-secondary" onclick="resetFilters()">Limpar Filtros</button>
-                <button class="btn btn-primary" onclick="applyFilters()">Aplicar Filtros</button>
-            </div>
-        </div>
-
-        <!-- Stats -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">TVL Total</div>
-                <div class="stat-value" id="totalTvl">$0</div>
-                <div class="stat-change">-</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Volume 24H</div>
-                <div class="stat-value" id="totalVolume">$0</div>
-                <div class="stat-change">-</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">APR Médio</div>
-                <div class="stat-value" id="avgApr">0%</div>
-                <div class="stat-change">-</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Pools Seguras</div>
-                <div class="stat-value" id="safePools">0</div>
-                <div class="stat-change">Recomendadas</div>
-            </div>
-        </div>
-
-        <!-- Categorias -->
-        <div class="categories-section">
-            <div class="categories-grid">
-                <!-- Blue-Chip -->
-                <div class="category-card">
-                    <div class="category-header">
-                        <div class="category-title">
-                            <div class="category-icon" style="background: #fbbf24;">🟡</div>
-                            BEST BLUE-CHIP
-                        </div>
-                        <span class="fallback-badge" id="badge-bluechip"></span>
-                    </div>
-                    <div class="pool-list" id="bluechipList">
-                        <div class="loading">Carregando...</div>
-                    </div>
-                </div>
-
-                <!-- Stable Coin -->
-                <div class="category-card">
-                    <div class="category-header">
-                        <div class="category-title">
-                            <div class="category-icon" style="background: #3b82f6;">🔵</div>
-                            BEST STABLE COIN
-                        </div>
-                        <span class="fallback-badge" id="badge-stable"></span>
-                    </div>
-                    <div class="pool-list" id="stableList">
-                        <div class="loading">Carregando...</div>
-                    </div>
-                </div>
-
-                <!-- RWA -->
-                <div class="category-card">
-                    <div class="category-header">
-                        <div class="category-title">
-                            <div class="category-icon" style="background: #f97316;">🟠</div>
-                            BEST RWA
-                        </div>
-                        <span class="fallback-badge" id="badge-rwa"></span>
-                    </div>
-                    <div class="pool-list" id="rwaList">
-                        <div class="loading">Carregando...</div>
-                    </div>
-                </div>
-
-                <!-- Real/Fiat -->
-                <div class="category-card">
-                    <div class="category-header">
-                        <div class="category-title">
-                            <div class="category-icon" style="background: #10b981;">🟢</div>
-                            BEST REAL
-                        </div>
-                        <span class="fallback-badge" id="badge-real"></span>
-                    </div>
-                    <div class="pool-list" id="realList">
-                        <div class="loading">Carregando...</div>
-                    </div>
-                </div>
-
-                <!-- Ações Americanas -->
-                <div class="category-card">
-                    <div class="category-header">
-                        <div class="category-title">
-                            <div class="category-icon" style="background: #a855f7;">🟣</div>
-                            AÇÕES AMERICANAS
-                        </div>
-                        <span class="fallback-badge" id="badge-stocks"></span>
-                    </div>
-                    <div class="pool-list" id="stocksList">
-                        <div class="loading">Carregando...</div>
-                    </div>
-                </div>
-
-                <!-- Trending/Alpha -->
-                <div class="category-card">
-                    <div class="category-header">
-                        <div class="category-title">
-                            <div class="category-icon" style="background: #ef4444;">🔥</div>
-                            TRENDING / ALPHA
-                        </div>
-                        <span class="fallback-badge" id="badge-trending"></span>
-                    </div>
-                    <div class="pool-list" id="trendingList">
-                        <div class="loading">Carregando...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modos de Exibição -->
-        <div class="mode-selector">
-            <button class="mode-btn" onclick="setMode('auto')">
-                <span>🤖</span> Automático (Score)
-            </button>
-            <button class="mode-btn" onclick="setMode('manual')">
-                <span>👆</span> Manual
-            </button>
-            <button class="mode-btn highlight active" onclick="setMode('highapr')">
-                <span>🔥</span> APR altos
-            </button>
-        </div>
-
-        <!-- Tabela -->
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Par</th>
-                        <th>Rede</th>
-                        <th>DEX</th>
-                        <th>TVL</th>
-                        <th>Ratio</th>
-                        <th>Volume 24h</th>
-                        <th>APR</th>
-                        <th>1h</th>
-                        <th>6h</th>
-                        <th>Score</th>
-                        <th>Risco</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody id="poolsTableBody">
-                    <tr>
-                        <td colspan="12" class="loading">
-                            <div class="spinner"></div>
-                            Carregando pools...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </div>
 
@@ -1582,7 +1683,13 @@
             'GBP': '0x3333333333333333333333333333333333333334',
             'MXN': '0x4444444444444444444444444444444444444445',
             'ARS': '0x5555555555555555555555555555555555555556',
-            'COP': '0x6666666666666666666666666666666666666667'
+            'COP': '0x6666666666666666666666666666666666666667',
+            'apxUSD': '0xapxUSD2026AddressMock',
+            'JupUSD': '0xJupUSD2026AddressMock',
+            'USDGO': '0xUSDGO2026AddressMock',
+            'FIDD': '0xFIDD2026AddressMock',
+            'SUIUSDE': '0xSUIUSDE2026AddressMock',
+            'USSD': '0xUSSD2026AddressMock'
         };
 
         // Configurações com 6 categorias
@@ -1673,6 +1780,11 @@
         let searchTimeout = null;
         let searchHistory = [];
 
+        // Variáveis da Nova Aba
+        let oportunidadesPools = [];
+        let opCountdownInterval;
+        let opUpdateInterval;
+
         // Mapeamento para busca fuzzy
         const SEARCH_TAGS = {
             'high apr': { label: 'APR Alto', filter: 'apr_high' },
@@ -1689,10 +1801,22 @@
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
             fetchPools();
+            fetchOportunidades();
             startAutoUpdate();
+            startOportunidadesAutoUpdate();
             setupSearchListeners();
             loadSearchHistory();
         });
+
+        // Controle de Abas
+        function setActiveTab(event, element, tabId) {
+            event.preventDefault();
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+            
+            document.querySelectorAll('.tab-section').forEach(section => section.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
 
         // Configurar listeners de busca
         function setupSearchListeners() {
@@ -1700,12 +1824,9 @@
             
             searchInput.addEventListener('input', (e) => {
                 const value = e.target.value.trim();
-                
-                // Toggle clear button
                 const clearBtn = document.getElementById('searchClearBtn');
                 clearBtn.classList.toggle('visible', value.length > 0);
 
-                // Debounce
                 clearTimeout(searchTimeout);
                 if (value.length === 0) {
                     hideSearchResults();
@@ -1713,18 +1834,12 @@
                     return;
                 }
 
-                // Show autocomplete immediately
                 showAutocomplete(value);
-
-                searchTimeout = setTimeout(() => {
-                    performSearch(value);
-                }, 300);
+                searchTimeout = setTimeout(() => performSearch(value), 300);
             });
 
             searchInput.addEventListener('focus', () => {
-                if (searchInput.value.trim().length > 0) {
-                    showAutocomplete(searchInput.value.trim());
-                }
+                if (searchInput.value.trim().length > 0) showAutocomplete(searchInput.value.trim());
             });
 
             searchInput.addEventListener('keypress', (e) => {
@@ -1735,16 +1850,13 @@
                 }
             });
 
-            // Close autocomplete on outside click
             document.addEventListener('click', (e) => {
                 const searchSection = document.getElementById('searchSection');
-                if (!searchSection.contains(e.target)) {
-                    hideAutocomplete();
-                }
+                if (!searchSection.contains(e.target)) hideAutocomplete();
             });
         }
 
-        // Buscar dados
+        // Buscar dados principais
         async function fetchPools() {
             try {
                 const mockData = generateMockData();
@@ -1752,15 +1864,12 @@
                 allPools.sort((a, b) => b.score - a.score);
                 filteredPools = [...allPools];
                 
-                // Initialize Fuse.js
                 initFuseSearch();
-                
                 updateCategories();
                 updateTable();
                 updateStats();
                 updateTimestamp();
                 resetCountdown();
-                
             } catch (error) {
                 console.error('Erro:', error);
             }
@@ -1769,41 +1878,25 @@
         // Inicializar Fuse.js
         function initFuseSearch() {
             const fuseData = allPools.map(pool => ({
-                pair: pool.pair,
-                baseToken: pool.baseToken,
-                quoteToken: pool.quoteToken,
-                category: pool.category,
-                network: pool.network,
-                dex: pool.dex,
-                riskLevel: pool.riskLevel,
-                riskLabel: pool.riskLabel,
-                apr: pool.apr,
-                tvl: pool.tvl,
-                url: pool.url,
-                _original: pool
+                pair: pool.pair, baseToken: pool.baseToken, quoteToken: pool.quoteToken,
+                category: pool.category, network: pool.network, dex: pool.dex,
+                riskLevel: pool.riskLevel, riskLabel: pool.riskLabel, apr: pool.apr,
+                tvl: pool.tvl, url: pool.url, _original: pool
             }));
 
             fuseInstance = new Fuse(fuseData, {
                 keys: [
-                    { name: 'pair', weight: 0.4 },
-                    { name: 'baseToken', weight: 0.3 },
-                    { name: 'quoteToken', weight: 0.3 },
-                    { name: 'dex', weight: 0.2 },
-                    { name: 'network', weight: 0.2 },
-                    { name: 'category', weight: 0.15 },
+                    { name: 'pair', weight: 0.4 }, { name: 'baseToken', weight: 0.3 },
+                    { name: 'quoteToken', weight: 0.3 }, { name: 'dex', weight: 0.2 },
+                    { name: 'network', weight: 0.2 }, { name: 'category', weight: 0.15 },
                     { name: 'riskLabel', weight: 0.1 }
                 ],
-                threshold: 0.4,
-                distance: 100,
-                minMatchCharLength: 1,
-                includeScore: true,
-                includeMatches: true,
-                ignoreLocation: true,
-                findAllMatches: false
+                threshold: 0.4, distance: 100, minMatchCharLength: 1,
+                includeScore: true, includeMatches: true, ignoreLocation: true, findAllMatches: false
             });
         }
 
-        // Gerar dados mockados
+        // Gerar dados mockados principais
         function generateMockData() {
             const networks = ['solana', 'ethereum', 'base', 'bsc', 'arbitrum'];
             const dexes = ['Raydium', 'Uniswap V3', 'PancakeSwap', 'Aerodrome', 'Camelot'];
@@ -1812,55 +1905,25 @@
             Object.keys(CONFIG.categories).forEach(category => {
                 CONFIG.categories[category].forEach((pairConfig, index) => {
                     let tvl, volume, apr;
-                    
-                    if (category === 'bluechip') {
-                        tvl = Math.random() * 10000000 + 500000;
-                        volume = tvl * (Math.random() * 2 + 0.5);
-                        apr = Math.random() * 400 + 5;
-                    } else if (category === 'stable') {
-                        tvl = Math.random() * 5000000 + 200000;
-                        volume = tvl * (Math.random() * 3 + 1);
-                        apr = Math.random() * 500 + 1;
-                    } else if (category === 'rwa') {
-                        tvl = Math.random() * 2000000 + 100000;
-                        volume = tvl * (Math.random() * 1.5 + 0.3);
-                        apr = Math.random() * 350 + 150;
-                    } else if (category === 'real') {
-                        tvl = Math.random() * 500000 + 50000;
-                        volume = tvl * (Math.random() * 1 + 0.2);
-                        apr = Math.random() * 20 + 5;
-                    } else if (category === 'stocks') {
-                        tvl = Math.random() * 1500000 + 100000;
-                        volume = tvl * (Math.random() * 2 + 0.5);
-                        apr = Math.random() * 300 + 100;
-                    } else {
-                        tvl = Math.random() * 800000 + 50000;
-                        volume = tvl * (Math.random() * 4 + 1);
-                        apr = Math.random() * 500 + 200;
-                    }
+                    if (category === 'bluechip') { tvl = Math.random() * 10000000 + 500000; volume = tvl * (Math.random() * 2 + 0.5); apr = Math.random() * 400 + 5; }
+                    else if (category === 'stable') { tvl = Math.random() * 5000000 + 200000; volume = tvl * (Math.random() * 3 + 1); apr = Math.random() * 500 + 1; }
+                    else if (category === 'rwa') { tvl = Math.random() * 2000000 + 100000; volume = tvl * (Math.random() * 1.5 + 0.3); apr = Math.random() * 350 + 150; }
+                    else if (category === 'real') { tvl = Math.random() * 500000 + 50000; volume = tvl * (Math.random() * 1 + 0.2); apr = Math.random() * 20 + 5; }
+                    else if (category === 'stocks') { tvl = Math.random() * 1500000 + 100000; volume = tvl * (Math.random() * 2 + 0.5); apr = Math.random() * 300 + 100; }
+                    else { tvl = Math.random() * 800000 + 50000; volume = tvl * (Math.random() * 4 + 1); apr = Math.random() * 500 + 200; }
 
                     const network = networks[Math.floor(Math.random() * networks.length)];
                     const dex = dexes[Math.floor(Math.random() * dexes.length)];
                     const url = buildDEXUrl(network, dex, pairConfig.base, pairConfig.quote);
 
                     pools.push({
-                        pair: pairConfig.pair,
-                        baseToken: pairConfig.base,
-                        quoteToken: pairConfig.quote,
-                        category: category,
-                        network: network,
-                        dex: dex,
-                        tvl: tvl,
-                        volume24h: volume,
-                        apr: apr,
-                        change1h: (Math.random() - 0.5) * 5,
-                        change6h: (Math.random() - 0.5) * 15,
-                        ratio: Math.floor(Math.random() * 40 + 30),
-                        url: url
+                        pair: pairConfig.pair, baseToken: pairConfig.base, quoteToken: pairConfig.quote,
+                        category: category, network: network, dex: dex, tvl: tvl, volume24h: volume,
+                        apr: apr, change1h: (Math.random() - 0.5) * 5, change6h: (Math.random() - 0.5) * 15,
+                        ratio: Math.floor(Math.random() * 40 + 30), url: url
                     });
                 });
             });
-
             return pools;
         }
 
@@ -1868,158 +1931,202 @@
         function buildDEXUrl(network, dex, token0, token1) {
             const address0 = TOKEN_ADDRESSES[token0] || token0;
             const address1 = TOKEN_ADDRESSES[token1] || token1;
-            
             const urls = {
-                solana: {
-                    'Raydium': `https://raydium.io/swap/?inputCurrency=${address0}&outputCurrency=${address1}`,
-                    'Jupiter': `https://jup.ag/swap/${token0}-${token1}`
-                },
-                ethereum: {
-                    'Uniswap V3': `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
-                    'SushiSwap': `https://app.sushi.com/swap?inputCurrency=${address0}&outputCurrency=${address1}`
-                },
-                base: {
-                    'Aerodrome': `https://aerodrome.finance/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
-                    'Uniswap V3': `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`
-                },
-                bsc: {
-                    'PancakeSwap': `https://pancakeswap.finance/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
-                    'Biswap': `https://biswap.org/swap?inputCurrency=${address0}&outputCurrency=${address1}`
-                },
-                arbitrum: {
-                    'Camelot': `https://app.camelot.exchange/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
-                    'Uniswap V3': `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`
-                }
+                solana: { 'Raydium': `https://raydium.io/swap/?inputCurrency=${address0}&outputCurrency=${address1}`, 'Jupiter': `https://jup.ag/swap/${token0}-${token1}` },
+                ethereum: { 'Uniswap V3': `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}` },
+                base: { 'Aerodrome': `https://aerodrome.finance/swap?inputCurrency=${address0}&outputCurrency=${address1}` },
+                bsc: { 'PancakeSwap': `https://pancakeswap.finance/swap?inputCurrency=${address0}&outputCurrency=${address1}` },
+                arbitrum: { 'Camelot': `https://app.camelot.exchange/swap?inputCurrency=${address0}&outputCurrency=${address1}` }
             };
-
             const networkUrls = urls[network];
-            if (networkUrls && networkUrls[dex]) {
-                return networkUrls[dex];
-            }
-            
-            return `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`;
+            return (networkUrls && networkUrls[dex]) ? networkUrls[dex] : `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`;
         }
 
         // Calcular score
         function calculateScore(pool) {
             const efficiency = pool.volume24h / pool.tvl;
             const liquidityScore = pool.tvl > 1000000 ? 100 : pool.tvl / 10000;
-            
-            pool.score = Math.round(
-                (0.3 * pool.apr) +
-                (0.4 * (efficiency * 100)) +
-                (0.3 * liquidityScore)
-            );
-
-            if (pool.apr > 150) {
-                pool.riskLevel = 'high';
-                pool.riskLabel = 'Alto';
-                pool.riskClass = 'high-risk';
-            } else if (pool.apr > 40) {
-                pool.riskLevel = 'medium';
-                pool.riskLabel = 'Médio';
-                pool.riskClass = 'medium-risk';
-            } else {
-                pool.riskLevel = 'low';
-                pool.riskLabel = 'Baixo';
-                pool.riskClass = 'low-risk';
-            }
-
+            pool.score = Math.round((0.3 * pool.apr) + (0.4 * (efficiency * 100)) + (0.3 * liquidityScore));
+            if (pool.apr > 150) { pool.riskLevel = 'high'; pool.riskLabel = 'Alto'; pool.riskClass = 'high-risk'; }
+            else if (pool.apr > 40) { pool.riskLevel = 'medium'; pool.riskLabel = 'Médio'; pool.riskClass = 'medium-risk'; }
+            else { pool.riskLevel = 'low'; pool.riskLabel = 'Baixo'; pool.riskClass = 'low-risk'; }
             return pool;
         }
 
-        // ==================== SISTEMA DE BUSCA PROFISSIONAL ====================
+        // ==================== FUNÇÕES DA NOVA ABA: OPORTUNIDADES ====================
 
-        // Autocomplete
+        function fetchOportunidades() {
+            oportunidadesPools = generateOportunidadesMock();
+            renderOportunidadesTable();
+            updateOportunidadesStats();
+            updateOportunidadesTimestamp();
+            resetOportunidadesCountdown();
+        }
+
+        function generateOportunidadesMock() {
+            const stablecoins2026 = [
+                { pair: 'apxUSD/USDC', type: 'Stablecoin 2026', dex: 'Curve Finance', network: 'ethereum', tvl: 147270000, apr: 92.5, growth: 175, yield: 'Emissão + Fees', risk: 'high', riskLabel: 'Alto', url: 'https://curve.fi' },
+                { pair: 'JupUSD/USDC', type: 'Stablecoin 2026', dex: 'Jupiter', network: 'solana', tvl: 74810000, apr: 45.2, growth: 42, yield: 'Trading Fees', risk: 'medium', riskLabel: 'Médio', url: 'https://jup.ag' },
+                { pair: 'USDGO/USDC', type: 'Stablecoin 2026', dex: 'OSL Exchange', network: 'enterprise', tvl: 67980000, apr: 12.8, growth: 18, yield: 'RWA Yield', risk: 'low', riskLabel: 'Baixo', url: 'https://osl.com' },
+                { pair: 'FIDD/USDC', type: 'Stablecoin 2026', dex: 'Uniswap V3', network: 'ethereum', tvl: 64060000, apr: 28.4, growth: 12, yield: 'Lending + Fees', risk: 'medium', riskLabel: 'Médio', url: 'https://app.uniswap.org' },
+                { pair: 'SUIUSDE/USDC', type: 'Stablecoin 2026', dex: 'Ember Protocol', network: 'sui', tvl: 11880000, apr: 78.1, growth: 89, yield: 'Native Yield', risk: 'high', riskLabel: 'Alto', url: 'https://ember.finance' },
+                { pair: 'USSD/USDC.e', type: 'Stablecoin 2026', dex: 'Sonic DEX', network: 'sonic', tvl: 2280000, apr: 115.3, growth: 0, yield: 'Early Rewards', risk: 'high', riskLabel: 'Alto', url: 'https://soniclabs.com' },
+                { pair: 'apxUSD/apyUSD', type: 'Stablecoin 2026', dex: 'Curve Finance', network: 'ethereum', tvl: 45200000, apr: 18.5, growth: 140, yield: 'Stable Yield', risk: 'low', riskLabel: 'Baixo', url: 'https://curve.fi' },
+                { pair: 'JupUSD/USDT', type: 'Stablecoin 2026', dex: 'Meteora', network: 'solana', tvl: 38900000, apr: 32.7, growth: 35, yield: 'Dynamic Fees', risk: 'medium', riskLabel: 'Médio', url: 'https://meteora.ag' },
+                { pair: 'FIDD/USDT', type: 'Stablecoin 2026', dex: 'Balancer', network: 'ethereum', tvl: 21500000, apr: 22.1, growth: 8, yield: 'Liquidity Mining', risk: 'low', riskLabel: 'Baixo', url: 'https://balancer.fi' },
+                { pair: 'SUIUSDE/USDT', type: 'Stablecoin 2026', dex: 'Turbos', network: 'sui', tvl: 5600000, apr: 65.4, growth: 72, yield: 'Yield Farming', risk: 'medium', riskLabel: 'Médio', url: 'https://turbos.finance' }
+            ];
+
+            const acoesAmericanas = [
+                { pair: 'SPY/USDC', type: 'Ação Americana', dex: 'Uniswap V3', network: 'ethereum', tvl: 285000000, apr: 85.3, growth: 15, yield: 'Fees + Lending', risk: 'medium', riskLabel: 'Médio', url: 'https://app.uniswap.org' },
+                { pair: 'QQQ/USDC', type: 'Ação Americana', dex: 'Uniswap V3', network: 'ethereum', tvl: 198000000, apr: 72.8, growth: 18, yield: 'Fees + Lending', risk: 'medium', riskLabel: 'Médio', url: 'https://app.uniswap.org' },
+                { pair: 'AAPL/USDC', type: 'Ação Americana', dex: 'Synthetix', network: 'ethereum', tvl: 142000000, apr: 45.2, growth: 22, yield: 'Staking Yield', risk: 'low', riskLabel: 'Baixo', url: 'https://synthetix.io' },
+                { pair: 'TSLA/USDC', type: 'Ação Americana', dex: 'dYdX', network: 'ethereum', tvl: 98000000, apr: 125.7, growth: 35, yield: 'Leverage Fees', risk: 'high', riskLabel: 'Alto', url: 'https://dydx.exchange' },
+                { pair: 'NVDA/USDC', type: 'Ação Americana', dex: 'GMX', network: 'arbitrum', tvl: 112000000, apr: 98.4, growth: 28, yield: 'Trading Fees', risk: 'medium', riskLabel: 'Médio', url: 'https://gmx.io' },
+                { pair: 'META/USDC', type: 'Ação Americana', dex: 'Aave', network: 'ethereum', tvl: 76000000, apr: 38.5, growth: 12, yield: 'Lending', risk: 'low', riskLabel: 'Baixo', url: 'https://app.aave.com' },
+                { pair: 'COIN/USDC', type: 'Ação Americana', dex: 'Raydium', network: 'solana', tvl: 54000000, apr: 112.3, growth: 42, yield: 'Liquidity Mining', risk: 'high', riskLabel: 'Alto', url: 'https://raydium.io' },
+                { pair: 'AMZN/USDC', type: 'Ação Americana', dex: 'Pendle', network: 'ethereum', tvl: 68000000, apr: 52.1, growth: 16, yield: 'Yield Trading', risk: 'medium', riskLabel: 'Médio', url: 'https://pendle.finance' },
+                { pair: 'MSFT/USDC', type: 'Ação Americana', dex: 'Frax Finance', network: 'ethereum', tvl: 89000000, apr: 28.9, growth: 9, yield: 'Stable Yield', risk: 'low', riskLabel: 'Baixo', url: 'https://app.frax.finance' },
+                { pair: 'GOOGL/USDC', type: 'Ação Americana', dex: 'Camelot', network: 'arbitrum', tvl: 61000000, apr: 41.7, growth: 14, yield: 'Fees + Rewards', risk: 'medium', riskLabel: 'Médio', url: 'https://app.camelot.exchange' }
+            ];
+
+            const combined = [...stablecoins2026, ...acoesAmericanas];
+            return combined.map((p, i) => ({
+                ...p,
+                id: i,
+                change1h: (Math.random() - 0.5) * 4,
+                change6h: (Math.random() - 0.5) * 12,
+                score: Math.round((p.apr * 0.4) + (Math.log10(p.tvl) * 50) + (Math.random() * 20)),
+                riskClass: p.risk === 'high' ? 'high-risk' : p.risk === 'medium' ? 'medium-risk' : 'low-risk'
+            }));
+        }
+
+        function renderOportunidadesTable() {
+            const tbody = document.getElementById('oportunidadesTableBody');
+            // Ordenar por TVL e APR combinados para mostrar as melhores oportunidades
+            const sorted = [...oportunidadesPools].sort((a, b) => (b.tvl + b.apr) - (a.tvl + a.apr));
+            
+            tbody.innerHTML = sorted.map(pool => `
+                <tr>
+                    <td>
+                        <a href="${pool.url}" target="_blank" class="pool-link-table">
+                            ${pool.pair}
+                            <span>↗</span>
+                        </a>
+                    </td>
+                    <td><span class="dex-badge">${pool.type}</span></td>
+                    <td>${pool.dex}</td>
+                    <td><span class="network-badge network-${pool.network}">${pool.network}</span></td>
+                    <td style="font-weight: 600;">${formatMoney(pool.tvl)}</td>
+                    <td style="color: #10b981; font-weight: 800;">${pool.apr.toFixed(1)}%</td>
+                    <td class="${pool.growth >= 0 ? 'positive' : 'negative'}">
+                        ${pool.growth >= 0 ? '▲' : '▼'} ${Math.abs(pool.growth)}%
+                    </td>
+                    <td style="font-size: 11px; color: #94a3b8;">${pool.yield}</td>
+                    <td>
+                        <span class="network-badge" style="background: ${pool.risk === 'high' ? 'rgba(239, 68, 68, 0.15)' : pool.risk === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${pool.risk === 'high' ? '#ef4444' : pool.risk === 'medium' ? '#f59e0b' : '#10b981'};">
+                            ${pool.riskLabel}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-action" onclick="window.open('${pool.url}', '_blank')">
+                            Acessar ↗
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateOportunidadesStats() {
+            const totalTvl = oportunidadesPools.reduce((sum, p) => sum + p.tvl, 0);
+            const avgVolume = oportunidadesPools.reduce((sum, p) => sum + (p.tvl * 0.15), 0) / oportunidadesPools.length; // Estimativa
+            const avgApr = oportunidadesPools.reduce((sum, p) => sum + p.apr, 0) / oportunidadesPools.length;
+            const bestMomentum = oportunidadesPools.reduce((prev, current) => (prev.growth > current.growth) ? prev : current);
+
+            document.getElementById('opTotalTvl').textContent = formatMoney(totalTvl);
+            document.getElementById('opAvgVolume').textContent = formatMoney(avgVolume);
+            document.getElementById('opAvgApr').textContent = avgApr.toFixed(1) + '%';
+            document.getElementById('opBestMomentum').textContent = `${bestMomentum.pair} (+${bestMomentum.growth}%)`;
+        }
+
+        function updateOportunidadesTimestamp() {
+            const now = new Date();
+            document.getElementById('lastUpdateOp').textContent = now.toLocaleTimeString('pt-BR');
+        }
+
+        function manualUpdateOportunidades() {
+            const btn = event.currentTarget;
+            btn.innerHTML = '<span>⏳</span> Atualizando...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                fetchOportunidades();
+                btn.innerHTML = '<span>🔄</span> Atualizar Oportunidades';
+                btn.disabled = false;
+                showNotification('✅ Oportunidades atualizadas com sucesso!');
+            }, 800);
+        }
+
+        function startOportunidadesAutoUpdate() {
+            if (opUpdateInterval) clearInterval(opUpdateInterval);
+            opUpdateInterval = setInterval(fetchOportunidades, 15 * 60 * 1000);
+            resetOportunidadesCountdown();
+        }
+
+        function resetOportunidadesCountdown() {
+            if (opCountdownInterval) clearInterval(opCountdownInterval);
+            let secondsLeft = 15 * 60;
+            
+            opCountdownInterval = setInterval(() => {
+                secondsLeft--;
+                const minutes = Math.floor(secondsLeft / 60);
+                const seconds = secondsLeft % 60;
+                const el = document.getElementById('nextUpdateOp');
+                if(el) el.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (secondsLeft <= 0) secondsLeft = 15 * 60;
+            }, 1000);
+        }
+
+        function showNotification(msg) {
+            const notif = document.createElement('div');
+            notif.style.cssText = 'position:fixed;bottom:20px;right:20px;background:rgba(16,185,129,0.9);color:white;padding:12px 20px;border-radius:8px;z-index:9999;animation:fadeIn 0.3s ease;';
+            notif.textContent = msg;
+            document.body.appendChild(notif);
+            setTimeout(() => { notif.style.opacity = '0'; setTimeout(() => notif.remove(), 300); }, 2500);
+        }
+
+        // ==================== SISTEMA DE BUSCA PROFISSIONAL (Existente) ====================
+
         function showAutocomplete(query) {
             const dropdown = document.getElementById('autocompleteDropdown');
-            
-            if (!fuseInstance || query.length < 1) {
-                hideAutocomplete();
-                return;
-            }
+            if (!fuseInstance || query.length < 1) { hideAutocomplete(); return; }
 
-            // Check if it matches a tag
-            const tagMatch = Object.entries(SEARCH_TAGS).find(([key, val]) => 
-                key.includes(query.toLowerCase())
-            );
-
-            // Fuse search
+            const tagMatch = Object.entries(SEARCH_TAGS).find(([key, val]) => key.includes(query.toLowerCase()));
             const fuseResults = fuseInstance.search(query).slice(0, 6);
-
             let html = '';
 
-            // Show tag suggestion
             if (tagMatch) {
-                html += `
-                    <div class="autocomplete-item" onclick="quickSearch('${tagMatch[0]}')">
-                        <div>
-                            <span class="autocomplete-pair">🏷️ ${tagMatch[1].label}</span>
-                        </div>
-                        <span class="autocomplete-meta">Filtro rápido</span>
-                    </div>
-                `;
+                html += `<div class="autocomplete-item" onclick="quickSearch('${tagMatch[0]}')"><div><span class="autocomplete-pair">🏷️ ${tagMatch[1].label}</span></div><span class="autocomplete-meta">Filtro rápido</span></div>`;
             }
 
-            // Show pool suggestions
             fuseResults.forEach(result => {
                 const pool = result.item._original;
-                const highlightedPair = highlightText(pool.pair, query);
-                
-                html += `
-                    <div class="autocomplete-item" onclick="selectAutocomplete('${pool.pair}', '${pool.url}')">
-                        <div>
-                            <span class="autocomplete-pair">${highlightedPair}</span>
-                            <div class="autocomplete-meta">
-                                <span class="network-badge network-${pool.network}" style="font-size:9px; padding:2px 6px;">${pool.network}</span>
-                                <span>${pool.dex}</span>
-                            </div>
-                        </div>
-                        <span class="autocomplete-apr">${pool.apr.toFixed(1)}%</span>
-                    </div>
-                `;
+                html += `<div class="autocomplete-item" onclick="selectAutocomplete('${pool.pair}', '${pool.url}')"><div><span class="autocomplete-pair">${highlightText(pool.pair, query)}</span><div class="autocomplete-meta"><span class="network-badge network-${pool.network}" style="font-size:9px; padding:2px 6px;">${pool.network}</span><span>${pool.dex}</span></div></div><span class="autocomplete-apr">${pool.apr.toFixed(1)}%</span></div>`;
             });
 
-            if (html === '') {
-                hideAutocomplete();
-                return;
-            }
-
+            if (html === '') { hideAutocomplete(); return; }
             dropdown.innerHTML = html;
             dropdown.classList.add('visible');
         }
 
-        function hideAutocomplete() {
-            document.getElementById('autocompleteDropdown').classList.remove('visible');
-        }
+        function hideAutocomplete() { document.getElementById('autocompleteDropdown').classList.remove('visible'); }
+        function selectAutocomplete(pair, url) { document.getElementById('searchInput').value = pair; hideAutocomplete(); performSearch(pair); addToHistory(pair); }
+        function highlightText(text, query) { if (!query || query.length < 1) return text; const regex = new RegExp(`(${escapeRegex(query)})`, 'gi'); return text.replace(regex, '<mark>$1</mark>'); }
+        function escapeRegex(string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
-        function selectAutocomplete(pair, url) {
-            document.getElementById('searchInput').value = pair;
-            hideAutocomplete();
-            performSearch(pair);
-            addToHistory(pair);
-        }
-
-        // Highlight texto
-        function highlightText(text, query) {
-            if (!query || query.length < 1) return text;
-            
-            const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
-            return text.replace(regex, '<mark>$1</mark>');
-        }
-
-        function escapeRegex(string) {
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
-
-        // Busca Principal com Fuse.js
         function performSearch(query) {
-            if (!query || query.length < 1) {
-                hideSearchResults();
-                return;
-            }
-
-            // Update UI
+            if (!query || query.length < 1) { hideSearchResults(); return; }
             document.getElementById('searchIcon').classList.add('active');
             document.getElementById('searchLoading').classList.add('visible');
             document.getElementById('searchResults').classList.remove('active');
@@ -2028,98 +2135,49 @@
 
             setTimeout(() => {
                 let results = [];
-
-                // Check for tag filters
-                const tagMatch = Object.entries(SEARCH_TAGS).find(([key, val]) => 
-                    key.includes(query.toLowerCase())
-                );
+                const tagMatch = Object.entries(SEARCH_TAGS).find(([key, val]) => key.includes(query.toLowerCase()));
 
                 if (tagMatch) {
                     results = applyTagFilter(query.toLowerCase());
                 } else {
-                    // Fuse search
                     const fuseResults = fuseInstance.search(query);
-                    
-                    // Extract and sort by relevance + APR
-                    results = fuseResults.map(result => ({
-                        ...result.item._original,
-                        fuseScore: result.score,
-                        relevance: 1 - result.score
-                    }));
-
-                    // Sort: exact match first, then by relevance, then by APR
+                    results = fuseResults.map(result => ({ ...result.item._original, fuseScore: result.score, relevance: 1 - result.score }));
                     results.sort((a, b) => {
-                        // Exact match in pair gets priority
                         const aExact = a.pair.toUpperCase().includes(query.toUpperCase());
                         const bExact = b.pair.toUpperCase().includes(query.toUpperCase());
                         if (aExact && !bExact) return -1;
                         if (!aExact && bExact) return 1;
-                        
-                        // Then by relevance
                         const relDiff = b.relevance - a.relevance;
                         if (Math.abs(relDiff) > 0.05) return relDiff;
-                        
-                        // Then by APR
                         return b.apr - a.apr;
                     });
                 }
 
-                // Save to history
                 addToHistory(query);
                 updatePopularSearches(query);
-
-                // Render results
                 document.getElementById('searchLoading').classList.remove('visible');
                 document.getElementById('searchIcon').classList.remove('active');
                 renderSearchResults(results, query);
             }, 200);
         }
 
-        // Filtro por tag
         function applyTagFilter(tag) {
             let pools = [...allPools];
-            
             switch(tag) {
-                case 'high apr':
-                    pools = pools.filter(p => p.apr > 200).sort((a, b) => b.apr - a.apr);
-                    break;
-                case 'baixo risco':
-                case 'low risk':
-                    pools = pools.filter(p => p.riskLevel === 'low').sort((a, b) => b.apr - a.apr);
-                    break;
-                case 'solana':
-                    pools = pools.filter(p => p.network === 'solana').sort((a, b) => b.apr - a.apr);
-                    break;
-                case 'bluechip':
-                    pools = pools.filter(p => p.category === 'bluechip').sort((a, b) => b.apr - a.apr);
-                    break;
-                case 'stable':
-                    pools = pools.filter(p => p.category === 'stable').sort((a, b) => b.apr - a.apr);
-                    break;
-                case 'rwa':
-                    pools = pools.filter(p => p.category === 'rwa').sort((a, b) => b.apr - a.apr);
-                    break;
-                case 'trending':
-                    pools = pools.filter(p => p.category === 'trending').sort((a, b) => b.apr - a.apr);
-                    break;
-                case 'eth':
-                    pools = pools.filter(p => 
-                        p.network === 'ethereum' || p.baseToken === 'ETH' || p.quoteToken === 'ETH'
-                    ).sort((a, b) => b.apr - a.apr);
-                    break;
-                case 'btc':
-                    pools = pools.filter(p => 
-                        p.baseToken === 'BTC' || p.quoteToken === 'BTC'
-                    ).sort((a, b) => b.apr - a.apr);
-                    break;
-                default:
-                    pools = pools.filter(p => p.apr > 200).sort((a, b) => b.apr - a.apr);
+                case 'high apr': pools = pools.filter(p => p.apr > 200).sort((a, b) => b.apr - a.apr); break;
+                case 'baixo risco': case 'low risk': pools = pools.filter(p => p.riskLevel === 'low').sort((a, b) => b.apr - a.apr); break;
+                case 'solana': pools = pools.filter(p => p.network === 'solana').sort((a, b) => b.apr - a.apr); break;
+                case 'bluechip': pools = pools.filter(p => p.category === 'bluechip').sort((a, b) => b.apr - a.apr); break;
+                case 'stable': pools = pools.filter(p => p.category === 'stable').sort((a, b) => b.apr - a.apr); break;
+                case 'rwa': pools = pools.filter(p => p.category === 'rwa').sort((a, b) => b.apr - a.apr); break;
+                case 'trending': pools = pools.filter(p => p.category === 'trending').sort((a, b) => b.apr - a.apr); break;
+                case 'eth': pools = pools.filter(p => p.network === 'ethereum' || p.baseToken === 'ETH' || p.quoteToken === 'ETH').sort((a, b) => b.apr - a.apr); break;
+                case 'btc': pools = pools.filter(p => p.baseToken === 'BTC' || p.quoteToken === 'BTC').sort((a, b) => b.apr - a.apr); break;
+                default: pools = pools.filter(p => p.apr > 200).sort((a, b) => b.apr - a.apr);
             }
-
             return pools.map(p => ({ ...p, fuseScore: 0, relevance: 1 }));
         }
 
-        // Renderizar resultados
         function renderSearchResults(results, query) {
             const resultsContainer = document.getElementById('searchResults');
             const resultsGrid = document.getElementById('resultsGrid');
@@ -2130,53 +2188,33 @@
             resultsCount.textContent = `${results.length} encontrado${results.length !== 1 ? 's' : ''}`;
 
             if (results.length === 0) {
-                resultsGrid.innerHTML = `
-                    <div class="no-results" style="grid-column: 1 / -1;">
-                        <div class="no-results-icon">🔍</div>
-                        <div class="no-results-text">Nenhum par encontrado para "${query}"</div>
-                        <div class="no-results-sub">Tente buscar por: nome do par, token, DEX ou rede</div>
-                    </div>
-                `;
+                resultsGrid.innerHTML = `<div class="no-results" style="grid-column: 1 / -1;"><div class="no-results-icon">🔍</div><div class="no-results-text">Nenhum par encontrado para "${query}"</div><div class="no-results-sub">Tente buscar por: nome do par, token, DEX ou rede</div></div>`;
             } else {
                 resultsGrid.innerHTML = results.map(pool => {
-                    const highlightedPair = highlightText(pool.pair, query);
-                    const highlightedDex = highlightText(pool.dex, query);
-                    const highlightedNetwork = highlightText(pool.network, query);
-                    
                     const relevancePercent = Math.max(10, Math.round((pool.relevance || 0.5) * 100));
-                    
                     return `
                         <div class="result-card risk-${pool.riskLevel}" onclick="window.open('${pool.url}', '_blank')">
                             <div class="result-card-top">
-                                <div class="result-pair">${highlightedPair}</div>
+                                <div class="result-pair">${highlightText(pool.pair, query)}</div>
                                 <div class="result-apr-badge">${pool.apr.toFixed(1)}%</div>
                             </div>
                             <div class="result-card-middle">
-                                <span class="result-badge network-${pool.network}">${highlightedNetwork}</span>
-                                <span class="result-badge dex">${highlightedDex}</span>
+                                <span class="result-badge network-${pool.network}">${highlightText(pool.network, query)}</span>
+                                <span class="result-badge dex">${highlightText(pool.dex, query)}</span>
                                 <span class="result-badge risk-${pool.riskLevel}">${pool.riskLabel}</span>
                             </div>
                             <div class="result-card-bottom">
                                 <div class="result-tvl">TVL: <span>${formatMoney(pool.tvl)}</span></div>
-                                <div class="result-relevance">
-                                    <div class="relevance-bar">
-                                        <div class="relevance-fill" style="width: ${relevancePercent}%"></div>
-                                    </div>
-                                    ${relevancePercent}% match
-                                </div>
-                                <button class="result-action-btn" onclick="event.stopPropagation(); window.open('${pool.url}', '_blank')">
-                                    Abrir na DEX ↗
-                                </button>
+                                <div class="result-relevance"><div class="relevance-bar"><div class="relevance-fill" style="width: ${relevancePercent}%"></div></div>${relevancePercent}% match</div>
+                                <button class="result-action-btn" onclick="event.stopPropagation(); window.open('${pool.url}', '_blank')">Abrir na DEX ↗</button>
                             </div>
                         </div>
                     `;
                 }).join('');
             }
-
             resultsContainer.classList.add('active');
         }
 
-        // Busca rápida (tags)
         function quickSearch(query) {
             document.getElementById('searchInput').value = query;
             document.getElementById('searchClearBtn').classList.add('visible');
@@ -2184,7 +2222,6 @@
             performSearch(query);
         }
 
-        // Limpar busca
         function clearSearch() {
             document.getElementById('searchInput').value = '';
             document.getElementById('searchClearBtn').classList.remove('visible');
@@ -2201,97 +2238,62 @@
             document.getElementById('quickTags').style.display = '';
         }
 
-        // Histórico de Buscas
         function addToHistory(query) {
             searchHistory = searchHistory.filter(h => h !== query);
             searchHistory.unshift(query);
             if (searchHistory.length > 10) searchHistory.pop();
-            
-            try {
-                localStorage.setItem('defiSearchHistory', JSON.stringify(searchHistory));
-            } catch(e) {}
+            try { localStorage.setItem('defiSearchHistory', JSON.stringify(searchHistory)); } catch(e) {}
         }
 
         function loadSearchHistory() {
-            try {
-                const saved = localStorage.getItem('defiSearchHistory');
-                if (saved) searchHistory = JSON.parse(saved);
-            } catch(e) {}
+            try { const saved = localStorage.getItem('defiSearchHistory'); if (saved) searchHistory = JSON.parse(saved); } catch(e) {}
         }
 
         function updatePopularSearches(query) {
-            // Update popular searches based on usage
             const popularList = document.getElementById('popularList');
-            const currentItems = Array.from(popularList.querySelectorAll('.popular-item'))
-                .map(el => el.textContent.trim());
-            
+            const currentItems = Array.from(popularList.querySelectorAll('.popular-item')).map(el => el.textContent.trim());
             if (!currentItems.includes(query) && query.length > 1) {
-                // Add new popular search
                 const newItem = document.createElement('span');
                 newItem.className = 'popular-item';
                 newItem.textContent = query;
                 newItem.onclick = () => quickSearch(query);
                 popularList.insertBefore(newItem, popularList.firstChild);
-                
-                // Keep max 6
-                while (popularList.children.length > 6) {
-                    popularList.removeChild(popularList.lastChild);
-                }
+                while (popularList.children.length > 6) popularList.removeChild(popularList.lastChild);
             }
         }
 
         // ==================== SISTEMA DE CATEGORIAS (mantido) ====================
 
         function filtrarEPriorizar(pools, filters) {
-            return pools.filter(p => {
-                const matchTvl = p.tvl >= filters.minTvl;
-                const matchVolume = p.volume24h >= filters.minVolume;
-                return matchTvl && matchVolume;
-            }).sort((a, b) => b.score - a.score);
+            return pools.filter(p => { const matchTvl = p.tvl >= filters.minTvl; const matchVolume = p.volume24h >= filters.minVolume; return matchTvl && matchVolume; }).sort((a, b) => b.score - a.score);
         }
 
         function completarPools(current, backup, target) {
             const needed = target - current.length;
             if (needed <= 0) return current;
-            
             const available = backup.filter(p => !current.includes(p));
             return [...current, ...available.slice(0, needed)];
         }
 
         function garantirMinimo(pools, min = 5) {
             if (pools.length >= min) return { pools, level: 1 };
-            
-            const relaxadas = allPools.filter(p => 
-                p.category === pools[0]?.category &&
-                p.tvl >= 10000 &&
-                p.volume24h >= 2000
-            ).sort((a, b) => b.score - a.score);
-            
+            const relaxadas = allPools.filter(p => p.category === pools[0]?.category && p.tvl >= 10000 && p.volume24h >= 2000).sort((a, b) => b.score - a.score);
             const completadas = completarPools(pools, relaxadas, min);
             if (completadas.length >= min) return { pools: completadas, level: 2 };
-            
-            const semFiltro = allPools.filter(p => p.category === pools[0]?.category)
-                .sort((a, b) => b.score - a.score);
+            const semFiltro = allPools.filter(p => p.category === pools[0]?.category).sort((a, b) => b.score - a.score);
             const finais = completarPools(completadas, semFiltro, min);
-            
             return { pools: finais.slice(0, min), level: 3 };
         }
 
         function selectTop5(category) {
             const categoryPools = allPools.filter(p => p.category === category);
-            
-            let selecionadas = filtrarEPriorizar(categoryPools, {
-                minTvl: 50000,
-                minVolume: 10000
-            });
-
+            let selecionadas = filtrarEPriorizar(categoryPools, { minTvl: 50000, minVolume: 10000 });
             const resultado = garantirMinimo(selecionadas, 5);
             selecionadas = resultado.pools;
 
             const highRisk = selecionadas.filter(p => p.riskLevel === 'high').sort((a, b) => b.score - a.score);
             const mediumRisk = selecionadas.filter(p => p.riskLevel === 'medium').sort((a, b) => b.score - a.score);
             const lowRisk = selecionadas.filter(p => p.riskLevel === 'low').sort((a, b) => b.score - a.score);
-
             const final = [];
             
             if (highRisk.length > 0) final.push(highRisk[0]);
@@ -2299,21 +2301,10 @@
             lowRisk.slice(0, 2).forEach(p => final.push(p));
             
             if (final.length < 5) {
-                const restantes = selecionadas.filter(p => !final.includes(p))
-                    .sort((a, b) => {
-                        const avgAPR = final.reduce((sum, p) => sum + p.apr, 0) / final.length;
-                        return Math.abs(a.apr - avgAPR) - Math.abs(b.apr - avgAPR);
-                    });
-                
-                while (final.length < 5 && restantes.length > 0) {
-                    final.push(restantes.shift());
-                }
+                const restantes = selecionadas.filter(p => !final.includes(p)).sort((a, b) => { const avgAPR = final.reduce((sum, p) => sum + p.apr, 0) / final.length; return Math.abs(a.apr - avgAPR) - Math.abs(b.apr - avgAPR); });
+                while (final.length < 5 && restantes.length > 0) final.push(restantes.shift());
             }
-
-            return {
-                pools: final.slice(0, 5).sort((a, b) => b.apr - a.apr),
-                fallbackLevel: resultado.level
-            };
+            return { pools: final.slice(0, 5).sort((a, b) => b.apr - a.apr), fallbackLevel: resultado.level };
         }
 
         function updateCategories() {
@@ -2331,23 +2322,14 @@
                 const container = document.getElementById(categories[cat].id);
                 const badge = document.getElementById(categories[cat].badge);
                 
-                if (result.fallbackLevel === 2) {
-                    badge.textContent = '⚠️ Filtros Relaxados';
-                    badge.style.display = 'inline';
-                } else if (result.fallbackLevel === 3) {
-                    badge.textContent = '🔥 Top Score';
-                    badge.style.display = 'inline';
-                } else {
-                    badge.style.display = 'none';
-                }
+                if (result.fallbackLevel === 2) { badge.textContent = '⚠️ Filtros Relaxados'; badge.style.display = 'inline'; }
+                else if (result.fallbackLevel === 3) { badge.textContent = '🔥 Top Score'; badge.style.display = 'inline'; }
+                else { badge.style.display = 'none'; }
                 
                 container.innerHTML = result.pools.map(pool => `
                     <a href="${pool.url}" target="_blank" class="pool-item ${pool.riskClass}">
                         <div class="pool-pair">
-                            <div class="risk-indicator">
-                                <div class="risk-dot ${pool.riskLevel}"></div>
-                                <span>${pool.pair}</span>
-                            </div>
+                            <div class="risk-indicator"><div class="risk-dot ${pool.riskLevel}"></div><span>${pool.pair}</span></div>
                             <span class="pool-protocol">${pool.dex} • ${pool.network}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
@@ -2359,66 +2341,33 @@
             });
         }
 
-        // Atualizar tabela
+        // Atualizar tabela principal
         function updateTable() {
             const tbody = document.getElementById('poolsTableBody');
-            
             if (filteredPools.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="12" style="text-align: center; padding: 40px; color: #94a3b8;">
-                            Nenhuma pool encontrada
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 40px; color: #94a3b8;">Nenhuma pool encontrada</td></tr>`;
                 return;
             }
-
             tbody.innerHTML = filteredPools.map(pool => `
                 <tr>
-                    <td>
-                        <a href="${pool.url}" target="_blank" class="pool-link-table">
-                            ${pool.pair}
-                            <span>↗</span>
-                        </a>
-                    </td>
+                    <td><a href="${pool.url}" target="_blank" class="pool-link-table">${pool.pair}<span>↗</span></a></td>
                     <td><span class="network-badge network-${pool.network}">${pool.network}</span></td>
                     <td><span class="dex-badge">${pool.dex}</span></td>
                     <td>${formatMoney(pool.tvl)}</td>
-                    <td>
-                        <div class="ratio-bar">
-                            <div class="ratio-visual">
-                                <div class="ratio-fill" style="width: ${pool.ratio}%"></div>
-                            </div>
-                            <span>${pool.ratio}/${100-pool.ratio}</span>
-                        </div>
-                    </td>
+                    <td><div class="ratio-bar"><div class="ratio-visual"><div class="ratio-fill" style="width: ${pool.ratio}%"></div></div><span>${pool.ratio}/${100-pool.ratio}</span></div></td>
                     <td>${formatMoney(pool.volume24h)}</td>
                     <td style="color: #10b981; font-weight: 700;">${pool.apr.toFixed(1)}%</td>
-                    <td class="${pool.change1h >= 0 ? 'positive' : 'negative'}">
-                        ${pool.change1h >= 0 ? '▲' : '▼'} ${Math.abs(pool.change1h).toFixed(2)}%
-                    </td>
-                    <td class="${pool.change6h >= 0 ? 'positive' : 'negative'}">
-                        ${pool.change6h >= 0 ? '▲' : '▼'} ${Math.abs(pool.change6h).toFixed(2)}%
-                    </td>
+                    <td class="${pool.change1h >= 0 ? 'positive' : 'negative'}">${pool.change1h >= 0 ? '▲' : '▼'} ${Math.abs(pool.change1h).toFixed(2)}%</td>
+                    <td class="${pool.change6h >= 0 ? 'positive' : 'negative'}">${pool.change6h >= 0 ? '▲' : '▼'} ${Math.abs(pool.change6h).toFixed(2)}%</td>
                     <td style="font-weight: 600;">${pool.score}</td>
-                    <td>
-                        <span class="network-badge" style="background: ${pool.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.15)' : pool.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${pool.riskLevel === 'high' ? '#ef4444' : pool.riskLevel === 'medium' ? '#f59e0b' : '#10b981'};">
-                            ${pool.riskLabel}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn-action" onclick="window.open('${pool.url}', '_blank')">
-                            Abrir Pool ↗
-                        </button>
-                    </td>
+                    <td><span class="network-badge" style="background: ${pool.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.15)' : pool.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${pool.riskLevel === 'high' ? '#ef4444' : pool.riskLevel === 'medium' ? '#f59e0b' : '#10b981'};">${pool.riskLabel}</span></td>
+                    <td><button class="btn-action" onclick="window.open('${pool.url}', '_blank')">Abrir Pool ↗</button></td>
                 </tr>
             `).join('');
-
             document.getElementById('totalPools').textContent = filteredPools.length;
         }
 
-        // Atualizar estatísticas
+        // Atualizar estatísticas principais
         function updateStats() {
             const totalTvl = filteredPools.reduce((sum, p) => sum + p.tvl, 0);
             const totalVolume = filteredPools.reduce((sum, p) => sum + p.volume24h, 0);
@@ -2431,30 +2380,22 @@
             document.getElementById('safePools').textContent = safePools;
         }
 
-        // Atualização automática
+        // Atualização automática principal
         function startAutoUpdate() {
-            updateInterval = setInterval(() => {
-                fetchPools();
-            }, CONFIG.updateInterval);
-
+            if (updateInterval) clearInterval(updateInterval);
+            updateInterval = setInterval(() => { fetchPools(); }, CONFIG.updateInterval);
             resetCountdown();
         }
 
         function resetCountdown() {
             if (countdownInterval) clearInterval(countdownInterval);
-            
             let secondsLeft = 15 * 60;
-            
             countdownInterval = setInterval(() => {
                 secondsLeft--;
                 const minutes = Math.floor(secondsLeft / 60);
                 const seconds = secondsLeft % 60;
-                document.getElementById('nextUpdate').textContent = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
-                if (secondsLeft <= 0) {
-                    secondsLeft = 15 * 60;
-                }
+                document.getElementById('nextUpdate').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                if (secondsLeft <= 0) secondsLeft = 15 * 60;
             }, 1000);
         }
 
@@ -2463,11 +2404,9 @@
             document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('pt-BR');
         }
 
-        function manualUpdate() {
-            fetchPools();
-        }
+        function manualUpdate() { fetchPools(); }
 
-        // Filtros
+        // Filtros principais
         function applyFilters() {
             const minApr = parseFloat(document.getElementById('minApr').value) || 0;
             const minVolume = parseFloat(document.getElementById('minVolume').value) || 0;
@@ -2476,54 +2415,30 @@
             const risk = document.getElementById('riskFilter').value;
 
             filteredPools = allPools.filter(pool => {
-                return pool.apr >= minApr &&
-                       pool.volume24h >= minVolume &&
-                       pool.tvl >= minTvl &&
-                       (!network || pool.network === network) &&
-                       (!risk || pool.riskLevel === risk);
+                return pool.apr >= minApr && pool.volume24h >= minVolume && pool.tvl >= minTvl &&
+                       (!network || pool.network === network) && (!risk || pool.riskLevel === risk);
             });
-
-            updateTable();
-            updateStats();
+            updateTable(); updateStats();
         }
 
         function resetFilters() {
-            document.getElementById('minApr').value = '';
-            document.getElementById('minVolume').value = '';
-            document.getElementById('minTvl').value = '';
-            document.getElementById('networkFilter').value = '';
+            document.getElementById('minApr').value = ''; document.getElementById('minVolume').value = '';
+            document.getElementById('minTvl').value = ''; document.getElementById('networkFilter').value = '';
             document.getElementById('riskFilter').value = '';
-            
-            filteredPools = [...allPools];
-            updateTable();
-            updateStats();
+            filteredPools = [...allPools]; updateTable(); updateStats();
         }
 
-        // Modo de exibição
+        // Modo de exibição principal
         function setMode(mode) {
             currentMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
             event.target.closest('.mode-btn').classList.add('active');
 
-            if (mode === 'highapr') {
-                filteredPools = [...allPools].sort((a, b) => b.apr - a.apr);
-            } else if (mode === 'auto') {
-                filteredPools = [...allPools].sort((a, b) => b.score - a.score);
-            } else {
-                filteredPools = [...allPools];
-            }
+            if (mode === 'highapr') filteredPools = [...allPools].sort((a, b) => b.apr - a.apr);
+            else if (mode === 'auto') filteredPools = [...allPools].sort((a, b) => b.score - a.score);
+            else filteredPools = [...allPools];
             
             updateTable();
-        }
-
-        function setActiveTab(event, element) {
-            event.preventDefault();
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            element.classList.add('active');
         }
 
         // Utilitários
@@ -2536,3 +2451,4 @@
     </script>
 </body>
 </html>
+```
