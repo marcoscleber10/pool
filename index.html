@@ -1566,7 +1566,7 @@
                 <div class="header-top">
                     <div>
                         <h1 style="background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%); -webkit-background-clip: text;">🚀 Oportunidades de Liquidez</h1>
-                        <p class="header-subtitle">20 Pares Premium: 10 Stablecoins 2026 + 10 Ações Americanas | Foco em TVL & APR</p>
+                        <p class="header-subtitle">50 Pares Premium: Stablecoins, Reais, Majors, Ouro & Petróleo | Foco em TVL & APR</p>
                     </div>
                     <button class="btn btn-refresh" onclick="manualUpdateOportunidades()">
                         <span>🔄</span> Atualizar Oportunidades
@@ -1576,7 +1576,7 @@
                     <span><div class="live-indicator" style="background: #3b82f6;"></div> Monitorando</span>
                     <span>🕐 Última: <strong id="lastUpdateOp">--:--:--</strong></span>
                     <span>⏱️ Próxima: <strong id="nextUpdateOp">15:00</strong></span>
-                    <span>📊 Total: <strong id="totalPoolsOp">20</strong> pares</span>
+                    <span>📊 Total: <strong id="totalPoolsOp">50</strong> pares</span>
                 </div>
             </div>
 
@@ -1590,7 +1590,7 @@
                 <div class="stat-card">
                     <div class="stat-label">TVL Combinado</div>
                     <div class="stat-value" id="opTotalTvl">$0</div>
-                    <div class="stat-change">10 pares Stable + 10 Ações</div>
+                    <div class="stat-change">50 Pares Ativos</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Volume 24H Médio</div>
@@ -1990,7 +1990,49 @@
                 { pair: 'GOOGL/USDC', type: 'Ação Americana', dex: 'Camelot', network: 'arbitrum', tvl: 61000000, apr: 41.7, growth: 14, yield: 'Fees + Rewards', risk: 'medium', riskLabel: 'Médio', url: 'https://app.camelot.exchange' }
             ];
 
-            const combined = [...stablecoins2026, ...acoesAmericanas];
+            const brlReais = [
+                { pair: 'BRL/USDC', type: 'Stable BRL', dex: 'Curve', network: 'ethereum', tvl: 45000000, apr: 18.5, growth: 12, yield: 'Staking + RWA', risk: 'low', riskLabel: 'Baixo', url: 'https://curve.fi' },
+                { pair: 'BRZ/USDC', type: 'Stable BRL', dex: 'QuickSwap', network: 'bsc', tvl: 32000000, apr: 22.1, growth: 15, yield: 'Yield Farming', risk: 'medium', riskLabel: 'Médio', url: 'https://quickswap.exchange' },
+                { pair: 'BRL/USDT', type: 'Stable BRL', dex: 'PancakeSwap', network: 'bsc', tvl: 28000000, apr: 16.8, growth: 8, yield: 'Liquidity Fees', risk: 'low', riskLabel: 'Baixo', url: 'https://pancakeswap.finance' },
+                { pair: 'BRLX/USDC', type: 'Stable BRL', dex: 'Aerodrome', network: 'base', tvl: 19000000, apr: 25.3, growth: 20, yield: 'Emission Rewards', risk: 'medium', riskLabel: 'Médio', url: 'https://aerodrome.finance' },
+                { pair: 'REAL/USDC', type: 'Stable BRL', dex: 'Uniswap', network: 'ethereum', tvl: 15000000, apr: 19.7, growth: 10, yield: 'Native Yield', risk: 'low', riskLabel: 'Baixo', url: 'https://app.uniswap.org' },
+                { pair: 'BRL/DAI', type: 'Stable BRL', dex: 'Balancer', network: 'bsc', tvl: 12000000, apr: 14.2, growth: 6, yield: 'Stable Pools', risk: 'low', riskLabel: 'Baixo', url: 'https://balancer.fi' },
+                { pair: 'BRZ/USDT', type: 'Stable BRL', dex: 'BiSwap', network: 'bsc', tvl: 10000000, apr: 21.5, growth: 14, yield: 'Trading Fees', risk: 'medium', riskLabel: 'Médio', url: 'https://biswap.org' },
+                { pair: 'BRL/USDe', type: 'Stable BRL', dex: 'Frax', network: 'ethereum', tvl: 8000000, apr: 17.9, growth: 9, yield: 'RWA Backing', risk: 'low', riskLabel: 'Baixo', url: 'https://app.frax.finance' }
+            ];
+
+            const cryptoMajors = [
+                { pair: 'BTC/USD', type: 'Crypto Major', dex: 'Uniswap V3', network: 'ethereum', tvl: 520000000, apr: 35.4, growth: 25, yield: 'Lending + Fees', risk: 'medium', riskLabel: 'Médio', url: 'https://app.uniswap.org' },
+                { pair: 'ETH/USD', type: 'Crypto Major', dex: 'Curve', network: 'ethereum', tvl: 410000000, apr: 28.9, growth: 22, yield: 'Staking + Rewards', risk: 'low', riskLabel: 'Baixo', url: 'https://curve.fi' },
+                { pair: 'SOL/USD', type: 'Crypto Major', dex: 'Jupiter', network: 'solana', tvl: 185000000, apr: 42.1, growth: 30, yield: 'Native Yield', risk: 'medium', riskLabel: 'Médio', url: 'https://jup.ag' },
+                { pair: 'BTC/USDT', type: 'Crypto Major', dex: 'SushiSwap', network: 'ethereum', tvl: 380000000, apr: 31.2, growth: 20, yield: 'Market Making', risk: 'low', riskLabel: 'Baixo', url: 'https://app.sushi.com' },
+                { pair: 'ETH/USDT', type: 'Crypto Major', dex: 'Uniswap V3', network: 'ethereum', tvl: 340000000, apr: 26.7, growth: 18, yield: 'Liquidity Mining', risk: 'low', riskLabel: 'Baixo', url: 'https://app.uniswap.org' },
+                { pair: 'SOL/USDT', type: 'Crypto Major', dex: 'Raydium', network: 'solana', tvl: 142000000, apr: 38.5, growth: 28, yield: 'Fees + Farming', risk: 'medium', riskLabel: 'Médio', url: 'https://raydium.io' }
+            ];
+
+            const ouroMetais = [
+                { pair: 'XAU/USD', type: 'Ouro/Metais', dex: 'Synthetix', network: 'ethereum', tvl: 95000000, apr: 45.8, growth: 16, yield: 'Synthetic Yield', risk: 'medium', riskLabel: 'Médio', url: 'https://synthetix.io' },
+                { pair: 'XAU/USDC', type: 'Ouro/Metais', dex: 'Curve', network: 'bsc', tvl: 72000000, apr: 38.2, growth: 14, yield: 'Backed Fees', risk: 'low', riskLabel: 'Baixo', url: 'https://curve.fi' },
+                { pair: 'XAU/USDT', type: 'Ouro/Metais', dex: 'Uniswap', network: 'ethereum', tvl: 68000000, apr: 41.5, growth: 15, yield: 'Trading Volume', risk: 'medium', riskLabel: 'Médio', url: 'https://app.uniswap.org' },
+                { pair: 'XAG/USD', type: 'Ouro/Metais', dex: 'Synthetix', network: 'ethereum', tvl: 42000000, apr: 52.3, growth: 18, yield: 'Volatility Fees', risk: 'high', riskLabel: 'Alto', url: 'https://synthetix.io' },
+                { pair: 'PAXG/USD', type: 'Ouro/Metais', dex: 'Balancer', network: 'ethereum', tvl: 55000000, apr: 28.9, growth: 10, yield: 'Tokenized Gold', risk: 'low', riskLabel: 'Baixo', url: 'https://balancer.fi' },
+                { pair: 'XAUT/USD', type: 'Ouro/Metais', dex: 'Curve', network: 'ethereum', tvl: 48000000, apr: 31.4, growth: 12, yield: 'Stable Swap', risk: 'low', riskLabel: 'Baixo', url: 'https://curve.fi' },
+                { pair: 'OURO/USD', type: 'Ouro/Metais', dex: 'QuickSwap', network: 'bsc', tvl: 35000000, apr: 48.7, growth: 17, yield: 'RWA Bridge', risk: 'medium', riskLabel: 'Médio', url: 'https://quickswap.exchange' },
+                { pair: 'PRATA/USD', type: 'Ouro/Metais', dex: 'SushiSwap', network: 'ethereum', tvl: 28000000, apr: 55.1, growth: 19, yield: 'Synthetic Farming', risk: 'high', riskLabel: 'Alto', url: 'https://app.sushi.com' }
+            ];
+
+            const petroleoEnergia = [
+                { pair: 'WTI/USD', type: 'Petróleo/Energia', dex: 'Synthetix', network: 'ethereum', tvl: 62000000, apr: 68.4, growth: 22, yield: 'Commodity Fees', risk: 'high', riskLabel: 'Alto', url: 'https://synthetix.io' },
+                { pair: 'WTI/USDC', type: 'Petróleo/Energia', dex: 'Uniswap', network: 'bsc', tvl: 48000000, apr: 58.2, growth: 18, yield: 'Tokenized Oil', risk: 'medium', riskLabel: 'Médio', url: 'https://app.uniswap.org' },
+                { pair: 'BRN/USD', type: 'Petróleo/Energia', dex: 'Curve', network: 'ethereum', tvl: 41000000, apr: 62.7, growth: 20, yield: 'Brent Tracking', risk: 'high', riskLabel: 'Alto', url: 'https://curve.fi' },
+                { pair: 'GAS/USD', type: 'Petróleo/Energia', dex: 'PancakeSwap', network: 'bsc', tvl: 35000000, apr: 72.1, growth: 25, yield: 'Energy Derivatives', risk: 'high', riskLabel: 'Alto', url: 'https://pancakeswap.finance' },
+                { pair: 'UCO/USD', type: 'Petróleo/Energia', dex: 'Balancer', network: 'bsc', tvl: 28000000, apr: 55.3, growth: 16, yield: 'Used Cooking Oil', risk: 'medium', riskLabel: 'Médio', url: 'https://balancer.fi' },
+                { pair: 'CL/USD', type: 'Petróleo/Energia', dex: 'GMX', network: 'arbitrum', tvl: 52000000, apr: 65.8, growth: 21, yield: 'Futures Funding', risk: 'high', riskLabel: 'Alto', url: 'https://gmx.io' },
+                { pair: 'PETR/USD', type: 'Petróleo/Energia', dex: 'PancakeSwap', network: 'bsc', tvl: 22000000, apr: 78.5, growth: 28, yield: 'Tokenized Equity', risk: 'high', riskLabel: 'Alto', url: 'https://pancakeswap.finance' },
+                { pair: 'VALE/USD', type: 'Petróleo/Energia', dex: 'Uniswap', network: 'ethereum', tvl: 38000000, apr: 42.9, growth: 15, yield: 'Mining RWA', risk: 'medium', riskLabel: 'Médio', url: 'https://app.uniswap.org' }
+            ];
+
+            const combined = [...stablecoins2026, ...acoesAmericanas, ...brlReais, ...cryptoMajors, ...ouroMetais, ...petroleoEnergia];
             return combined.map((p, i) => ({
                 ...p,
                 id: i,
