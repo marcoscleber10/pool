@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -244,6 +243,38 @@
 
         .search-clear-btn.visible {
             display: flex;
+        }
+
+        /* Chips de Tokens Buscados - NOVO */
+        .search-chips {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 16px;
+            font-size: 12px;
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        .search-chip-remove {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .search-chip-remove:hover {
+            opacity: 1;
+            color: #ef4444;
         }
 
         /* Sugestões Rápidas */
@@ -527,9 +558,7 @@
         .result-badge.network-base { background: rgba(0, 120, 255, 0.15); color: #0078ff; }
         .result-badge.network-bsc { background: rgba(240, 185, 10, 0.15); color: #f0b90b; }
         .result-badge.network-arbitrum { background: rgba(36, 150, 255, 0.15); color: #2496ff; }
-
         .result-badge.dex { background: rgba(148, 163, 184, 0.1); color: #94a3b8; }
-
         .result-badge.risk-high { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
         .result-badge.risk-medium { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
         .result-badge.risk-low { background: rgba(16, 185, 129, 0.15); color: #10b981; }
@@ -1074,10 +1103,32 @@
             letter-spacing: 0.5px;
             cursor: pointer;
             white-space: nowrap;
+            user-select: none;
+            position: relative;
         }
 
         th:hover {
             color: #e2e8f0;
+        }
+
+        th.sortable::after {
+            content: "⇅";
+            position: absolute;
+            right: 8px;
+            opacity: 0.5;
+            font-size: 10px;
+        }
+
+        th.sort-asc::after {
+            content: "▲";
+            opacity: 1;
+            color: #10b981;
+        }
+
+        th.sort-desc::after {
+            content: "▼";
+            opacity: 1;
+            color: #ef4444;
         }
 
         td {
@@ -1193,6 +1244,21 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
         }
+
+        /* Badge de Age - NOVO */
+        .age-badge {
+            display: inline-flex;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(148, 163, 184, 0.15);
+            color: #94a3b8;
+        }
+
+        .age-badge.new { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
+        .age-badge.recent { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .age-badge.stable { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
 
         /* Filtros Rápidos da Aba Oportunidades */
         .opportunity-filters {
@@ -1858,7 +1924,7 @@
             <a href="https://marcoscleber10.github.io/comprar-btc3/" class="nav-tab external" target="_blank">₿ Comprar BTC</a>
         </nav>
 
-        <!-- AB A PRINCIPAL (Existente) -->
+        <!-- ABA PRINCIPAL -->
         <div id="tab-principal" class="tab-section active">
             <!-- Header -->
             <div class="header">
@@ -1891,12 +1957,15 @@
                                 type="text" 
                                 class="search-input" 
                                 id="searchInput" 
-                                placeholder="Buscar par, token, DEX ou rede..."
+                                placeholder="Buscar: BRLA,USDC ou BRLA USDC ou par/DEX/rede..."
                                 autocomplete="off"
                             >
                             <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()">✕</button>
                         </div>
                     </div>
+                    
+                    <!-- Chips de Tokens Buscados - NOVO -->
+                    <div class="search-chips" id="searchChips"></div>
 
                     <!-- Autocomplete Dropdown -->
                     <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
@@ -1995,6 +2064,20 @@
                             <option value="base">Base</option>
                             <option value="bsc">BSC</option>
                             <option value="arbitrum">Arbitrum</option>
+                        </select>
+                    </div>
+                    <!-- NOVO: Filtro por DEX -->
+                    <div class="filter-group">
+                        <label>DEX</label>
+                        <select id="dexFilter">
+                            <option value="">Todas</option>
+                            <option value="Raydium">Raydium</option>
+                            <option value="Uniswap V3">Uniswap V3</option>
+                            <option value="PancakeSwap">PancakeSwap</option>
+                            <option value="Aerodrome">Aerodrome</option>
+                            <option value="Camelot">Camelot</option>
+                            <option value="Curve">Curve</option>
+                            <option value="Jupiter">Jupiter</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -2144,23 +2227,25 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Par</th>
-                            <th>Rede</th>
-                            <th>DEX</th>
-                            <th>TVL</th>
+                            <th class="sortable" data-sort="pair">Par</th>
+                            <th class="sortable" data-sort="network">Rede</th>
+                            <th class="sortable" data-sort="dex">DEX</th>
+                            <th class="sortable" data-sort="tvl">TVL</th>
                             <th>Ratio</th>
-                            <th>Volume 24h</th>
-                            <th>APR</th>
+                            <th class="sortable" data-sort="volume24h">Volume 24h</th>
+                            <th class="sortable" data-sort="apr">APR</th>
                             <th>1h</th>
                             <th>6h</th>
-                            <th>Score</th>
+                            <th class="sortable" data-sort="score">Score</th>
                             <th>Risco</th>
+                            <!-- NOVA COLUNA: Age -->
+                            <th class="sortable" data-sort="age">Age</th>
                             <th>Ação</th>
                         </tr>
                     </thead>
                     <tbody id="poolsTableBody">
                         <tr>
-                            <td colspan="12" class="loading">
+                            <td colspan="13" class="loading">
                                 <div class="spinner"></div>
                                 Carregando pools...
                             </td>
@@ -2514,6 +2599,8 @@
         let fuseInstance = null;
         let searchTimeout = null;
         let searchHistory = [];
+        let currentTokens = []; // NOVO: Tokens buscados
+        let currentSort = { field: 'apr', direction: 'desc' }; // NOVO: Ordenação atual
 
         // Variáveis da Nova Aba
         let oportunidadesPools = [];
@@ -2539,6 +2626,7 @@
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
+            parseURLParams();
             fetchPools();
             fetchOportunidades();
             startAutoUpdate();
@@ -2546,7 +2634,56 @@
             setupSearchListeners();
             loadSearchHistory();
             updateSimulator();
+            setupTableSorting();
         });
+
+        // NOVO: Parsear parâmetros da URL
+        function parseURLParams() {
+            const params = new URLSearchParams(window.location.search);
+            const tokens = params.get('tokens');
+            const sortBy = params.get('sortBy');
+            const network = params.get('network');
+            const dex = params.get('dex');
+            
+            if (tokens) {
+                currentTokens = tokens.split(',').map(t => t.trim().toUpperCase());
+                document.getElementById('searchInput').value = currentTokens.join(', ');
+                updateSearchChips();
+            }
+            
+            if (sortBy) {
+                const [field, direction] = sortBy.split(':');
+                currentSort = { field, direction };
+            }
+            
+            if (network) {
+                document.getElementById('networkFilter').value = network;
+            }
+            
+            if (dex) {
+                document.getElementById('dexFilter').value = dex;
+            }
+        }
+
+        // NOVO: Atualizar URL com parâmetros
+        function updateURLParams() {
+            const params = new URLSearchParams();
+            if (currentTokens.length > 0) {
+                params.set('tokens', currentTokens.join(','));
+            }
+            if (currentSort.field) {
+                params.set('sortBy', `${currentSort.field}:${currentSort.direction}`);
+            }
+            if (document.getElementById('networkFilter').value) {
+                params.set('network', document.getElementById('networkFilter').value);
+            }
+            if (document.getElementById('dexFilter').value) {
+                params.set('dex', document.getElementById('dexFilter').value);
+            }
+            
+            const newURL = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            window.history.replaceState({}, '', newURL);
+        }
 
         // Controle de Abas
         function setActiveTab(event, element, tabId) {
@@ -2565,10 +2702,10 @@
             searchInput.addEventListener('input', (e) => {
                 const value = e.target.value.trim();
                 const clearBtn = document.getElementById('searchClearBtn');
-                clearBtn.classList.toggle('visible', value.length > 0);
+                clearBtn.classList.toggle('visible', value.length > 0 || currentTokens.length > 0);
 
                 clearTimeout(searchTimeout);
-                if (value.length === 0) {
+                if (value.length === 0 && currentTokens.length === 0) {
                     hideSearchResults();
                     hideAutocomplete();
                     return;
@@ -2585,7 +2722,18 @@
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     clearTimeout(searchTimeout);
-                    performSearch(searchInput.value.trim());
+                    const value = searchInput.value.trim();
+                    if (value) {
+                        const tokens = value.split(/[,\s]+/).filter(t => t.length > 0);
+                        if (tokens.length > 1) {
+                            currentTokens = [...new Set([...currentTokens, ...tokens])];
+                            updateSearchChips();
+                            searchInput.value = '';
+                            performMultiTokenSearch(currentTokens);
+                        } else {
+                            performSearch(value);
+                        }
+                    }
                     hideAutocomplete();
                 }
             });
@@ -2596,7 +2744,424 @@
             });
         }
 
-        // Buscar dados principais
+        // NOVO: Atualizar chips de tokens
+        function updateSearchChips() {
+            const chipsContainer = document.getElementById('searchChips');
+            if (currentTokens.length === 0) {
+                chipsContainer.innerHTML = '';
+                return;
+            }
+            
+            chipsContainer.innerHTML = currentTokens.map(token => `
+                <span class="search-chip">
+                    ${token}
+                    <span class="search-chip-remove" onclick="removeToken('${token}')">✕</span>
+                </span>
+            `).join('');
+        }
+
+        // NOVO: Remover token
+        function removeToken(token) {
+            currentTokens = currentTokens.filter(t => t !== token);
+            updateSearchChips();
+            if (currentTokens.length > 0) {
+                performMultiTokenSearch(currentTokens);
+            } else {
+                clearSearch();
+            }
+            updateURLParams();
+        }
+
+        // NOVO: Busca multi-token
+        function performMultiTokenSearch(tokens) {
+            if (!tokens || tokens.length === 0) {
+                hideSearchResults();
+                return;
+            }
+            
+            document.getElementById('searchIcon').classList.add('active');
+            document.getElementById('searchLoading').classList.add('visible');
+            document.getElementById('searchResults').classList.remove('active');
+            document.getElementById('popularSection').style.display = 'none';
+            document.getElementById('quickTags').style.display = 'none';
+
+            setTimeout(() => {
+                let results = [];
+                
+                results = allPools.filter(pool => {
+                    const poolTokens = [pool.baseToken, pool.quoteToken, pool.pair, pool.dex, pool.network];
+                    return tokens.some(token => 
+                        poolTokens.some(pToken => 
+                            pToken.toUpperCase().includes(token.toUpperCase())
+                        )
+                    );
+                });
+                
+                results = results.map(pool => {
+                    const matches = tokens.filter(token => 
+                        [pool.baseToken, pool.quoteToken, pool.pair].some(pToken => 
+                            pToken.toUpperCase().includes(token.toUpperCase())
+                        )
+                    ).length;
+                    return { ...pool, matchCount: matches, relevance: matches / tokens.length };
+                });
+                
+                results.sort((a, b) => {
+                    if (b.matchCount !== a.matchCount) return b.matchCount - a.matchCount;
+                    return b.apr - a.apr;
+                });
+
+                document.getElementById('searchLoading').classList.remove('visible');
+                document.getElementById('searchIcon').classList.remove('active');
+                renderSearchResults(results, tokens.join(', '));
+                updateURLParams();
+            }, 200);
+        }
+
+        function applyTagFilter(tag) {
+            let pools = [...allPools];
+            switch(tag) {
+                case 'high apr': pools = pools.filter(p => p.apr > 200).sort((a, b) => b.apr - a.apr); break;
+                case 'baixo risco': case 'low risk': pools = pools.filter(p => p.riskLevel === 'low').sort((a, b) => b.apr - a.apr); break;
+                case 'solana': pools = pools.filter(p => p.network === 'solana').sort((a, b) => b.apr - a.apr); break;
+                case 'bluechip': pools = pools.filter(p => p.category === 'bluechip').sort((a, b) => b.apr - a.apr); break;
+                case 'stable': pools = pools.filter(p => p.category === 'stable').sort((a, b) => b.apr - a.apr); break;
+                case 'rwa': pools = pools.filter(p => p.category === 'rwa').sort((a, b) => b.apr - a.apr); break;
+                case 'trending': pools = pools.filter(p => p.category === 'trending').sort((a, b) => b.apr - a.apr); break;
+                case 'eth': pools = pools.filter(p => p.network === 'ethereum' || p.baseToken === 'ETH' || p.quoteToken === 'ETH').sort((a, b) => b.apr - a.apr); break;
+                case 'btc': pools = pools.filter(p => p.baseToken === 'BTC' || p.quoteToken === 'BTC').sort((a, b) => b.apr - a.apr); break;
+                default: pools = pools.filter(p => p.apr > 200).sort((a, b) => b.apr - a.apr);
+            }
+            return pools.map(p => ({ ...p, fuseScore: 0, relevance: 1 }));
+        }
+
+        function renderSearchResults(results, query) {
+            const resultsContainer = document.getElementById('searchResults');
+            const resultsGrid = document.getElementById('resultsGrid');
+            const searchTermDisplay = document.getElementById('searchTermDisplay');
+            const resultsCount = document.getElementById('searchResultsCount');
+
+            searchTermDisplay.textContent = query;
+            resultsCount.textContent = `${results.length} encontrado${results.length !== 1 ? 's' : ''}`;
+
+            if (results.length === 0) {
+                resultsGrid.innerHTML = `<div class="no-results" style="grid-column: 1 / -1;"><div class="no-results-icon">🔍</div><div class="no-results-text">Nenhum par encontrado para "${query}"</div><div class="no-results-sub">Tente buscar por: nome do par, token, DEX ou rede</div></div>`;
+            } else {
+                resultsGrid.innerHTML = results.map(pool => {
+                    const relevancePercent = Math.max(10, Math.round((pool.relevance || 0.5) * 100));
+                    return `
+                        <div class="result-card risk-${pool.riskLevel}" onclick="window.open('${pool.url}', '_blank')">
+                            <div class="result-card-top">
+                                <div class="result-pair">${highlightText(pool.pair, query)}</div>
+                                <div class="result-apr-badge">${pool.apr.toFixed(1)}%</div>
+                            </div>
+                            <div class="result-card-middle">
+                                <span class="result-badge network-${pool.network}">${highlightText(pool.network, query)}</span>
+                                <span class="result-badge dex">${highlightText(pool.dex, query)}</span>
+                                <span class="result-badge risk-${pool.riskLevel}">${pool.riskLabel}</span>
+                            </div>
+                            <div class="result-card-bottom">
+                                <div class="result-tvl">TVL: <span>${formatMoney(pool.tvl)}</span></div>
+                                <div class="result-relevance"><div class="relevance-bar"><div class="relevance-fill" style="width: ${relevancePercent}%"></div></div>${relevancePercent}% match</div>
+                                <button class="result-action-btn" onclick="event.stopPropagation(); window.open('${pool.url}', '_blank')">Abrir na DEX ↗</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            resultsContainer.classList.add('active');
+        }
+
+        function quickSearch(query) {
+            document.getElementById('searchInput').value = query;
+            document.getElementById('searchClearBtn').classList.add('visible');
+            hideAutocomplete();
+            performSearch(query);
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchClearBtn').classList.remove('visible');
+            hideSearchResults();
+            hideAutocomplete();
+            document.getElementById('popularSection').style.display = '';
+            document.getElementById('quickTags').style.display = '';
+            currentTokens = [];
+            updateSearchChips();
+            updateURLParams();
+        }
+
+        function hideSearchResults() {
+            document.getElementById('searchResults').classList.remove('active');
+            document.getElementById('searchLoading').classList.remove('visible');
+            document.getElementById('popularSection').style.display = '';
+            document.getElementById('quickTags').style.display = '';
+        }
+
+        function addToHistory(query) {
+            searchHistory = searchHistory.filter(h => h !== query);
+            searchHistory.unshift(query);
+            if (searchHistory.length > 10) searchHistory.pop();
+            try { localStorage.setItem('defiSearchHistory', JSON.stringify(searchHistory)); } catch(e) {}
+        }
+
+        function loadSearchHistory() {
+            try { const saved = localStorage.getItem('defiSearchHistory'); if (saved) searchHistory = JSON.parse(saved); } catch(e) {}
+        }
+
+        function updatePopularSearches(query) {
+            const popularList = document.getElementById('popularList');
+            const currentItems = Array.from(popularList.querySelectorAll('.popular-item')).map(el => el.textContent.trim());
+            if (!currentItems.includes(query) && query.length > 1) {
+                const newItem = document.createElement('span');
+                newItem.className = 'popular-item';
+                newItem.textContent = query;
+                newItem.onclick = () => quickSearch(query);
+                popularList.insertBefore(newItem, popularList.firstChild);
+                while (popularList.children.length > 6) popularList.removeChild(popularList.lastChild);
+            }
+        }
+
+        function filtrarEPriorizar(pools, filters) {
+            return pools.filter(p => { const matchTvl = p.tvl >= filters.minTvl; const matchVolume = p.volume24h >= filters.minVolume; return matchTvl && matchVolume; }).sort((a, b) => b.score - a.score);
+        }
+
+        function completarPools(current, backup, target) {
+            const needed = target - current.length;
+            if (needed <= 0) return current;
+            const available = backup.filter(p => !current.includes(p));
+            return [...current, ...available.slice(0, needed)];
+        }
+
+        function garantirMinimo(pools, min = 5) {
+            if (pools.length >= min) return { pools, level: 1 };
+            const relaxadas = allPools.filter(p => p.category === pools[0]?.category && p.tvl >= 10000 && p.volume24h >= 2000).sort((a, b) => b.score - a.score);
+            const completadas = completarPools(pools, relaxadas, min);
+            if (completadas.length >= min) return { pools: completadas, level: 2 };
+            const semFiltro = allPools.filter(p => p.category === pools[0]?.category).sort((a, b) => b.score - a.score);
+            const finais = completarPools(completadas, semFiltro, min);
+            return { pools: finais.slice(0, min), level: 3 };
+        }
+
+        function selectTop5(category) {
+            const categoryPools = allPools.filter(p => p.category === category);
+            let selecionadas = filtrarEPriorizar(categoryPools, { minTvl: 50000, minVolume: 10000 });
+            const resultado = garantirMinimo(selecionadas, 5);
+            selecionadas = resultado.pools;
+
+            const highRisk = selecionadas.filter(p => p.riskLevel === 'high').sort((a, b) => b.score - a.score);
+            const mediumRisk = selecionadas.filter(p => p.riskLevel === 'medium').sort((a, b) => b.score - a.score);
+            const lowRisk = selecionadas.filter(p => p.riskLevel === 'low').sort((a, b) => b.score - a.score);
+            const final = [];
+            
+            if (highRisk.length > 0) final.push(highRisk[0]);
+            mediumRisk.slice(0, 2).forEach(p => final.push(p));
+            lowRisk.slice(0, 2).forEach(p => final.push(p));
+            
+            if (final.length < 5) {
+                const restantes = selecionadas.filter(p => !final.includes(p)).sort((a, b) => { const avgAPR = final.reduce((sum, p) => sum + p.apr, 0) / final.length; return Math.abs(a.apr - avgAPR) - Math.abs(b.apr - avgAPR); });
+                while (final.length < 5 && restantes.length > 0) final.push(restantes.shift());
+            }
+            return { pools: final.slice(0, 5).sort((a, b) => b.apr - a.apr), fallbackLevel: resultado.level };
+        }
+
+        function updateCategories() {
+            const categories = {
+                bluechip: { id: 'bluechipList', badge: 'badge-bluechip', name: 'Blue-Chip' },
+                stable: { id: 'stableList', badge: 'badge-stable', name: 'Stable' },
+                rwa: { id: 'rwaList', badge: 'badge-rwa', name: 'RWA' },
+                real: { id: 'realList', badge: 'badge-real', name: 'Real' },
+                stocks: { id: 'stocksList', badge: 'badge-stocks', name: 'Stocks' },
+                trending: { id: 'trendingList', badge: 'badge-trending', name: 'Trending' }
+            };
+
+            Object.keys(categories).forEach(cat => {
+                const result = selectTop5(cat);
+                const container = document.getElementById(categories[cat].id);
+                const badge = document.getElementById(categories[cat].badge);
+                
+                if (result.fallbackLevel === 2) { badge.textContent = '⚠️ Filtros Relaxados'; badge.style.display = 'inline'; }
+                else if (result.fallbackLevel === 3) { badge.textContent = '🔥 Top Score'; badge.style.display = 'inline'; }
+                else { badge.style.display = 'none'; }
+                
+                container.innerHTML = result.pools.map(pool => `
+                    <a href="${pool.url}" target="_blank" class="pool-item ${pool.riskClass}">
+                        <div class="pool-pair">
+                            <div class="risk-indicator"><div class="risk-dot ${pool.riskLevel}"></div><span>${pool.pair}</span></div>
+                            <span class="pool-protocol">${pool.dex} • ${pool.network}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="pool-apr">${pool.apr.toFixed(1)}%</span>
+                            <span class="pool-link-icon">↗</span>
+                        </div>
+                    </a>
+                `).join('');
+            });
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('poolsTableBody');
+            if (filteredPools.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="13" style="text-align: center; padding: 40px; color: #94a3b8;">Nenhuma pool encontrada</td></tr>`;
+                return;
+            }
+            
+            if (currentSort.field) {
+                const dir = currentSort.direction === 'desc' ? -1 : 1;
+                filteredPools.sort((a, b) => {
+                    let valA = a[currentSort.field];
+                    let valB = b[currentSort.field];
+                    
+                    if (typeof valA === 'string') {
+                        return valA.localeCompare(valB) * dir;
+                    }
+                    return (valA - valB) * dir;
+                });
+            }
+
+            tbody.innerHTML = filteredPools.map(pool => `
+                <tr>
+                    <td><a href="${pool.url}" target="_blank" class="pool-link-table">${pool.pair}<span>↗</span></a></td>
+                    <td><span class="network-badge network-${pool.network}">${pool.network}</span></td>
+                    <td><span class="dex-badge">${pool.dex}</span></td>
+                    <td>${formatMoney(pool.tvl)}</td>
+                    <td><div class="ratio-bar"><div class="ratio-visual"><div class="ratio-fill" style="width: ${pool.ratio}%"></div></div><span>${pool.ratio}/${100-pool.ratio}</span></div></td>
+                    <td>${formatMoney(pool.volume24h)}</td>
+                    <td style="color: #10b981; font-weight: 700;">${pool.apr.toFixed(1)}%</td>
+                    <td class="${pool.change1h >= 0 ? 'positive' : 'negative'}">${pool.change1h >= 0 ? '▲' : '▼'} ${Math.abs(pool.change1h).toFixed(2)}%</td>
+                    <td class="${pool.change6h >= 0 ? 'positive' : 'negative'}">${pool.change6h >= 0 ? '▲' : '▼'} ${Math.abs(pool.change6h).toFixed(2)}%</td>
+                    <td style="font-weight: 600;">${pool.score}</td>
+                    <td><span class="network-badge" style="background: ${pool.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.15)' : pool.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${pool.riskLevel === 'high' ? '#ef4444' : pool.riskLevel === 'medium' ? '#f59e0b' : '#10b981'};">${pool.riskLabel}</span></td>
+                    <td><span class="age-badge ${pool.age > 30 ? 'stable' : pool.age > 7 ? 'recent' : 'new'}">${formatAge(pool.age)}</span></td>
+                    <td><button class="btn-action" onclick="window.open('${pool.url}', '_blank')">Abrir Pool ↗</button></td>
+                </tr>
+            `).join('');
+            document.getElementById('totalPools').textContent = filteredPools.length;
+            updateSortHeaders();
+        }
+
+        function setupTableSorting() {
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', () => {
+                    const field = th.dataset.sort;
+                    
+                    if (currentSort.field === field) {
+                        currentSort.direction = currentSort.direction === 'desc' ? 'asc' : 'desc';
+                    } else {
+                        currentSort.field = field;
+                        currentSort.direction = 'desc';
+                    }
+                    
+                    updateTable();
+                    updateURLParams();
+                });
+            });
+        }
+
+        function updateSortHeaders() {
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.sort === currentSort.field) {
+                    th.classList.add(currentSort.direction === 'desc' ? 'sort-desc' : 'sort-asc');
+                }
+            });
+        }
+
+        function formatAge(days) {
+            if (!days) return '--';
+            if (days < 7) return `${days}d New`;
+            if (days < 30) return `${days}d`;
+            return `${Math.floor(days / 30)}m`;
+        }
+
+        function updateStats() {
+            const totalTvl = filteredPools.reduce((sum, p) => sum + p.tvl, 0);
+            const totalVolume = filteredPools.reduce((sum, p) => sum + p.volume24h, 0);
+            const avgApr = filteredPools.length > 0 ? filteredPools.reduce((sum, p) => sum + p.apr, 0) / filteredPools.length : 0;
+            const safePools = filteredPools.filter(p => p.riskLevel === 'low').length;
+
+            document.getElementById('totalTvl').textContent = formatMoney(totalTvl);
+            document.getElementById('totalVolume').textContent = formatMoney(totalVolume);
+            document.getElementById('avgApr').textContent = avgApr.toFixed(1) + '%';
+            document.getElementById('safePools').textContent = safePools;
+        }
+
+        function startAutoUpdate() {
+            if (updateInterval) clearInterval(updateInterval);
+            updateInterval = setInterval(() => { fetchPools(); }, CONFIG.updateInterval);
+            resetCountdown();
+        }
+
+        function resetCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            let secondsLeft = 15 * 60;
+            countdownInterval = setInterval(() => {
+                secondsLeft--;
+                const minutes = Math.floor(secondsLeft / 60);
+                const seconds = secondsLeft % 60;
+                document.getElementById('nextUpdate').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                if (secondsLeft <= 0) secondsLeft = 15 * 60;
+            }, 1000);
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('pt-BR');
+        }
+
+        function manualUpdate() { fetchPools(); }
+
+        function applyFilters() {
+            const minApr = parseFloat(document.getElementById('minApr').value) || 0;
+            const minVolume = parseFloat(document.getElementById('minVolume').value) || 0;
+            const minTvl = parseFloat(document.getElementById('minTvl').value) || 0;
+            const network = document.getElementById('networkFilter').value;
+            const dex = document.getElementById('dexFilter').value;
+            const risk = document.getElementById('riskFilter').value;
+
+            filteredPools = allPools.filter(pool => {
+                return pool.apr >= minApr && pool.volume24h >= minVolume && pool.tvl >= minTvl &&
+                       (!network || pool.network === network) && 
+                       (!dex || pool.dex === dex) && 
+                       (!risk || pool.riskLevel === risk);
+            });
+            updateTable(); 
+            updateStats();
+            updateURLParams();
+        }
+
+        function resetFilters() {
+            document.getElementById('minApr').value = ''; 
+            document.getElementById('minVolume').value = '';
+            document.getElementById('minTvl').value = ''; 
+            document.getElementById('networkFilter').value = '';
+            document.getElementById('dexFilter').value = '';
+            document.getElementById('riskFilter').value = '';
+            filteredPools = [...allPools]; 
+            updateTable(); 
+            updateStats();
+            updateURLParams();
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.mode-btn').classList.add('active');
+
+            if (mode === 'highapr') filteredPools = [...allPools].sort((a, b) => b.apr - a.apr);
+            else if (mode === 'auto') filteredPools = [...allPools].sort((a, b) => b.score - a.score);
+            else filteredPools = [...allPools];
+            
+            updateTable();
+        }
+
+        function formatMoney(value) {
+            if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+            if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
+            if (value >= 1e3) return `$${(value / 1e3).toFixed(2)}K`;
+            return `$${value.toFixed(2)}`;
+        }
+
         async function fetchPools() {
             try {
                 const mockData = generateMockData();
@@ -2615,7 +3180,6 @@
             }
         }
 
-        // Inicializar Fuse.js
         function initFuseSearch() {
             const fuseData = allPools.map(pool => ({
                 pair: pool.pair, baseToken: pool.baseToken, quoteToken: pool.quoteToken,
@@ -2636,10 +3200,9 @@
             });
         }
 
-        // Gerar dados mockados principais
         function generateMockData() {
             const networks = ['solana', 'ethereum', 'base', 'bsc', 'arbitrum'];
-            const dexes = ['Raydium', 'Uniswap V3', 'PancakeSwap', 'Aerodrome', 'Camelot'];
+            const dexes = ['Raydium', 'Uniswap V3', 'PancakeSwap', 'Aerodrome', 'Camelot', 'Curve', 'Jupiter'];
             const pools = [];
 
             Object.keys(CONFIG.categories).forEach(category => {
@@ -2655,34 +3218,42 @@
                     const network = networks[Math.floor(Math.random() * networks.length)];
                     const dex = dexes[Math.floor(Math.random() * dexes.length)];
                     const url = buildDEXUrl(network, dex, pairConfig.base, pairConfig.quote);
+                    const age = Math.floor(Math.random() * 365) + 1;
 
                     pools.push({
                         pair: pairConfig.pair, baseToken: pairConfig.base, quoteToken: pairConfig.quote,
                         category: category, network: network, dex: dex, tvl: tvl, volume24h: volume,
                         apr: apr, change1h: (Math.random() - 0.5) * 5, change6h: (Math.random() - 0.5) * 15,
-                        ratio: Math.floor(Math.random() * 40 + 30), url: url
+                        ratio: Math.floor(Math.random() * 40 + 30), url: url, age: age
                     });
                 });
             });
             return pools;
         }
 
-        // Construir URL da DEX
         function buildDEXUrl(network, dex, token0, token1) {
             const address0 = TOKEN_ADDRESSES[token0] || token0;
             const address1 = TOKEN_ADDRESSES[token1] || token1;
             const urls = {
-                solana: { 'Raydium': `https://raydium.io/swap/?inputCurrency=${address0}&outputCurrency=${address1}`, 'Jupiter': `https://jup.ag/swap/${token0}-${token1}` },
-                ethereum: { 'Uniswap V3': `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}` },
+                solana: { 
+                    'Raydium': `https://raydium.io/swap/?inputCurrency=${address0}&outputCurrency=${address1}`, 
+                    'Jupiter': `https://jup.ag/swap/${token0}-${token1}` 
+                },
+                ethereum: { 
+                    'Uniswap V3': `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
+                    'Curve': `https://curve.fi/#/ethereum/pools`
+                },
                 base: { 'Aerodrome': `https://aerodrome.finance/swap?inputCurrency=${address0}&outputCurrency=${address1}` },
-                bsc: { 'PancakeSwap': `https://pancakeswap.finance/swap?inputCurrency=${address0}&outputCurrency=${address1}` },
+                bsc: { 
+                    'PancakeSwap': `https://pancakeswap.finance/swap?inputCurrency=${address0}&outputCurrency=${address1}`,
+                    'Jupiter': `https://pancakeswap.finance/swap` 
+                },
                 arbitrum: { 'Camelot': `https://app.camelot.exchange/swap?inputCurrency=${address0}&outputCurrency=${address1}` }
             };
             const networkUrls = urls[network];
             return (networkUrls && networkUrls[dex]) ? networkUrls[dex] : `https://app.uniswap.org/#/swap?inputCurrency=${address0}&outputCurrency=${address1}`;
         }
 
-        // Calcular score
         function calculateScore(pool) {
             const efficiency = pool.volume24h / pool.tvl;
             const liquidityScore = pool.tvl > 1000000 ? 100 : pool.tvl / 10000;
@@ -2776,12 +3347,10 @@
 
             const combined = [...stablecoins2026, ...acoesAmericanas, ...brlReais, ...cryptoMajors, ...ouroMetais, ...petroleoEnergia];
             return combined.map((p, i) => {
-                // Gerar score visual
                 const profitStars = p.apr > 80 ? 5 : p.apr > 50 ? 4 : p.apr > 30 ? 3 : p.apr > 15 ? 2 : 1;
                 const riskStars = p.risk === 'low' ? 1 : p.risk === 'medium' ? 2 : 4;
                 const liqStars = p.tvl > 200000000 ? 5 : p.tvl > 100000000 ? 4 : p.tvl > 50000000 ? 3 : p.tvl > 10000000 ? 2 : 1;
                 
-                // Gerar urgência
                 const aprChange = (Math.random() - 0.3) * 20;
                 let urgencyType = 'up';
                 let urgencyText = '';
@@ -2790,7 +3359,6 @@
                 else if (aprChange < -5) { urgencyType = 'down'; urgencyText = `📉 ${aprChange.toFixed(0)}% hoje`; }
                 else { urgencyType = 'new'; urgencyText = '⏱️ Atualizado'; }
                 
-                // Tempo desde atualização (simulado)
                 const minsAgo = Math.floor(Math.random() * 120) + 5;
 
                 return {
@@ -2811,7 +3379,6 @@
             });
         }
 
-        // Funções de Filtro da Aba Oportunidades
         function filterByCategory(category) {
             currentCategoryFilter = category;
             updateFilterChips('category', category);
@@ -2872,7 +3439,6 @@
         function applyOpportunityFilters() {
             let filtered = [...oportunidadesPools];
             
-            // Filtros de categoria, rede, protocolo
             if (currentCategoryFilter !== 'all') {
                 filtered = filtered.filter(p => p.category === currentCategoryFilter);
             }
@@ -2883,7 +3449,6 @@
                 filtered = filtered.filter(p => p.protocol === currentProtocolFilter);
             }
 
-            // Filtros rápidos toggle
             if (quickFilters['high-apr']) {
                 filtered = filtered.filter(p => p.apr > 50);
             }
@@ -2898,14 +3463,11 @@
                 filtered = filtered.filter(p => networks.size > 1);
             }
             
-            // Ordenar por TVL e APR combinados
             const sorted = filtered.sort((a, b) => (b.tvl + b.apr) - (a.tvl + a.apr));
             renderFilteredOpportunitiesTable(sorted);
             
-            // Atualizar stats com base nos filtros
             updateOpportunityStats(filtered);
             
-            // Atualizar contador de pools visíveis
             document.getElementById('totalPoolsOp').textContent = filtered.length;
         }
 
@@ -2926,7 +3488,6 @@
             document.getElementById('totalPoolsOp').textContent = '50';
         }
 
-        // Renderizar Score Visual com Estrelas
         function renderStars(count, total = 5) {
             let html = '';
             for (let i = 0; i < total; i++) {
@@ -2935,7 +3496,6 @@
             return html;
         }
 
-        // Renderizar Tabela com Score Visual e Curação
         function renderFilteredOpportunitiesTable(pools) {
             const tbody = document.getElementById('oportunidadesTableBody');
             
@@ -3068,7 +3628,6 @@
             setTimeout(() => { notif.style.opacity = '0'; setTimeout(() => notif.remove(), 300); }, 2500);
         }
 
-        // Simulador
         function updateSimulator() {
             const amount = parseFloat(document.getElementById('simulatorInput').value) || 0;
             const avgApr = oportunidadesPools.length > 0 ? oportunidadesPools.reduce((sum, p) => sum + p.apr, 0) / oportunidadesPools.length : 0;
@@ -3080,7 +3639,6 @@
             document.getElementById('simulatorResultYear').textContent = `$${yearlyReturn.toFixed(2)}`;
         }
 
-        // Estratégia
         function renderStrategy() {
             const strategy = [
                 { name: 'apxUSD/USDC (Curve)', pct: 30, apr: 92.5 },
@@ -3105,7 +3663,6 @@
             `).join('');
         }
 
-        // Top da Semana
         function renderTopOfWeek() {
             if (oportunidadesPools.length === 0) return;
             
@@ -3136,7 +3693,6 @@
             `;
         }
 
-        // Categorias Inteligentes
         function renderSmartCategories() {
             const categories = [
                 {
@@ -3209,7 +3765,6 @@
             `).join('');
         }
 
-        // Funções de ação CTA
         function showPoolStrategy(pair) {
             const pool = oportunidadesPools.find(p => p.pair === pair);
             if (pool) {
@@ -3220,8 +3775,6 @@
         function showStrategyDetail() {
             showNotification('📊 Setup: 40% apxUSD/USDC + 30% stable + 30% BTC/USD hedge');
         }
-
-        // ==================== SISTEMA DE BUSCA PROFISSIONAL (Existente) ====================
 
         function showAutocomplete(query) {
             const dropdown = document.getElementById('autocompleteDropdown');
@@ -3284,294 +3837,6 @@
                 document.getElementById('searchIcon').classList.remove('active');
                 renderSearchResults(results, query);
             }, 200);
-        }
-
-        function applyTagFilter(tag) {
-            let pools = [...allPools];
-            switch(tag) {
-                case 'high apr': pools = pools.filter(p => p.apr > 200).sort((a, b) => b.apr - a.apr); break;
-                case 'baixo risco': case 'low risk': pools = pools.filter(p => p.riskLevel === 'low').sort((a, b) => b.apr - a.apr); break;
-                case 'solana': pools = pools.filter(p => p.network === 'solana').sort((a, b) => b.apr - a.apr); break;
-                case 'bluechip': pools = pools.filter(p => p.category === 'bluechip').sort((a, b) => b.apr - a.apr); break;
-                case 'stable': pools = pools.filter(p => p.category === 'stable').sort((a, b) => b.apr - a.apr); break;
-                case 'rwa': pools = pools.filter(p => p.category === 'rwa').sort((a, b) => b.apr - a.apr); break;
-                case 'trending': pools = pools.filter(p => p.category === 'trending').sort((a, b) => b.apr - a.apr); break;
-                case 'eth': pools = pools.filter(p => p.network === 'ethereum' || p.baseToken === 'ETH' || p.quoteToken === 'ETH').sort((a, b) => b.apr - a.apr); break;
-                case 'btc': pools = pools.filter(p => p.baseToken === 'BTC' || p.quoteToken === 'BTC').sort((a, b) => b.apr - a.apr); break;
-                default: pools = pools.filter(p => p.apr > 200).sort((a, b) => b.apr - a.apr);
-            }
-            return pools.map(p => ({ ...p, fuseScore: 0, relevance: 1 }));
-        }
-
-        function renderSearchResults(results, query) {
-            const resultsContainer = document.getElementById('searchResults');
-            const resultsGrid = document.getElementById('resultsGrid');
-            const searchTermDisplay = document.getElementById('searchTermDisplay');
-            const resultsCount = document.getElementById('searchResultsCount');
-
-            searchTermDisplay.textContent = query;
-            resultsCount.textContent = `${results.length} encontrado${results.length !== 1 ? 's' : ''}`;
-
-            if (results.length === 0) {
-                resultsGrid.innerHTML = `<div class="no-results" style="grid-column: 1 / -1;"><div class="no-results-icon">🔍</div><div class="no-results-text">Nenhum par encontrado para "${query}"</div><div class="no-results-sub">Tente buscar por: nome do par, token, DEX ou rede</div></div>`;
-            } else {
-                resultsGrid.innerHTML = results.map(pool => {
-                    const relevancePercent = Math.max(10, Math.round((pool.relevance || 0.5) * 100));
-                    return `
-                        <div class="result-card risk-${pool.riskLevel}" onclick="window.open('${pool.url}', '_blank')">
-                            <div class="result-card-top">
-                                <div class="result-pair">${highlightText(pool.pair, query)}</div>
-                                <div class="result-apr-badge">${pool.apr.toFixed(1)}%</div>
-                            </div>
-                            <div class="result-card-middle">
-                                <span class="result-badge network-${pool.network}">${highlightText(pool.network, query)}</span>
-                                <span class="result-badge dex">${highlightText(pool.dex, query)}</span>
-                                <span class="result-badge risk-${pool.riskLevel}">${pool.riskLabel}</span>
-                            </div>
-                            <div class="result-card-bottom">
-                                <div class="result-tvl">TVL: <span>${formatMoney(pool.tvl)}</span></div>
-                                <div class="result-relevance"><div class="relevance-bar"><div class="relevance-fill" style="width: ${relevancePercent}%"></div></div>${relevancePercent}% match</div>
-                                <button class="result-action-btn" onclick="event.stopPropagation(); window.open('${pool.url}', '_blank')">Abrir na DEX ↗</button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-            resultsContainer.classList.add('active');
-        }
-
-        function quickSearch(query) {
-            document.getElementById('searchInput').value = query;
-            document.getElementById('searchClearBtn').classList.add('visible');
-            hideAutocomplete();
-            performSearch(query);
-        }
-
-        function clearSearch() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchClearBtn').classList.remove('visible');
-            hideSearchResults();
-            hideAutocomplete();
-            document.getElementById('popularSection').style.display = '';
-            document.getElementById('quickTags').style.display = '';
-        }
-
-        function hideSearchResults() {
-            document.getElementById('searchResults').classList.remove('active');
-            document.getElementById('searchLoading').classList.remove('visible');
-            document.getElementById('popularSection').style.display = '';
-            document.getElementById('quickTags').style.display = '';
-        }
-
-        function addToHistory(query) {
-            searchHistory = searchHistory.filter(h => h !== query);
-            searchHistory.unshift(query);
-            if (searchHistory.length > 10) searchHistory.pop();
-            try { localStorage.setItem('defiSearchHistory', JSON.stringify(searchHistory)); } catch(e) {}
-        }
-
-        function loadSearchHistory() {
-            try { const saved = localStorage.getItem('defiSearchHistory'); if (saved) searchHistory = JSON.parse(saved); } catch(e) {}
-        }
-
-        function updatePopularSearches(query) {
-            const popularList = document.getElementById('popularList');
-            const currentItems = Array.from(popularList.querySelectorAll('.popular-item')).map(el => el.textContent.trim());
-            if (!currentItems.includes(query) && query.length > 1) {
-                const newItem = document.createElement('span');
-                newItem.className = 'popular-item';
-                newItem.textContent = query;
-                newItem.onclick = () => quickSearch(query);
-                popularList.insertBefore(newItem, popularList.firstChild);
-                while (popularList.children.length > 6) popularList.removeChild(popularList.lastChild);
-            }
-        }
-
-        // ==================== SISTEMA DE CATEGORIAS (mantido) ====================
-
-        function filtrarEPriorizar(pools, filters) {
-            return pools.filter(p => { const matchTvl = p.tvl >= filters.minTvl; const matchVolume = p.volume24h >= filters.minVolume; return matchTvl && matchVolume; }).sort((a, b) => b.score - a.score);
-        }
-
-        function completarPools(current, backup, target) {
-            const needed = target - current.length;
-            if (needed <= 0) return current;
-            const available = backup.filter(p => !current.includes(p));
-            return [...current, ...available.slice(0, needed)];
-        }
-
-        function garantirMinimo(pools, min = 5) {
-            if (pools.length >= min) return { pools, level: 1 };
-            const relaxadas = allPools.filter(p => p.category === pools[0]?.category && p.tvl >= 10000 && p.volume24h >= 2000).sort((a, b) => b.score - a.score);
-            const completadas = completarPools(pools, relaxadas, min);
-            if (completadas.length >= min) return { pools: completadas, level: 2 };
-            const semFiltro = allPools.filter(p => p.category === pools[0]?.category).sort((a, b) => b.score - a.score);
-            const finais = completarPools(completadas, semFiltro, min);
-            return { pools: finais.slice(0, min), level: 3 };
-        }
-
-        function selectTop5(category) {
-            const categoryPools = allPools.filter(p => p.category === category);
-            let selecionadas = filtrarEPriorizar(categoryPools, { minTvl: 50000, minVolume: 10000 });
-            const resultado = garantirMinimo(selecionadas, 5);
-            selecionadas = resultado.pools;
-
-            const highRisk = selecionadas.filter(p => p.riskLevel === 'high').sort((a, b) => b.score - a.score);
-            const mediumRisk = selecionadas.filter(p => p.riskLevel === 'medium').sort((a, b) => b.score - a.score);
-            const lowRisk = selecionadas.filter(p => p.riskLevel === 'low').sort((a, b) => b.score - a.score);
-            const final = [];
-            
-            if (highRisk.length > 0) final.push(highRisk[0]);
-            mediumRisk.slice(0, 2).forEach(p => final.push(p));
-            lowRisk.slice(0, 2).forEach(p => final.push(p));
-            
-            if (final.length < 5) {
-                const restantes = selecionadas.filter(p => !final.includes(p)).sort((a, b) => { const avgAPR = final.reduce((sum, p) => sum + p.apr, 0) / final.length; return Math.abs(a.apr - avgAPR) - Math.abs(b.apr - avgAPR); });
-                while (final.length < 5 && restantes.length > 0) final.push(restantes.shift());
-            }
-            return { pools: final.slice(0, 5).sort((a, b) => b.apr - a.apr), fallbackLevel: resultado.level };
-        }
-
-        function updateCategories() {
-            const categories = {
-                bluechip: { id: 'bluechipList', badge: 'badge-bluechip', name: 'Blue-Chip' },
-                stable: { id: 'stableList', badge: 'badge-stable', name: 'Stable' },
-                rwa: { id: 'rwaList', badge: 'badge-rwa', name: 'RWA' },
-                real: { id: 'realList', badge: 'badge-real', name: 'Real' },
-                stocks: { id: 'stocksList', badge: 'badge-stocks', name: 'Stocks' },
-                trending: { id: 'trendingList', badge: 'badge-trending', name: 'Trending' }
-            };
-
-            Object.keys(categories).forEach(cat => {
-                const result = selectTop5(cat);
-                const container = document.getElementById(categories[cat].id);
-                const badge = document.getElementById(categories[cat].badge);
-                
-                if (result.fallbackLevel === 2) { badge.textContent = '⚠️ Filtros Relaxados'; badge.style.display = 'inline'; }
-                else if (result.fallbackLevel === 3) { badge.textContent = '🔥 Top Score'; badge.style.display = 'inline'; }
-                else { badge.style.display = 'none'; }
-                
-                container.innerHTML = result.pools.map(pool => `
-                    <a href="${pool.url}" target="_blank" class="pool-item ${pool.riskClass}">
-                        <div class="pool-pair">
-                            <div class="risk-indicator"><div class="risk-dot ${pool.riskLevel}"></div><span>${pool.pair}</span></div>
-                            <span class="pool-protocol">${pool.dex} • ${pool.network}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="pool-apr">${pool.apr.toFixed(1)}%</span>
-                            <span class="pool-link-icon">↗</span>
-                        </div>
-                    </a>
-                `).join('');
-            });
-        }
-
-        // Atualizar tabela principal
-        function updateTable() {
-            const tbody = document.getElementById('poolsTableBody');
-            if (filteredPools.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 40px; color: #94a3b8;">Nenhuma pool encontrada</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = filteredPools.map(pool => `
-                <tr>
-                    <td><a href="${pool.url}" target="_blank" class="pool-link-table">${pool.pair}<span>↗</span></a></td>
-                    <td><span class="network-badge network-${pool.network}">${pool.network}</span></td>
-                    <td><span class="dex-badge">${pool.dex}</span></td>
-                    <td>${formatMoney(pool.tvl)}</td>
-                    <td><div class="ratio-bar"><div class="ratio-visual"><div class="ratio-fill" style="width: ${pool.ratio}%"></div></div><span>${pool.ratio}/${100-pool.ratio}</span></div></td>
-                    <td>${formatMoney(pool.volume24h)}</td>
-                    <td style="color: #10b981; font-weight: 700;">${pool.apr.toFixed(1)}%</td>
-                    <td class="${pool.change1h >= 0 ? 'positive' : 'negative'}">${pool.change1h >= 0 ? '▲' : '▼'} ${Math.abs(pool.change1h).toFixed(2)}%</td>
-                    <td class="${pool.change6h >= 0 ? 'positive' : 'negative'}">${pool.change6h >= 0 ? '▲' : '▼'} ${Math.abs(pool.change6h).toFixed(2)}%</td>
-                    <td style="font-weight: 600;">${pool.score}</td>
-                    <td><span class="network-badge" style="background: ${pool.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.15)' : pool.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${pool.riskLevel === 'high' ? '#ef4444' : pool.riskLevel === 'medium' ? '#f59e0b' : '#10b981'};">${pool.riskLabel}</span></td>
-                    <td><button class="btn-action" onclick="window.open('${pool.url}', '_blank')">Abrir Pool ↗</button></td>
-                </tr>
-            `).join('');
-            document.getElementById('totalPools').textContent = filteredPools.length;
-        }
-
-        // Atualizar estatísticas principais
-        function updateStats() {
-            const totalTvl = filteredPools.reduce((sum, p) => sum + p.tvl, 0);
-            const totalVolume = filteredPools.reduce((sum, p) => sum + p.volume24h, 0);
-            const avgApr = filteredPools.length > 0 ? filteredPools.reduce((sum, p) => sum + p.apr, 0) / filteredPools.length : 0;
-            const safePools = filteredPools.filter(p => p.riskLevel === 'low').length;
-
-            document.getElementById('totalTvl').textContent = formatMoney(totalTvl);
-            document.getElementById('totalVolume').textContent = formatMoney(totalVolume);
-            document.getElementById('avgApr').textContent = avgApr.toFixed(1) + '%';
-            document.getElementById('safePools').textContent = safePools;
-        }
-
-        // Atualização automática principal
-        function startAutoUpdate() {
-            if (updateInterval) clearInterval(updateInterval);
-            updateInterval = setInterval(() => { fetchPools(); }, CONFIG.updateInterval);
-            resetCountdown();
-        }
-
-        function resetCountdown() {
-            if (countdownInterval) clearInterval(countdownInterval);
-            let secondsLeft = 15 * 60;
-            countdownInterval = setInterval(() => {
-                secondsLeft--;
-                const minutes = Math.floor(secondsLeft / 60);
-                const seconds = secondsLeft % 60;
-                document.getElementById('nextUpdate').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                if (secondsLeft <= 0) secondsLeft = 15 * 60;
-            }, 1000);
-        }
-
-        function updateTimestamp() {
-            const now = new Date();
-            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('pt-BR');
-        }
-
-        function manualUpdate() { fetchPools(); }
-
-        // Filtros principais
-        function applyFilters() {
-            const minApr = parseFloat(document.getElementById('minApr').value) || 0;
-            const minVolume = parseFloat(document.getElementById('minVolume').value) || 0;
-            const minTvl = parseFloat(document.getElementById('minTvl').value) || 0;
-            const network = document.getElementById('networkFilter').value;
-            const risk = document.getElementById('riskFilter').value;
-
-            filteredPools = allPools.filter(pool => {
-                return pool.apr >= minApr && pool.volume24h >= minVolume && pool.tvl >= minTvl &&
-                       (!network || pool.network === network) && (!risk || pool.riskLevel === risk);
-            });
-            updateTable(); updateStats();
-        }
-
-        function resetFilters() {
-            document.getElementById('minApr').value = ''; document.getElementById('minVolume').value = '';
-            document.getElementById('minTvl').value = ''; document.getElementById('networkFilter').value = '';
-            document.getElementById('riskFilter').value = '';
-            filteredPools = [...allPools]; updateTable(); updateStats();
-        }
-
-        // Modo de exibição principal
-        function setMode(mode) {
-            currentMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.closest('.mode-btn').classList.add('active');
-
-            if (mode === 'highapr') filteredPools = [...allPools].sort((a, b) => b.apr - a.apr);
-            else if (mode === 'auto') filteredPools = [...allPools].sort((a, b) => b.score - a.score);
-            else filteredPools = [...allPools];
-            
-            updateTable();
-        }
-
-        // Utilitários
-        function formatMoney(value) {
-            if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
-            if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
-            if (value >= 1e3) return `$${(value / 1e3).toFixed(2)}K`;
-            return `$${value.toFixed(2)}`;
         }
     </script>
 </body>
